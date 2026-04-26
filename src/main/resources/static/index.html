@@ -411,6 +411,31 @@ select.admin-form-input{cursor:pointer}
 .toast.inf{background:#fff;color:var(--t1);border:1px solid var(--bd)}
 .sp{width:16px;height:16px;border:2px solid rgba(0,0,0,.1);border-top-color:#888;border-radius:50%;animation:sp .6s linear infinite;display:inline-block;vertical-align:middle}
 @keyframes sp{to{transform:rotate(360deg)}}
+
+/* ─── PC/태블릿 반응형 ─── */
+@media(min-width:600px){
+  body{max-width:480px;margin:0 auto;padding-bottom:68px;box-shadow:0 0 30px rgba(0,0,0,.12)}
+  .hd{max-width:480px;left:50%;transform:translateX(-50%)}
+  .bnav{max-width:480px;left:50%;transform:translateX(-50%)}
+  .detail-page{max-width:480px;left:50%;transform:translateX(-50%) translateX(100%)}
+  .detail-page.on{transform:translateX(-50%) translateX(0)}
+  .notif-page{max-width:480px;left:50%;transform:translateX(-50%) translateX(100%)}
+  .notif-page.on{transform:translateX(-50%) translateX(0)}
+  .bs{max-width:480px;left:50%;transform:translateX(-50%) translateY(100%)}
+  .bs.on{transform:translateX(-50%) translateY(0)}
+  .bk{background:rgba(0,0,0,.6)}
+  .login-modal{max-width:480px}
+  .login-modal-bk{justify-content:center}
+  .logout-sheet{max-width:480px}
+  .pc-thumb{width:130px;height:130px}
+  .pc-thumb img{width:130px;height:130px}
+  .banner{padding:20px 24px}
+  .bn-title{font-size:18px}
+  .detail-img{height:280px}
+  .wish-grid{grid-template-columns:1fr 1fr 1fr}
+  .wish-card-img{height:120px}
+  .tw{max-width:480px}
+}
 </style>
 </head>
 <body>
@@ -823,10 +848,10 @@ async function doLogin() {
   closeLogin();
   toast(isAdmin() ? `🔧 관리자로 로그인했습니다` : `안녕하세요, ${uid}님! 👋`, 'ok');
 
-  // 찜 목록 로드
-  await loadWishes();
+  // 찜 목록 + 발급 여부 + 알림 로드
+  await Promise.all([loadWishes(), checkIssuedStatus()]);
   updateNotifBadge();
-  render();
+  render(); // 발급 상태 반영해서 다시 렌더
 
   if (loginCb) { const cb = loginCb; loginCb = null; cb(); }
 }
@@ -932,20 +957,52 @@ function clearSearch() { searchQ=''; document.getElementById('search-inp').value
 /* ══ 상품 목록 로드 (API) ══ */
 async function loadProducts() {
   const res = await GET('/api/products');
-  if (res.success) {
-    PRODS = res.data.map(p => ({
-      ...p,
-      // API 필드명 → 기존 변수명 매핑
-      name: p.productName, brand: p.brandName,
-      ori: p.originalPrice, dis: p.discountedPrice, rate: p.discountRate,
-      total: p.totalCount, remaining: p.remainingCount,
-      img: p.imageUrl, cat: p.category, badge: p.badge,
-      buyers: p.buyers, rating: p.rating, reviews: p.reviewCount,
-      desc: p.description, notice: p.notice,
-      timer: 86400
-    }));
-    renderHotRank(); renderRecent(); render();
-  }
+  if (!res.success) { toast('상품 목록을 불러오지 못했습니다.', 'err'); return; }
+  PRODS = res.data.map(p => ({
+    ...p,
+    name: p.productName, brand: p.brandName,
+    ori: p.originalPrice, dis: p.discountedPrice, rate: p.discountRate,
+    total: p.totalCount, remaining: p.remainingCount,
+    img: p.imageUrl, cat: p.category,
+    buyers: p.buyers||0, rating: p.rating||4.5, reviews: p.reviewCount||0,
+    desc: p.description, notice: p.notice,
+    timer: 86400, _issued: false
+  }));
+  if (uid) await Promise.all([checkIssuedStatus(), loadWishes()]);
+  renderHotRank(); renderRecent(); render();
+}
+
+// 내가 발급받은 쿠폰으로 _issued 플래그 업데이트
+async function checkIssuedStatus() {
+  const res = await GET(`/api/my/${uid}`);
+  if (!res.success) return;
+  PRODS.forEach(p => p._issued = false);
+  (res.data.coupons || []).forEach(c => {
+    if (c.productId) {
+      const p = PRODS.find(x => x.id === c.productId);
+      if (p) p._issued = true;
+    }
+  });
+}
+
+// 발급된 쿠폰으로 바로 결제
+async function openPayFromIssued(pid) {
+  requireLogin('결제', '로그인이 필요합니다', async () => {
+    const res = await GET(`/api/my/${uid}`);
+    if (!res.success) { toast('오류가 발생했습니다.', 'err'); return; }
+    const c = (res.data.coupons || []).find(c => c.productId === pid && c.status === 'ISSUED');
+    if (!c) { toast('사용 가능한 쿠폰이 없습니다.', 'err'); return; }
+    cur = {
+      productName: c.productName, brandName: c.brandName,
+      imageUrl: c.imageUrl, discountAmount: c.discountAmount,
+      discountedPrice: c.discountedPrice, originalPrice: c.originalPrice,
+      couponCode: c.couponCode, expiredAt: c.expiredAt,
+      name: c.productName, brand: c.brandName, img: c.imageUrl,
+      amt: c.discountAmount, dis: c.discountedPrice, ori: c.originalPrice,
+      exp: c.expiredAt, code: c.couponCode, pid
+    };
+    openPayS();
+  });
 }
 
 /* ══ 상품 타이머 ══ */
@@ -977,6 +1034,7 @@ function render() {
     : list.map(p => {
       const isWished = wishes.includes(p.id);
       const out = p.remaining <= 0;
+      const issued = p._issued || false;
       const pct = ((p.total-p.remaining)/p.total*100).toFixed(1);
       const low = p.remaining<=15 && !out;
       setTimeout(() => startProdTimer(p.id, p.timer||86400), 100);
@@ -1000,7 +1058,7 @@ function render() {
             </div>
             <div>
               <div class="pc-price-row"><span class="pc-rate">${p.rate}%</span><span class="pc-now">${p.dis.toLocaleString()}<small>원</small></span><span class="pc-ori">${p.ori.toLocaleString()}원</span></div>
-              <div class="pbar-row"><div class="pbar-track"><div class="pbar-fill${low||out?' crit':''}" style="width:${pct}%"></div></div><span class="pbar-rem ${out?'end':low?'low':'ok'}">${out?'마감':`잔여 ${p.remaining}`}</span></div>
+              <div class="pbar-row"><div class="pbar-track"><div class="pbar-fill${low||out?' crit':''}" style="width:${pct}%"></div></div><span class="pbar-rem ${out?'end':low?'low':'ok'}">${out?'마감':issued?'발급완료':`잔여 ${p.remaining}`}</span></div>
               ${!out?`<div style="margin-top:4px"><span class="pc-timer" id="pt-${p.id}">--:--:--</span></div>`:''}
             </div>
           </div>
@@ -1008,7 +1066,9 @@ function render() {
         <div class="pc-btn-wrap">
           ${out
             ? `<button class="btn-apply" disabled>선착순 마감</button>`
-            : `<button class="btn-apply" id="btn${p.id}" onclick="apply(${p.id})">바로 할인 받기</button>`}
+            : issued
+              ? `<button class="btn-apply" onclick="openPayFromIssued(${p.id})">🎫 쿠폰 사용하기</button>`
+              : `<button class="btn-apply" id="btn${p.id}" onclick="apply(${p.id})">바로 할인 받기</button>`}
         </div>
       </div>`;
     }).join('');
@@ -1125,13 +1185,32 @@ async function submitReview() {
 
 /* ══ 공유 ══ */
 function doShare(type) {
-  const p=PRODS.find(x=>x.id===curPid); if(!p) return; closeS(7);
-  const title=`[KB Pay 바로할인] ${p.name}`, text=`${p.rate}% 특가! ${p.dis.toLocaleString()}원`, url=window.location.href;
-  if (type==='kakao'||type==='insta') {
-    if (navigator.share) navigator.share({title,text,url}).then(()=>toast('공유되었습니다! 🎉','ok')).catch(()=>copyShare(title+'\n'+text+'\n'+url));
-    else { copyShare(title+'\n'+text+'\n'+url); toast('텍스트가 복사되었습니다. 카카오톡에 붙여넣기 하세요! 📋','inf'); }
-  } else if (type==='link') { copyShare(url); toast('링크가 복사되었습니다! 🔗','ok'); }
-  else if (type==='copy') { copyShare(title+'\n'+text); toast('텍스트가 복사되었습니다! 📋','ok'); }
+  const p = PRODS.find(x=>x.id===curPid); if(!p) return; closeS(7);
+  const title = `[KB Pay 바로할인] ${p.name}`;
+  const text  = `${p.rate}% 특가! ${p.dis.toLocaleString()}원 (정가 ${p.ori.toLocaleString()}원) 선착순 할인!`;
+  const url   = window.location.origin;
+
+  if (type === 'kakao' || type === 'insta') {
+    if (navigator.share) {
+      navigator.share({ title, text, url })
+        .then(() => toast('공유되었습니다! 🎉', 'ok'))
+        .catch(err => {
+          if (err.name !== 'AbortError') {
+            copyShare(title + '\n' + text + '\n' + url);
+            toast('텍스트가 복사되었습니다! 카카오톡에 붙여넣기 하세요 📋', 'inf');
+          }
+        });
+    } else {
+      copyShare(title + '\n' + text + '\n' + url);
+      toast('텍스트가 복사되었습니다! 카카오톡에 붙여넣기 하세요 📋', 'inf');
+    }
+  } else if (type === 'link') {
+    copyShare(url);
+    toast('링크가 복사되었습니다! 🔗', 'ok');
+  } else if (type === 'copy') {
+    copyShare(title + '\n' + text);
+    toast('텍스트가 복사되었습니다! 📋', 'ok');
+  }
 }
 function copyShare(text) { if(navigator.clipboard?.writeText) navigator.clipboard.writeText(text).catch(()=>legacyCopy(text)); else legacyCopy(text); }
 function legacyCopy(text) { const ta=document.createElement('textarea'); ta.value=text; ta.style.cssText='position:fixed;top:-9999px;opacity:0'; document.body.appendChild(ta); ta.focus(); ta.select(); try{document.execCommand('copy');}catch(e){} document.body.removeChild(ta); }
@@ -1144,21 +1223,60 @@ async function apply(pid) {
     const res = await POST('/api/coupons/apply', { userId:uid, productId:pid });
     if (res.success) {
       vibrate(VC);
-      // 상품 잔여수 업데이트
-      const p = PRODS.find(x=>x.id===pid); if(p) p.remaining--;
-      cur = { ...res.data, pid, name:res.data.productName, brand:res.data.brandName, img:res.data.imageUrl, amt:res.data.discountAmount, dis:res.data.discountedPrice, ori:res.data.originalPrice, exp:res.data.expiredAt, code:res.data.couponCode };
+      const p = PRODS.find(x=>x.id===pid);
+      if(p) { p.remaining = Math.max(0, p.remaining-1); p._issued = true; }
+      cur = {
+        productName: res.data.productName,
+        brandName:   res.data.brandName,
+        imageUrl:    res.data.imageUrl,
+        discountAmount:  res.data.discountAmount,
+        discountedPrice: res.data.discountedPrice,
+        originalPrice:   res.data.originalPrice,
+        couponCode:  res.data.couponCode,
+        expiredAt:   res.data.expiredAt,
+        // 단축키
+        name: res.data.productName, brand: res.data.brandName,
+        img:  res.data.imageUrl,    amt:   res.data.discountAmount,
+        dis:  res.data.discountedPrice, ori: res.data.originalPrice,
+        exp:  res.data.expiredAt,   code:  res.data.couponCode,
+        pid:  pid
+      };
       render();
-      if (curPid===pid) { const ab=document.getElementById('detail-apply-btn'); if(ab){ab.textContent='바로 할인 받기';ab.disabled=false;} }
       showR(true, { couponCode:res.data.couponCode, discountAmount:res.data.discountAmount, message:`${res.data.brandName} 할인 쿠폰 발급 완료!` });
     } else {
       if (btn) { btn.classList.remove('ld'); btn.disabled=false; btn.textContent='바로 할인 받기'; }
-      showR(false, { message: res.message });
+      showR(false, { message: res.message || '오류가 발생했습니다.' });
     }
   });
 }
 
 function useCouponFromList(code, couponData) {
-  cur = couponData; cur.code = code; openPayS();
+  // couponData가 문자열로 넘어오는 경우 파싱
+  if (typeof couponData === 'string') {
+    try { couponData = JSON.parse(couponData.replace(/'/g, '"')); } catch(e) {}
+  }
+  cur = { ...couponData, code, couponCode: code };
+  openPayS();
+}
+
+// 상품 카드에서 이미 발급된 쿠폰으로 결제 열기
+async function openPayFromIssued(pid) {
+  requireLogin('결제', '로그인이 필요합니다', async () => {
+    const res = await GET(`/api/my/${uid}`);
+    if (!res.success) { toast('오류가 발생했습니다.', 'err'); return; }
+    const c = (res.data.coupons || []).find(c => c.productId === pid && c.status === 'ISSUED');
+    if (!c) { toast('사용 가능한 쿠폰이 없습니다.', 'err'); return; }
+    cur = {
+      productName: c.productName, brandName: c.brandName,
+      imageUrl: c.imageUrl, discountAmount: c.discountAmount,
+      discountedPrice: c.discountedPrice, originalPrice: c.originalPrice,
+      couponCode: c.couponCode, expiredAt: c.expiredAt,
+      name: c.productName, brand: c.brandName, img: c.imageUrl,
+      amt: c.discountAmount, dis: c.discountedPrice, ori: c.originalPrice,
+      exp: c.expiredAt, code: c.couponCode, pid
+    };
+    openPayS();
+  });
 }
 
 function showR(ok, r) {
@@ -1182,23 +1300,27 @@ function openPayS() {
   usePoint = false;
   document.getElementById('pt-toggle').classList.remove('on');
   document.getElementById('pt-use-amt').style.display = 'none';
-  const bal = userInfo ? userInfo.pointBalance : 0;
+  const bal = userInfo ? (userInfo.pointBalance||0) : 0;
   document.getElementById('avail-pt-txt').textContent = `보유 ${bal.toLocaleString()}P`;
-  setTimeout(() => { document.getElementById('s2pname').textContent = cur.productName||cur.name; updatePayBox(); openS(2); }, 260);
+  const name = cur.productName || cur.name || '';
+  setTimeout(() => { document.getElementById('s2pname').textContent = name; updatePayBox(); openS(2); }, 260);
 }
 function togglePointUse() {
-  const bal = userInfo ? userInfo.pointBalance : 0;
+  const bal = userInfo ? (userInfo.pointBalance||0) : 0;
   if (bal < 100) { toast('포인트가 부족합니다 (최소 100P)','err'); return; }
   usePoint = !usePoint;
   document.getElementById('pt-toggle').classList.toggle('on', usePoint);
-  const ua = Math.min(bal, cur.discountedPrice||cur.dis);
+  const dis = cur.discountedPrice || cur.dis || 0;
+  const ua = Math.min(bal, dis);
   document.getElementById('pt-use-amt').style.display = usePoint?'inline':'none';
   document.getElementById('pt-use-amt').textContent = `-${ua.toLocaleString()}P`;
   updatePayBox();
 }
 function updatePayBox() {
-  const dis = cur.discountedPrice||cur.dis, ori = cur.originalPrice||cur.ori, amt = cur.discountAmount||cur.amt;
-  const bal = userInfo ? userInfo.pointBalance : 0;
+  const dis = cur.discountedPrice || cur.dis || 0;
+  const ori = cur.originalPrice  || cur.ori || 0;
+  const amt = cur.discountAmount  || cur.amt || 0;
+  const bal = userInfo ? (userInfo.pointBalance||0) : 0;
   const pa = usePoint ? Math.min(bal, dis) : 0;
   const fa = dis - pa;
   document.getElementById('paybox').innerHTML = `
@@ -1212,7 +1334,7 @@ async function finPay() {
   const btn=document.getElementById('btnfin');
   btn.innerHTML='<span class="sp"></span>&nbsp;처리 중...'; btn.disabled=true;
   vibrate(VT);
-  const res = await POST('/api/pay', { userId:uid, couponCode:cur.couponCode||cur.code, usePoint });
+  const res = await POST('/api/pay', { userId:uid, couponCode: cur.couponCode||cur.code, usePoint });
   if (res.success) {
     vibrate(VP);
     if (userInfo) { userInfo.pointBalance = (userInfo.pointBalance||0) - (res.data.pointUsed||0) + (res.data.pointEarned||0); sessionStorage.setItem('kbp_user', JSON.stringify(userInfo)); }
@@ -1243,7 +1365,8 @@ async function doCancel() {
   if (!cancelTarget) return;
   const btn=document.getElementById('btncancel');
   btn.innerHTML='<span class="sp"></span>&nbsp;처리 중...'; btn.disabled=true;
-  const res = await POST(`/api/pay/${cancelTarget}/cancel?userId=${uid}`);
+  // @RequestParam 이므로 URL에 userId 붙이기
+  const res = await api('POST', `/api/pay/${cancelTarget}/cancel?userId=${encodeURIComponent(uid)}`);
   if (res.success) {
     vibrate(VT);
     if (userInfo) { userInfo.pointBalance = (userInfo.pointBalance||0) - (res.data.pointEarned||0) + (res.data.pointUsed||0); sessionStorage.setItem('kbp_user', JSON.stringify(userInfo)); }
@@ -1513,9 +1636,8 @@ if(uid && userInfo){
 }
 
 renderCats();
-loadProducts();  // API에서 상품 로드
+loadProducts();  // 상품 로드 (로그인 상태면 발급 여부도 함께 체크)
 updateNotifBadge();
-if(uid) loadWishes();
 </script>
 </body>
 </html>
