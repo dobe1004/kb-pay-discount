@@ -1188,27 +1188,33 @@ function doShare(type) {
   const p = PRODS.find(x=>x.id===curPid); if(!p) return; closeS(7);
   const title = `[KB Pay 바로할인] ${p.name}`;
   const text  = `${p.rate}% 특가! ${p.dis.toLocaleString()}원 (정가 ${p.ori.toLocaleString()}원) 선착순 할인!`;
-  const url   = window.location.origin;
+  // 상품 ID를 URL에 포함 → 링크 클릭 시 해당 상품 바로 열림
+  const url = `${window.location.origin}${window.location.pathname}?pid=${curPid}`;
 
-  if (type === 'kakao' || type === 'insta') {
+  if (type === 'kakao') {
+    // 카카오톡: Web Share API → 폰 공유 메뉴에서 카카오톡 선택
     if (navigator.share) {
       navigator.share({ title, text, url })
-        .then(() => toast('공유되었습니다! 🎉', 'ok'))
+        .then(() => toast('카카오톡으로 공유하세요! 💬', 'ok'))
         .catch(err => {
           if (err.name !== 'AbortError') {
-            copyShare(title + '\n' + text + '\n' + url);
-            toast('텍스트가 복사되었습니다! 카카오톡에 붙여넣기 하세요 📋', 'inf');
+            copyShare(url);
+            toast('링크가 복사됐습니다! 카카오톡에 붙여넣기 하세요 📋', 'inf');
           }
         });
     } else {
-      copyShare(title + '\n' + text + '\n' + url);
-      toast('텍스트가 복사되었습니다! 카카오톡에 붙여넣기 하세요 📋', 'inf');
+      copyShare(url);
+      toast('링크가 복사됐습니다! 카카오톡에 붙여넣기 하세요 📋', 'inf');
     }
+  } else if (type === 'insta') {
+    // 인스타그램: 링크 복사 (인스타는 외부 링크 공유가 클립보드 방식)
+    copyShare(url);
+    toast('링크가 복사됐습니다! 인스타그램 스토리에 붙여넣기 하세요 📷', 'inf');
   } else if (type === 'link') {
     copyShare(url);
     toast('링크가 복사되었습니다! 🔗', 'ok');
   } else if (type === 'copy') {
-    copyShare(title + '\n' + text);
+    copyShare(title + '\n' + text + '\n' + url);
     toast('텍스트가 복사되었습니다! 📋', 'ok');
   }
 }
@@ -1636,7 +1642,21 @@ if(uid && userInfo){
 }
 
 renderCats();
-loadProducts();  // 상품 로드 (로그인 상태면 발급 여부도 함께 체크)
+// 상품 로드 완료 후 공유 링크 처리
+loadProducts().then(() => {
+  // 공유 링크로 들어온 경우 (?pid=숫자) 해당 상품 자동 열기
+  const params = new URLSearchParams(window.location.search);
+  const pidParam = params.get('pid');
+  if (pidParam) {
+    const pid = parseInt(pidParam);
+    const p = PRODS.find(x => x.id === pid);
+    if (p) {
+      // URL에서 pid 파라미터 제거 (뒤로가기 깔끔하게)
+      history.replaceState({tab:0}, '', window.location.pathname);
+      setTimeout(() => openDetail(pid), 300);
+    }
+  }
+});
 updateNotifBadge();
 </script>
 </body>
