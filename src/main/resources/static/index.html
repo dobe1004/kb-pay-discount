@@ -1191,47 +1191,57 @@ function doShare(type) {
   const title = `[KB Pay 바로할인] ${p.name}`;
   const text  = `${p.rate}% 특가! ${p.dis.toLocaleString()}원 (정가 ${p.ori.toLocaleString()}원) 선착순 할인!`;
   const url   = `${window.location.origin}${window.location.pathname}?pid=${curPid}`;
-  const full  = title + '\n' + text + '\n' + url;
 
   if (type === 'kakao') {
-    // 카카오톡 앱으로만 공유 — kakaolink 스킴 시도 후 클립보드 복사
-    const kakaoScheme = `kakaolink://send?text=${encodeURIComponent(full)}`;
-    const a = document.createElement('a');
-    a.href = kakaoScheme;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    // 앱 미설치 또는 PC 환경 대비 — 잠시 후 클립보드에도 복사
+    // 카카오톡 앱 스킴으로 설치 여부 확인
+    // iframe으로 시도 후 실패하면 미설치로 판단
+    let kakaoOpened = false;
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = `kakaolink://send?text=${encodeURIComponent(title + '\n' + text + '\n' + url)}`;
+    document.body.appendChild(iframe);
     setTimeout(() => {
-      copyShare(full);
-      toast('카카오톡이 열리지 않으면 복사된 텍스트를 카카오톡에 붙여넣기 하세요 💬', 'inf');
-    }, 1000);
+      document.body.removeChild(iframe);
+      if (!kakaoOpened) {
+        // 앱이 열렸는지 페이지 숨김 여부로 판단
+        if (document.hidden) {
+          kakaoOpened = true;
+          toast('카카오톡으로 공유했습니다! 💬', 'ok');
+        } else {
+          // 카카오톡 미설치 → 링크 복사
+          copyShare(url);
+          toast('카카오톡이 설치되지 않아 링크를 복사했습니다 📋', 'inf');
+        }
+      }
+    }, 1500);
 
   } else if (type === 'insta') {
-    // 인스타그램 앱 스킴 시도
-    const instaScheme = `instagram://library`;
-    const a = document.createElement('a');
-    a.href = instaScheme;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    // 인스타 미설치 시 — 폰 공유 메뉴로 대체
-    setTimeout(() => {
+    // 인스타그램 설치 여부 확인
+    const instaInstalled = /Instagram/.test(navigator.userAgent);
+    if (instaInstalled) {
+      // 인스타 설치됨 → 앱으로 공유
       if (navigator.share) {
         navigator.share({ title, text, url })
-          .catch(() => { copyShare(url); toast('링크가 복사됐습니다! 📋', 'inf'); });
-      } else {
-        copyShare(url);
-        toast('인스타그램이 없어 링크가 복사됐습니다! 📋', 'inf');
+          .then(() => toast('인스타그램으로 공유했습니다! 📷', 'ok'))
+          .catch(err => {
+            if (err.name !== 'AbortError') {
+              copyShare(url);
+              toast('링크가 복사됐습니다! 인스타그램에 붙여넣기 하세요 📷', 'inf');
+            }
+          });
       }
-    }, 1000);
+    } else {
+      // 인스타 미설치 → 링크 복사 + 안내 메시지
+      copyShare(url);
+      toast('인스타그램이 설치되지 않아 링크를 복사했습니다 📋', 'inf');
+    }
 
   } else if (type === 'link') {
     copyShare(url);
     toast('링크가 복사되었습니다! 🔗', 'ok');
 
   } else if (type === 'copy') {
-    copyShare(full);
+    copyShare(title + '\n' + text + '\n' + url);
     toast('텍스트가 복사되었습니다! 📋', 'ok');
   }
 }
