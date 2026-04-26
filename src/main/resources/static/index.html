@@ -1193,27 +1193,21 @@ function doShare(type) {
   const url   = `${window.location.origin}${window.location.pathname}?pid=${curPid}`;
 
   if (type === 'kakao') {
-    // 카카오톡 앱 스킴으로 설치 여부 확인
-    // iframe으로 시도 후 실패하면 미설치로 판단
-    let kakaoOpened = false;
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    iframe.src = `kakaolink://send?text=${encodeURIComponent(title + '\n' + text + '\n' + url)}`;
-    document.body.appendChild(iframe);
-    setTimeout(() => {
-      document.body.removeChild(iframe);
-      if (!kakaoOpened) {
-        // 앱이 열렸는지 페이지 숨김 여부로 판단
-        if (document.hidden) {
-          kakaoOpened = true;
-          toast('카카오톡으로 공유했습니다! 💬', 'ok');
-        } else {
-          // 카카오톡 미설치 → 링크 복사
-          copyShare(url);
-          toast('카카오톡이 설치되지 않아 링크를 복사했습니다 📋', 'inf');
-        }
-      }
-    }, 1500);
+    // Web Share API로 카카오톡 공유 (URL 포함)
+    if (navigator.share) {
+      navigator.share({ title, text, url })
+        .then(() => toast('카카오톡으로 공유했습니다! 💬', 'ok'))
+        .catch(err => {
+          if (err.name !== 'AbortError') {
+            copyShare(url);
+            toast('카카오톡이 설치되지 않아 링크를 복사했습니다 📋', 'inf');
+          }
+        });
+    } else {
+      // Web Share 미지원 환경 (PC 등)
+      copyShare(url);
+      toast('카카오톡이 설치되지 않아 링크를 복사했습니다 📋', 'inf');
+    }
 
   } else if (type === 'insta') {
     // 인스타그램 설치 여부 확인
