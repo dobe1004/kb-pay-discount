@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<title>KB Pay · 바로할인</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --y:#FFB800;--yd:#E8A200;--y-lt:#FFF8E1;--y-md:#FFE082;
+  --red:#E8282D;--red-lt:#FFF0F0;--grn:#00A86B;--grn-lt:#E8F7F1;
+  --blu:#1565C0;--blu-lt:#E8F0FE;--pur:#7C3AED;--pur-lt:#F3EEFF;
+  --org:#F97316;--org-lt:#FFF3E8;
+  --bg:#F2F3F5;--white:#fff;
+  --t1:#1A1A1A;--t2:#333;--t3:#777;--t4:#AAA;--t5:#CCC;
+  --bd:#E8E9EB;--bd2:#F0F0F2;
+  --sh:0 1px 6px rgba(0,0,0,.07);--sh2:0 3px 14px rgba(0,0,0,.10);
+  --r:12px;--rs:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;padding-bottom:68px;-webkit-font-smoothing:antialiased}
+img{display:block}
+
+/* ─── 헤더 ─── */
+.hd{background:#fff;height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;position:sticky;top:0;z-index:200;border-bottom:1px solid var(--bd)}
+.hd-logo{display:flex;align-items:center;gap:6px;cursor:pointer}
+.hd-kb{width:32px;height:32px;background:var(--y);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#000}
+.hd-title{font-size:17px;font-weight:800;letter-spacing:-.5px}
+.hd-title b{color:var(--y)}
+.hd-right{display:flex;align-items:center;gap:4px}
+.hd-ico{width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:50%;border:none;background:transparent;position:relative}
+.hd-badge{position:absolute;top:4px;right:4px;width:14px;height:14px;background:var(--red);border-radius:50%;border:2px solid #fff;font-size:8px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center}
+.hd-user{display:flex;align-items:center;gap:4px;background:var(--bg);border-radius:20px;padding:5px 11px;font-size:12px;font-weight:600;color:var(--t2);cursor:pointer;border:none;font-family:inherit;white-space:nowrap}
+.hd-user.on{background:var(--y-lt);color:#a07000}
+.admin-badge{display:inline-block;background:var(--pur);color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;margin-left:4px;vertical-align:middle}
+
+/* ─── 하단 네비 (5탭) ─── */
+.bnav{position:fixed;bottom:0;left:0;right:0;z-index:200;background:#fff;border-top:1px solid var(--bd);display:flex;height:62px;box-shadow:0 -1px 8px rgba(0,0,0,.06)}
+.bn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;position:relative}
+.bn-ico{font-size:20px;line-height:1}
+.bn-lbl{font-size:10px;font-weight:500;color:var(--t4)}
+.bn.on .bn-lbl{color:var(--y);font-weight:700}
+.bn-badge{position:absolute;top:8px;right:calc(50% - 14px);min-width:14px;height:14px;background:var(--red);border-radius:7px;border:2px solid #fff;font-size:8px;font-weight:700;color:#fff;display:none;align-items:center;justify-content:center;padding:0 2px}
+
+/* ─── 배너 ─── */
+.banner{background:linear-gradient(110deg,#FF8F00,#FFB800 55%,#FFD54F);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;position:relative;overflow:hidden}
+.banner::after{content:'';position:absolute;right:-10px;top:-20px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,.12)}
+.bn-left{position:relative;z-index:1}
+.bn-tag{display:inline-flex;align-items:center;gap:4px;background:rgba(0,0,0,.18);border-radius:20px;padding:2px 8px;font-size:10px;font-weight:700;color:#fff;margin-bottom:5px}
+.bn-dot{width:5px;height:5px;border-radius:50%;background:#fff;animation:bl 1s infinite}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.25}}
+.bn-title{font-size:16px;font-weight:800;color:#fff;line-height:1.3;text-shadow:0 1px 3px rgba(0,0,0,.15)}
+.bn-sub{font-size:11px;color:rgba(255,255,255,.85);margin-top:3px}
+.bn-chips{display:flex;gap:5px;margin-top:7px}
+.bn-chip{background:rgba(255,255,255,.25);border:1px solid rgba(255,255,255,.4);border-radius:20px;padding:2px 9px;font-size:10px;font-weight:700;color:#fff}
+.bn-right{position:relative;z-index:1;text-align:right;flex-shrink:0}
+.bn-tlabel{font-size:10px;color:rgba(255,255,255,.75)}
+.bn-timer{font-size:19px;font-weight:900;color:#fff;font-family:monospace;letter-spacing:1px}
+
+/* ─── 공지바 ─── */
+.nbar{background:var(--y-lt);border-bottom:1px solid var(--y-md);padding:7px 16px;display:flex;align-items:center;gap:7px}
+.ntag{background:var(--y);border-radius:4px;padding:1px 6px;font-size:10px;font-weight:700;color:#000;flex-shrink:0}
+.ntxt{font-size:12px;color:#7A5000;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ─── 검색 ─── */
+.search-wrap{padding:10px 14px;background:#fff;border-bottom:1px solid var(--bd)}
+.search-box{display:flex;align-items:center;gap:8px;background:var(--bg);border-radius:var(--rs);padding:9px 12px;border:1.5px solid transparent}
+.search-box:focus-within{border-color:var(--y);background:#fff}
+.search-box input{flex:1;background:transparent;border:none;outline:none;font-family:inherit;font-size:14px;color:var(--t1)}
+.search-box input::placeholder{color:var(--t4)}
+
+/* ─── 카테고리 ─── */
+.cat-row{display:flex;gap:6px;padding:10px 14px 4px;overflow-x:auto;scrollbar-width:none}
+.cat-row::-webkit-scrollbar{display:none}
+.cat-btn{flex-shrink:0;padding:5px 13px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid var(--bd);background:#fff;color:var(--t3);cursor:pointer;font-family:inherit;transition:.12s}
+.cat-btn.on{background:var(--y);border-color:var(--y);color:#111;font-weight:700}
+
+/* ─── 정렬 ─── */
+.sort-row{display:flex;align-items:center;justify-content:space-between;padding:6px 14px 2px}
+.sort-label{font-size:12px;color:var(--t4)}
+.sort-btns{display:flex;gap:4px}
+.sort-btn{font-size:11px;font-weight:600;color:var(--t4);background:transparent;border:none;cursor:pointer;font-family:inherit;padding:3px 6px;border-radius:4px}
+.sort-btn.on{color:var(--y);background:var(--y-lt)}
+
+/* ─── 인기 급상승 ─── */
+.hot-rank{display:flex;gap:8px;padding:0 14px 8px;overflow-x:auto;scrollbar-width:none}
+.hot-rank::-webkit-scrollbar{display:none}
+.hr-item{flex-shrink:0;background:#fff;border:1px solid var(--bd);border-radius:10px;padding:7px 10px;display:flex;align-items:center;gap:7px;box-shadow:var(--sh);cursor:pointer}
+.hr-num{font-size:14px;font-weight:900;color:var(--red);width:16px}
+.hr-name{font-size:12px;font-weight:600;white-space:nowrap}
+.hr-rate{font-size:11px;font-weight:700;color:var(--red);background:var(--red-lt);padding:1px 6px;border-radius:4px}
+
+/* ─── 최근 본 상품 ─── */
+.recent-row{padding:10px 14px 0}
+.recent-title{font-size:12px;font-weight:700;color:var(--t3);margin-bottom:8px}
+.recent-scroll{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.recent-scroll::-webkit-scrollbar{display:none}
+.recent-item{flex-shrink:0;width:64px;cursor:pointer;text-align:center}
+.recent-img{width:64px;height:64px;border-radius:10px;object-fit:cover;border:1px solid var(--bd)}
+.recent-name{font-size:10px;color:var(--t3);margin-top:3px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* ─── 섹션 ─── */
+.sec{padding:8px 14px 4px}
+.sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.sec-title{font-size:15px;font-weight:700}
+.sec-badge{background:var(--red-lt);color:var(--red);font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px}
+
+/* ─── 상품카드 ─── */
+.plist{display:flex;flex-direction:column;gap:10px}
+.pc{background:#fff;border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;position:relative;border:1px solid var(--bd);cursor:pointer}
+.pc:active{opacity:.93;transform:scale(.99)}
+.pc.done{opacity:.6}
+.pc-row{display:flex;align-items:stretch}
+.pc-thumb{width:108px;height:108px;flex-shrink:0;position:relative;overflow:hidden}
+.pc-thumb img{width:100%;height:100%;object-fit:cover}
+.pc-thumb-dim{position:absolute;inset:0;background:linear-gradient(to right,transparent 55%,rgba(255,255,255,.08))}
+.pc-tag{position:absolute;top:7px;left:7px;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700}
+.pc-tag.hot{background:var(--red);color:#fff}
+.pc-tag.new{background:var(--grn);color:#fff}
+.pc-tag.end{background:#555;color:#fff}
+.pc-tag.best{background:var(--pur);color:#fff}
+.pc-info{flex:1;padding:10px 12px;display:flex;flex-direction:column;justify-content:space-between;min-width:0}
+.pc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:4px}
+.pc-brand{font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.3px;margin-bottom:2px}
+.pc-name{font-size:13px;font-weight:700;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.heart-btn{background:none;border:none;font-size:18px;cursor:pointer;flex-shrink:0;padding:0;line-height:1;margin-top:-2px}
+.pc-meta{display:flex;align-items:center;gap:5px;margin:4px 0 2px;flex-wrap:wrap}
+.pc-stars{font-size:10px;color:var(--y);font-weight:700}
+.pc-buyers{font-size:10px;color:var(--t4)}
+.pc-price-row{display:flex;align-items:center;gap:5px;margin-bottom:4px}
+.pc-rate{background:var(--red);color:#fff;font-size:11px;font-weight:800;padding:1px 5px;border-radius:4px;flex-shrink:0}
+.pc-now{font-size:15px;font-weight:800;letter-spacing:-.3px}
+.pc-now small{font-size:10px;font-weight:600}
+.pc-ori{font-size:11px;color:var(--t5);text-decoration:line-through;margin-left:2px}
+.pbar-row{display:flex;align-items:center;gap:6px}
+.pbar-track{flex:1;height:3px;background:var(--bd2);border-radius:2px;overflow:hidden}
+.pbar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--y),#FF8F00);transition:width .6s}
+.pbar-fill.crit{background:linear-gradient(90deg,var(--red),#FF6B35);animation:flt .9s ease infinite alternate}
+@keyframes flt{from{opacity:.7}to{opacity:1}}
+.pbar-rem{font-size:10px;font-weight:700;white-space:nowrap;flex-shrink:0}
+.pbar-rem.ok{color:var(--grn)}.pbar-rem.low{color:var(--red)}.pbar-rem.end{color:var(--t4)}
+.pc-timer{font-size:10px;font-weight:700;color:var(--red);background:var(--red-lt);padding:2px 6px;border-radius:4px;font-family:monospace}
+.pc-btn-wrap{border-top:1px solid var(--bd2);padding:7px 12px;display:flex;gap:7px}
+.btn-apply{flex:1;padding:9px;background:var(--y);color:#111;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;border:none;border-radius:var(--rs);cursor:pointer;transition:.12s}
+.btn-apply:active{background:var(--yd);transform:scale(.98)}
+.btn-apply:disabled{background:var(--bg);color:var(--t5);cursor:not-allowed;transform:none}
+.btn-apply.ld{background:var(--y-md);color:#999;pointer-events:none}
+.sold-ov{position:absolute;inset:0;z-index:5;background:rgba(255,255,255,.65);backdrop-filter:blur(1px);display:flex;align-items:center;justify-content:center;border-radius:var(--r)}
+.sold-tag{background:var(--t2);color:#fff;font-size:14px;font-weight:800;padding:8px 22px;border-radius:var(--rs);letter-spacing:2px}
+
+/* ─── 상세 페이지 ─── */
+.detail-page{position:fixed;inset:0;z-index:300;background:var(--bg);transform:translateX(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);overflow-y:auto}
+.detail-page.on{transform:translateX(0)}
+.detail-hd{background:#fff;height:52px;display:flex;align-items:center;gap:8px;padding:0 16px;position:sticky;top:0;z-index:10;border-bottom:1px solid var(--bd)}
+.detail-back{background:none;border:none;font-size:22px;cursor:pointer;padding:0;line-height:1}
+.detail-hd-title{font-size:15px;font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.detail-img{width:100%;height:220px;object-fit:cover}
+.detail-body{background:#fff;padding:16px;margin-bottom:8px}
+.detail-brand{font-size:12px;font-weight:700;color:var(--t3);letter-spacing:.3px;margin-bottom:4px}
+.detail-name{font-size:18px;font-weight:800;line-height:1.4;margin-bottom:10px}
+.detail-price-box{background:var(--y-lt);border-radius:var(--rs);padding:12px;margin-bottom:12px}
+.detail-rate{font-size:22px;font-weight:900;color:var(--red);margin-bottom:2px}
+.detail-price-row{display:flex;align-items:baseline;gap:8px}
+.detail-now{font-size:26px;font-weight:900}
+.detail-ori{font-size:15px;color:var(--t4);text-decoration:line-through}
+.detail-save{font-size:13px;font-weight:700;color:var(--red);margin-top:4px}
+.detail-meta{display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.dm-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--t3)}
+.dm-item b{color:var(--t1);font-weight:700}
+.detail-timer-box{background:var(--red-lt);border:1px solid rgba(232,40,45,.15);border-radius:var(--rs);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.detail-timer-label{font-size:12px;font-weight:600;color:var(--red)}
+.detail-timer-val{font-size:18px;font-weight:900;color:var(--red);font-family:monospace}
+.detail-pbar-wrap{margin-bottom:16px}
+.detail-pbar-top{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px}
+.detail-pbar-track{height:6px;background:var(--bd2);border-radius:3px;overflow:hidden}
+.detail-pbar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--y),#FF8F00)}
+.detail-pbar-fill.crit{background:linear-gradient(90deg,var(--red),#FF6B35)}
+.detail-desc{font-size:14px;color:var(--t2);line-height:1.7;margin-bottom:16px;white-space:pre-line}
+.detail-info-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px}
+.detail-info-table tr{border-bottom:1px solid var(--bd2)}
+.detail-info-table td{padding:9px 4px}
+.detail-info-table td:first-child{color:var(--t3);width:80px;font-weight:600}
+.detail-notice{background:var(--bg);border-radius:var(--rs);padding:12px;font-size:12px;color:var(--t3);line-height:1.7}
+.detail-cta{position:sticky;bottom:0;background:#fff;padding:10px 16px 20px;border-top:1px solid var(--bd);display:flex;gap:8px}
+.detail-heart{width:46px;height:46px;border:1.5px solid var(--bd);border-radius:var(--rs);display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;flex-shrink:0;background:#fff}
+.detail-heart.on{border-color:var(--red);background:var(--red-lt)}
+
+/* ─── 리뷰 ─── */
+.review-sec{background:#fff;padding:16px;margin-bottom:8px}
+.review-summary{display:flex;align-items:center;gap:16px;margin-bottom:14px}
+.review-big-score{font-size:36px;font-weight:900}
+.review-count{font-size:12px;color:var(--t4)}
+.review-bars{flex:1}
+.rbar-row{display:flex;align-items:center;gap:6px;margin-bottom:3px}
+.rbar-label{font-size:10px;color:var(--t4);width:16px;text-align:right;flex-shrink:0}
+.rbar-track{flex:1;height:4px;background:var(--bd2);border-radius:2px;overflow:hidden}
+.rbar-fill{height:100%;background:var(--y);border-radius:2px}
+.review-card{border-top:1px solid var(--bd2);padding:12px 0}
+.rv-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+.rv-user{font-size:13px;font-weight:700}
+.rv-date{font-size:11px;color:var(--t4)}
+.rv-text{font-size:13px;color:var(--t2);line-height:1.6}
+.write-review-btn{width:100%;padding:11px;background:var(--bg);border:1.5px solid var(--bd);border-radius:var(--rs);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:600;color:var(--t2);cursor:pointer;margin-top:12px}
+
+/* ─── MY 페이지 ─── */
+.grade-banner{margin:8px 14px;border-radius:var(--r);overflow:hidden}
+.grade-inner{padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
+.grade-left .label{font-size:11px;color:rgba(255,255,255,.75);margin-bottom:2px}
+.grade-left .gname{font-size:18px;font-weight:800;color:#fff}
+.grade-badge{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:22px}
+.grade-progress{background:rgba(0,0,0,.15);height:4px;margin:0 16px 10px;border-radius:2px;overflow:hidden}
+.grade-progress-fill{height:100%;background:rgba(255,255,255,.6);border-radius:2px}
+.grade-info{display:flex;justify-content:space-between;padding:0 16px 12px;font-size:10px;color:rgba(255,255,255,.75)}
+.point-card{background:#fff;border:1px solid var(--bd);border-radius:var(--r);margin:0 14px 10px;padding:14px 16px;box-shadow:var(--sh)}
+.my-menu{background:#fff;border-radius:var(--r);margin:0 14px 10px;border:1px solid var(--bd);overflow:hidden;box-shadow:var(--sh)}
+.my-menu-item{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--bd2);cursor:pointer}
+.my-menu-item:last-child{border-bottom:none}
+.my-menu-item:active{background:var(--bg)}
+.my-menu-left{display:flex;align-items:center;gap:10px}
+.my-menu-ico{font-size:18px;width:28px;text-align:center}
+.my-menu-label{font-size:14px;font-weight:600}
+.my-menu-sub{font-size:11px;color:var(--t4);margin-top:1px}
+.my-menu-right{display:flex;align-items:center;gap:6px}
+.my-menu-val{font-size:13px;font-weight:700;color:var(--t2)}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--bd2)}
+.setting-label{font-size:14px;font-weight:600}
+.setting-sub{font-size:11px;color:var(--t4);margin-top:2px}
+.toggle{width:44px;height:26px;background:var(--bd);border-radius:13px;position:relative;cursor:pointer;transition:.2s;flex-shrink:0}
+.toggle.on{background:var(--y)}
+.toggle::after{content:'';position:absolute;width:20px;height:20px;background:#fff;border-radius:50%;top:3px;left:3px;transition:.2s;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.toggle.on::after{left:21px}
+.faq-item{border-bottom:1px solid var(--bd2)}
+.faq-q{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;font-size:14px;font-weight:600}
+.faq-a{padding:0 16px 14px;font-size:13px;color:var(--t3);line-height:1.7;display:none}
+.faq-a.open{display:block}
+
+/* ─── 쿠폰함 ─── */
+.my-card{background:linear-gradient(120deg,#FFB800,#FF8F00);margin:12px 14px;border-radius:var(--r);padding:18px;box-shadow:var(--sh2)}
+.my-stats{display:flex;gap:8px}
+.my-st{flex:1;background:rgba(255,255,255,.38);border-radius:8px;padding:10px;text-align:center}
+.my-st-n{font-size:19px;font-weight:800;color:#111}
+.my-st-l{font-size:10px;color:rgba(0,0,0,.45);font-weight:600;margin-top:1px}
+.sub-tabs{display:flex;margin:10px 14px 0;background:#fff;border-radius:var(--r);border:1px solid var(--bd);overflow:hidden}
+.sub-tab{flex:1;padding:10px 0;text-align:center;font-size:12px;font-weight:600;color:var(--t4);cursor:pointer;border:none;background:transparent;font-family:inherit;transition:.15s}
+.sub-tab.on{background:var(--y);color:#111;font-weight:700}
+.cc{background:#fff;border:1px solid var(--bd);border-radius:var(--r);margin:0 14px 9px;box-shadow:var(--sh);overflow:hidden}
+.cc-top{display:flex;align-items:center;gap:11px;padding:12px 14px}
+.cc-img{width:44px;height:44px;border-radius:8px;object-fit:cover;background:var(--bg);flex-shrink:0}
+.cc-brand{font-size:10px;font-weight:700;color:var(--t3)}
+.cc-name{font-size:13px;font-weight:700;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cc-exp-badge{font-size:10px;font-weight:700;padding:1px 6px;border-radius:4px;margin-top:3px;display:inline-block}
+.cc-exp-badge.urgent{background:var(--red-lt);color:var(--red)}
+.cc-exp-badge.soon{background:var(--org-lt);color:var(--org)}
+.cc-exp-badge.ok{background:var(--grn-lt);color:var(--grn)}
+.cc-bot{display:flex;align-items:center;padding:8px 14px 12px;border-top:1px solid var(--bd2);gap:8px}
+.cc-code{font-size:11px;color:var(--t4);font-family:monospace;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.cc-amt{font-size:15px;font-weight:800;color:var(--red);flex-shrink:0}
+.cc-st{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;flex-shrink:0}
+.cc-st.ok{background:var(--grn-lt);color:var(--grn)}
+.cc-st.done{background:#F0F0F0;color:var(--t4)}
+.cc-use-btn{background:var(--t1);color:#fff;border:none;border-radius:6px;padding:5px 12px;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0}
+.cc-gift-btn{background:var(--pur-lt);color:var(--pur);border:1px solid rgba(124,58,237,.2);border-radius:6px;padding:5px 10px;font-family:'Noto Sans KR',sans-serif;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0}
+
+/* ─── 이용내역 ─── */
+.disc-sum{background:#fff;border:1px solid var(--bd);border-radius:var(--r);margin:8px 14px 10px;padding:14px 16px;box-shadow:var(--sh)}
+.disc-row{display:flex;justify-content:space-between;padding:4px 0;font-size:13px}
+.disc-row .l{color:var(--t3)}.disc-row .v{font-weight:700}
+.disc-row.tot{border-top:1px solid var(--bd);margin-top:6px;padding-top:8px;font-size:15px}
+.disc-row.tot .l{color:var(--t1);font-weight:700}.disc-row.tot .v{color:var(--red)}
+.hx{background:#fff;border:1px solid var(--bd);border-radius:var(--r);margin:0 14px 9px;padding:14px;box-shadow:var(--sh)}
+.hx-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.hx-name{font-size:14px;font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hx-amt{font-size:14px;font-weight:800;flex-shrink:0;margin-left:8px}
+.hx-amt.plus{color:var(--grn)}.hx-amt.minus{color:var(--t3);text-decoration:line-through}
+.hx-bot{display:flex;align-items:center;justify-content:space-between;margin-top:6px;flex-wrap:wrap;gap:4px}
+.hx-date{font-size:11px;color:var(--t4)}
+.hx-tags{display:flex;gap:5px;flex-wrap:wrap}
+.hx-tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px}
+.hx-tag.pay{background:var(--blu-lt);color:var(--blu)}
+.hx-tag.cancel{background:var(--red-lt);color:var(--red)}
+.hx-tag.save{background:var(--grn-lt);color:var(--grn)}
+.hx-cancel-btn{font-size:11px;color:var(--red);background:var(--red-lt);border:1px solid rgba(232,40,45,.2);border-radius:6px;padding:3px 10px;cursor:pointer;font-family:inherit;font-weight:600;flex-shrink:0}
+
+/* ─── 알림 ─── */
+.notif-item{background:#fff;border-bottom:1px solid var(--bd2);padding:13px 16px;display:flex;gap:10px;cursor:pointer}
+.notif-item.unread{background:var(--y-lt)}
+.notif-ico{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.notif-ico.y{background:var(--y-lt)}.notif-ico.r{background:var(--red-lt)}.notif-ico.g{background:var(--grn-lt)}.notif-ico.b{background:var(--blu-lt)}
+.notif-txt{flex:1;min-width:0}
+.notif-title{font-size:13px;font-weight:700;margin-bottom:2px}
+.notif-desc{font-size:12px;color:var(--t3);line-height:1.5}
+.notif-time{font-size:11px;color:var(--t4);margin-top:3px}
+.notif-dot{width:8px;height:8px;border-radius:50%;background:var(--red);flex-shrink:0;margin-top:4px}
+
+/* ─── 찜 ─── */
+.wish-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 14px}
+.wish-card{background:#fff;border-radius:var(--r);border:1px solid var(--bd);overflow:hidden;box-shadow:var(--sh);cursor:pointer;position:relative}
+.wish-card-img{width:100%;height:110px;object-fit:cover}
+.wish-card-body{padding:10px}
+.wish-card-brand{font-size:10px;color:var(--t3);font-weight:700;margin-bottom:2px}
+.wish-card-name{font-size:12px;font-weight:700;line-height:1.4;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.wish-del{position:absolute;top:7px;right:7px;background:rgba(0,0,0,.45);border:none;border-radius:50%;width:24px;height:24px;color:#fff;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+
+/* ─── 관리자 ─── */
+.admin-bar{background:var(--pur);padding:8px 16px;display:flex;align-items:center;justify-content:space-between}
+.admin-bar-label{font-size:12px;font-weight:700;color:#fff;display:flex;align-items:center;gap:6px}
+.admin-add-btn{background:#fff;color:var(--pur);border:none;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.admin-edit-overlay{position:absolute;top:0;right:0;display:flex;gap:4px;padding:6px;z-index:3}
+.admin-edit-btn{background:rgba(124,58,237,.85);color:#fff;border:none;border-radius:5px;padding:3px 8px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;backdrop-filter:blur(4px)}
+.admin-del-btn{background:rgba(232,40,45,.85);color:#fff;border:none;border-radius:5px;padding:3px 8px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;backdrop-filter:blur(4px)}
+
+/* ─── 시트/모달 공통 ─── */
+.bk{position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.45);display:none}
+.bk.on{display:block;animation:bkfi .2s ease}
+@keyframes bkfi{from{opacity:0}to{opacity:1}}
+.bs{position:fixed;bottom:0;left:0;right:0;z-index:401;background:#fff;border-radius:18px 18px 0 0;box-shadow:0 -3px 24px rgba(0,0,0,.12);padding:0 20px 48px;transform:translateY(100%);transition:transform .35s cubic-bezier(.34,1.15,.64,1);max-height:92vh;overflow-y:auto}
+.bs.on{transform:translateY(0)}
+.bs-bar{width:34px;height:4px;background:var(--bd);border-radius:2px;margin:12px auto 16px}
+.bs-ico{font-size:42px;text-align:center;margin-bottom:6px}
+.bs-title{font-size:19px;font-weight:800;text-align:center;margin-bottom:5px}
+.bs-sub{font-size:13px;color:var(--t3);text-align:center;line-height:1.6;margin-bottom:16px}
+.cpn{background:var(--y-lt);border:1.5px dashed var(--y);border-radius:var(--r);padding:16px;text-align:center;margin-bottom:14px;position:relative}
+.cpn::before,.cpn::after{content:'';position:absolute;top:50%;width:14px;height:14px;border-radius:50%;background:var(--bg);transform:translateY(-50%)}
+.cpn::before{left:-7px}.cpn::after{right:-7px}
+.cpn-lbl{font-size:10px;font-weight:700;color:var(--t3);letter-spacing:1px;margin-bottom:4px}
+.cpn-code{font-size:13px;font-weight:800;font-family:monospace;letter-spacing:1.5px}
+.cpn-amt{font-size:26px;font-weight:900;color:var(--red);margin-top:5px}
+.cpn-amt small{font-size:13px;font-weight:500;color:var(--t3)}
+.cpn-exp{font-size:11px;color:var(--t4);margin-top:3px}
+.btn-main{width:100%;padding:14px;background:var(--y);color:#111;font-family:'Noto Sans KR',sans-serif;font-size:15px;font-weight:700;border:none;border-radius:var(--rs);cursor:pointer;margin-bottom:9px;box-shadow:0 2px 10px rgba(255,184,0,.3);transition:.12s}
+.btn-main:active{background:var(--yd);transform:scale(.97)}
+.btn-dark{width:100%;padding:14px;background:var(--t1);color:#fff;font-family:'Noto Sans KR',sans-serif;font-size:15px;font-weight:700;border:none;border-radius:var(--rs);cursor:pointer;margin-bottom:9px;transition:.12s}
+.btn-line{width:100%;padding:12px;background:transparent;color:var(--t3);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:500;border:1px solid var(--bd);border-radius:var(--rs);cursor:pointer}
+.btn-red{width:100%;padding:12px;background:var(--red-lt);color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;border:1px solid rgba(232,40,45,.2);border-radius:var(--rs);cursor:pointer;margin-bottom:9px}
+.pay-card{background:var(--y-lt);border:1px solid var(--y-md);border-radius:var(--rs);padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.card-chip{width:38px;height:26px;border-radius:5px;background:linear-gradient(135deg,var(--y),var(--yd));display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:#111;flex-shrink:0}
+.card-info{flex:1}.card-name{font-size:13px;font-weight:700}.card-num{font-size:11px;color:var(--t3);margin-top:1px}
+.card-ck{width:18px;height:18px;border-radius:50%;background:var(--y);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#111}
+.pay-box{background:#FAFAFA;border:1px solid var(--bd);border-radius:var(--rs);padding:13px;margin-bottom:12px}
+.pt-use-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bd2);margin-bottom:8px}
+.pr{display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:13px}
+.pr .l{color:var(--t3)}.pr .v{font-weight:600}
+.pr.tot{border-top:1px solid var(--bd);margin-top:7px;padding-top:9px;font-size:15px}
+.pr.tot .l{font-weight:700;color:var(--t1)}.pr.tot .v{font-weight:800;color:var(--y)}
+.done-circle{width:58px;height:58px;border-radius:50%;background:var(--grn);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;animation:pop .5s cubic-bezier(.34,1.56,.64,1)}
+.cancel-circle{width:58px;height:58px;border-radius:50%;background:var(--t3);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;animation:pop .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+.done-amt{font-size:28px;font-weight:900;text-align:center;margin-bottom:3px}
+.done-amt span{font-size:14px;font-weight:500;color:var(--t3)}
+.done-sub{font-size:13px;color:var(--t3);text-align:center;margin-bottom:14px}
+.done-info{background:var(--grn-lt);border-radius:var(--rs);padding:12px;margin-bottom:14px}
+.done-info.cancel{background:#F5F5F5}
+.di-row{display:flex;justify-content:space-between;font-size:13px;padding:3px 0}
+.di-row .l{color:var(--t3)}.di-row .v{font-weight:700}
+
+/* ─── 로그인 모달 ─── */
+.login-modal-bk{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.5);display:none;align-items:flex-end}
+.login-modal-bk.on{display:flex;animation:bkfi .2s ease}
+.login-modal{background:#fff;border-radius:20px 20px 0 0;width:100%;padding:0 20px 48px;transform:translateY(100%);transition:transform .35s cubic-bezier(.34,1.15,.64,1)}
+.login-modal-bk.on .login-modal{transform:translateY(0)}
+.lm-bar{width:34px;height:4px;background:var(--bd);border-radius:2px;margin:12px auto 18px}
+.lm-lock{width:56px;height:56px;background:var(--y-lt);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:26px}
+.lm-title{font-size:18px;font-weight:800;text-align:center;margin-bottom:6px}
+.lm-desc{font-size:13px;color:var(--t3);text-align:center;line-height:1.6;margin-bottom:18px}
+.lm-field{margin-bottom:10px}
+.lm-label{font-size:12px;font-weight:600;color:var(--t2);margin-bottom:5px}
+.lm-input{width:100%;border:1.5px solid var(--bd);border-radius:var(--rs);padding:12px 14px;font-family:'Noto Sans KR',sans-serif;font-size:15px;color:var(--t1);outline:none}
+.lm-input:focus{border-color:var(--y)}
+.lm-input.err{border-color:var(--red);background:var(--red-lt)}
+.lm-error{font-size:12px;color:var(--red);font-weight:600;margin-top:6px;display:none;padding:8px 12px;background:var(--red-lt);border-radius:var(--rs)}
+.lm-error.show{display:block}
+.lm-hint{font-size:11px;color:var(--t4);text-align:center;margin-bottom:14px;line-height:1.6}
+
+/* ─── 선물/공유/리뷰 시트 ─── */
+.gift-input,.gift-area{width:100%;border:1.5px solid var(--bd);border-radius:var(--rs);padding:12px 14px;font-family:inherit;font-size:14px;color:var(--t1);outline:none;margin-bottom:10px}
+.gift-input:focus,.gift-area:focus{border-color:var(--y)}
+.gift-area{resize:none;height:80px}
+.share-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.share-item{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer}
+.share-ico{width:48px;height:48px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:22px}
+.share-label{font-size:11px;color:var(--t2);font-weight:500;text-align:center}
+.star-input{display:flex;gap:4px;justify-content:center;margin-bottom:14px}
+.star-input span{font-size:32px;cursor:pointer}
+.review-input{width:100%;border:1.5px solid var(--bd);border-radius:var(--rs);padding:12px;font-family:inherit;font-size:14px;color:var(--t1);outline:none;resize:none;height:100px;margin-bottom:12px}
+.review-input:focus{border-color:var(--y)}
+
+/* ─── 관리자 상품 편집 폼 ─── */
+.admin-form-row{margin-bottom:12px}
+.admin-form-label{font-size:12px;font-weight:700;color:var(--t2);margin-bottom:5px}
+.admin-form-input{width:100%;border:1.5px solid var(--bd);border-radius:var(--rs);padding:10px 12px;font-family:inherit;font-size:13px;color:var(--t1);outline:none}
+.admin-form-input:focus{border-color:var(--pur)}
+.admin-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+select.admin-form-input{cursor:pointer}
+
+/* ─── 공통 ─── */
+.uid-row{display:flex;gap:8px;margin:12px 14px}
+.uid-row input{flex:1;background:#fff;border:1.5px solid var(--bd);border-radius:var(--rs);padding:10px 12px;font-family:'Noto Sans KR',sans-serif;font-size:13px;color:var(--t1);outline:none}
+.uid-row input:focus{border-color:var(--y)}
+.uid-row button{background:var(--y);color:#111;border:none;border-radius:var(--rs);padding:10px 16px;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer}
+.empty{text-align:center;padding:48px 20px}
+.empty .emo{font-size:40px;margin-bottom:12px}
+.empty p{font-size:13px;color:var(--t3);line-height:1.7}
+.empty-btn{margin-top:14px;background:var(--y);color:#111;border:none;padding:10px 24px;border-radius:var(--rs);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;cursor:pointer}
+.list-label{font-size:11px;font-weight:600;color:var(--t4);padding:12px 14px 4px;letter-spacing:.3px}
+.tw{position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:9999;width:calc(100% - 28px);max-width:400px;display:flex;flex-direction:column;gap:7px;pointer-events:none}
+.toast{padding:12px 15px;border-radius:10px;font-size:13px;font-weight:500;line-height:1.4;box-shadow:var(--sh2);pointer-events:auto;animation:tsl .25s ease}
+@keyframes tsl{from{opacity:0;transform:translateY(-7px)}to{opacity:1;transform:translateY(0)}}
+.toast.ok{background:var(--t1);color:#fff}
+.toast.err{background:var(--red);color:#fff}
+.toast.inf{background:#fff;color:var(--t1);border:1px solid var(--bd)}
+.sp{width:16px;height:16px;border:2px solid rgba(0,0,0,.1);border-top-color:#888;border-radius:50%;animation:sp .6s linear infinite;display:inline-block;vertical-align:middle}
+@keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="tw" id="tw"></div>
+
+<!-- ══ 헤더 ══ -->
+<header class="hd">
+  <div class="hd-logo" onclick="goTab(0)">
+    <div class="hd-kb">KB</div>
+    <span class="hd-title"><b>KB</b> Pay</span>
+  </div>
+  <div class="hd-right">
+    <button class="hd-ico" onclick="openNotifPage()" title="알림">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3a6 6 0 016 6v4l1.5 2.5H4.5L6 13V9a6 6 0 016-6z" stroke="#333" stroke-width="1.7" stroke-linejoin="round"/><path d="M10 19.5a2 2 0 004 0" stroke="#333" stroke-width="1.7"/></svg>
+      <span class="hd-badge" id="notif-badge" style="display:none"></span>
+    </button>
+    <button class="hd-user" id="hbtn" onclick="setUser()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" fill="#333"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#333" stroke-width="2" stroke-linecap="round"/></svg>
+      <span id="huid">로그인</span>
+      <span id="admin-hd-badge" style="display:none" class="admin-badge">관리자</span>
+    </button>
+  </div>
+</header>
+
+<!-- ══════════ 홈 탭 ══════════ -->
+<div id="pg0">
+  <div class="banner">
+    <div class="bn-left">
+      <div class="bn-tag"><div class="bn-dot"></div>LIVE DEAL</div>
+      <div class="bn-title">최대 50% 바로 할인<br/>KB페이 단독 특가</div>
+      <div class="bn-sub">선착순 마감 · KB포인트 추가 적립</div>
+      <div class="bn-chips"><div class="bn-chip">오늘만</div><div class="bn-chip">선착순</div><div class="bn-chip">KB전용</div></div>
+    </div>
+    <div class="bn-right">
+      <div class="bn-tlabel">마감까지</div>
+      <div class="bn-timer" id="timer">00:00:00</div>
+    </div>
+  </div>
+  <div class="nbar"><span class="ntag">안내</span><span class="ntxt">쿠폰 발급 후 30일 이내 언제든지 KB페이로 결제 가능합니다</span></div>
+  <!-- 관리자 바 -->
+  <div class="admin-bar" id="admin-bar" style="display:none">
+    <div class="admin-bar-label">⚙️ 관리자 모드 — 상품을 편집할 수 있습니다</div>
+    <button class="admin-add-btn" onclick="openAdminAdd()">+ 상품 추가</button>
+  </div>
+  <!-- 검색 -->
+  <div class="search-wrap">
+    <div class="search-box">
+      <span style="font-size:16px">🔍</span>
+      <input id="search-inp" placeholder="상품명, 브랜드 검색" oninput="doSearch(this.value)"/>
+      <span id="search-clear" style="font-size:14px;cursor:pointer;display:none" onclick="clearSearch()">✕</span>
+    </div>
+  </div>
+  <!-- 인기 급상승 -->
+  <div class="sec"><div class="sec-hd"><span class="sec-title">🚀 인기 급상승</span></div><div class="hot-rank" id="hot-rank"></div></div>
+  <!-- 최근 본 상품 -->
+  <div class="recent-row" id="recent-sec" style="display:none"><div class="recent-title">최근 본 상품</div><div class="recent-scroll" id="recent-scroll"></div></div>
+  <!-- 카테고리 + 정렬 -->
+  <div class="cat-row" id="catRow"></div>
+  <div class="sort-row">
+    <span class="sort-label" id="rem-cnt"></span>
+    <div class="sort-btns">
+      <button class="sort-btn on" onclick="setSort('default',this)">기본순</button>
+      <button class="sort-btn" onclick="setSort('rate',this)">할인율순</button>
+      <button class="sort-btn" onclick="setSort('price',this)">가격순</button>
+      <button class="sort-btn" onclick="setSort('popular',this)">인기순</button>
+    </div>
+  </div>
+  <div class="sec" style="padding-top:6px"><div class="plist" id="plist"></div></div>
+</div>
+
+<!-- ══════════ 찜 탭 ══════════ -->
+<div id="pg1" style="display:none">
+  <div style="padding:12px 14px 4px;display:flex;align-items:center;justify-content:space-between">
+    <span style="font-size:15px;font-weight:700">❤️ 찜한 상품</span>
+    <span id="wish-count" style="font-size:13px;color:var(--t4)">0개</span>
+  </div>
+  <div class="wish-grid" id="wish-grid"></div>
+</div>
+
+<!-- ══════════ 쿠폰함 탭 ══════════ -->
+<div id="pg2" style="display:none;padding-top:8px">
+  <div id="my-body"><div class="empty"><div class="emo">🎫</div><p>로그인 후 확인할 수 있습니다</p></div></div>
+</div>
+
+<!-- ══════════ 내역 탭 ══════════ -->
+<div id="pg3" style="display:none;padding-top:8px">
+  <div id="hist-body"><div class="empty"><div class="emo">📋</div><p>로그인 후 확인할 수 있습니다</p></div></div>
+</div>
+
+<!-- ══════════ MY 탭 ══════════ -->
+<div id="pg4" style="display:none">
+  <div id="my-page-body"></div>
+</div>
+
+<!-- ══ 상세 페이지 ══ -->
+<div class="detail-page" id="detail-page">
+  <div class="detail-hd">
+    <button class="detail-back" onclick="closeDetail()">←</button>
+    <span class="detail-hd-title" id="detail-hd-title">상품 상세</span>
+    <button class="hd-ico" onclick="openS(7)" style="font-size:18px">🔗</button>
+    <button class="hd-ico" id="detail-heart-hd" onclick="toggleHeartDetail()" style="font-size:18px">🤍</button>
+  </div>
+  <img class="detail-img" id="detail-img" src="" alt=""/>
+  <div class="detail-body">
+    <div class="detail-brand" id="detail-brand"></div>
+    <div class="detail-name"  id="detail-name"></div>
+    <div class="detail-price-box">
+      <div class="detail-rate" id="detail-rate"></div>
+      <div class="detail-price-row"><div class="detail-now" id="detail-now"></div><div class="detail-ori" id="detail-ori"></div></div>
+      <div class="detail-save" id="detail-save"></div>
+    </div>
+    <div class="detail-meta" id="detail-meta"></div>
+    <div class="detail-timer-box"><span class="detail-timer-label">⏰ 마감까지</span><span class="detail-timer-val" id="detail-timer-val">00:00:00</span></div>
+    <div class="detail-pbar-wrap">
+      <div class="detail-pbar-top"><span style="font-size:12px;color:var(--t3)">할인 진행률</span><span id="detail-rem-txt" style="font-size:12px;font-weight:700;color:var(--grn)"></span></div>
+      <div class="detail-pbar-track"><div class="detail-pbar-fill" id="detail-pbar" style="width:0%"></div></div>
+    </div>
+    <div class="detail-desc" id="detail-desc"></div>
+    <table class="detail-info-table" id="detail-table"></table>
+    <div class="detail-notice" id="detail-notice"></div>
+  </div>
+  <div class="review-sec" id="review-sec">
+    <div class="sec-hd"><span class="sec-title">⭐ 구매후기</span></div>
+    <div class="review-summary" id="review-summary"></div>
+    <div id="review-list"></div>
+    <button class="write-review-btn" id="write-review-btn" onclick="openWriteReview()">✏️ 후기 작성하기</button>
+  </div>
+  <div class="detail-cta">
+    <div class="detail-heart" id="detail-heart-btn" onclick="toggleHeartDetail()">🤍</div>
+    <button class="btn-apply" style="flex:1;padding:13px;font-size:15px" id="detail-apply-btn" onclick="applyFromDetail()">바로 할인 받기</button>
+  </div>
+</div>
+
+<!-- ══ 시트들 ══ -->
+<!-- 시트1: 쿠폰 발급 결과 -->
+<div class="bk" id="bk1" onclick="closeS(1)"></div>
+<div class="bs" id="s1">
+  <div class="bs-bar"></div><div class="bs-ico" id="s1i">🎉</div>
+  <div class="bs-title" id="s1t">쿠폰 발급 완료!</div><div class="bs-sub" id="s1s"></div>
+  <div class="cpn" id="cpnbox" style="display:none"><div class="cpn-lbl">COUPON CODE</div><div class="cpn-code" id="ccode">-</div><div class="cpn-amt" id="camt">0<small>원 할인</small></div><div class="cpn-exp" id="cexp"></div></div>
+  <button class="btn-main" id="btntopay" style="display:none" onclick="openPayS()">💳 지금 바로 결제하기</button>
+  <button class="btn-dark" id="btnmypage" style="display:none" onclick="closeS(1);goTab(2)">🎫 쿠폰함에 보관하기</button>
+  <button class="btn-line" onclick="closeS(1)">닫기</button>
+</div>
+<!-- 시트2: 결제 -->
+<div class="bk" id="bk2" onclick="closeS(2)"></div>
+<div class="bs" id="s2">
+  <div class="bs-bar"></div><div class="bs-title" style="margin-bottom:4px">KB페이 결제</div>
+  <div class="bs-sub" id="s2pname" style="margin-bottom:14px">-</div>
+  <div class="pay-card"><div class="card-chip">KB</div><div class="card-info"><div class="card-name">KB국민카드 (신용)</div><div class="card-num">•••• •••• •••• 1234</div></div><div class="card-ck">✓</div></div>
+  <div class="pt-use-row"><div><div style="font-size:13px;color:var(--t3)">KB포인트 사용</div><div style="font-size:11px;color:var(--grn);font-weight:600" id="avail-pt-txt">보유 0P</div></div>
+  <div style="display:flex;align-items:center;gap:8px"><span id="pt-use-amt" style="font-size:12px;font-weight:700;color:var(--grn);display:none"></span><div class="toggle" id="pt-toggle" onclick="togglePointUse()"></div></div></div>
+  <div class="pay-box" id="paybox"></div>
+  <button class="btn-main" id="btnfin" onclick="finPay()">결제하기</button>
+  <button class="btn-line" onclick="closeS(2)">취소</button>
+</div>
+<!-- 시트3: 결제 완료 -->
+<div class="bk" id="bk3" onclick="closeS(3)"></div>
+<div class="bs" id="s3">
+  <div class="bs-bar"></div>
+  <div class="done-circle"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M6 14l6 6 10-10" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+  <div class="done-amt" id="damt">0<span>원</span></div><div class="done-sub" id="dsub"></div>
+  <div class="done-info" id="dinfo"></div>
+  <button class="btn-main" onclick="closeS(3);goTab(3)">📋 이용내역 확인</button>
+  <button class="btn-line" onclick="closeS(3)">홈으로</button>
+</div>
+<!-- 시트4: 취소 확인 -->
+<div class="bk" id="bk4" onclick="closeS(4)"></div>
+<div class="bs" id="s4">
+  <div class="bs-bar"></div><div class="bs-ico">⚠️</div>
+  <div class="bs-title">결제를 취소하시겠어요?</div>
+  <div class="bs-sub">취소 시 쿠폰이 복원되어 다시 사용 가능합니다</div>
+  <div class="pay-box" id="s4box" style="margin-bottom:14px"></div>
+  <button class="btn-red" id="btncancel" onclick="doCancel()">결제 취소하기</button>
+  <button class="btn-line" onclick="closeS(4)">돌아가기</button>
+</div>
+<!-- 시트5: 취소 완료 -->
+<div class="bk" id="bk5" onclick="closeS(5)"></div>
+<div class="bs" id="s5">
+  <div class="bs-bar"></div>
+  <div class="cancel-circle"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M8 8l12 12M20 8L8 20" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg></div>
+  <div class="done-amt" style="color:var(--t3)" id="camt2">0<span>원</span></div>
+  <div class="done-sub">결제가 취소되었습니다</div>
+  <div class="done-info cancel" id="cinfo"></div>
+  <button class="btn-main" onclick="closeS(5);goTab(2)">🎫 쿠폰 다시 사용하기</button>
+  <button class="btn-line" onclick="closeS(5)">닫기</button>
+</div>
+<!-- 시트6: 선물하기 -->
+<div class="bk" id="bk6" onclick="closeS(6)"></div>
+<div class="bs" id="s6">
+  <div class="bs-bar"></div><div class="bs-ico">🎁</div>
+  <div class="bs-title">쿠폰 선물하기</div><div class="bs-sub" id="s6sub"></div>
+  <div style="font-size:13px;font-weight:600;margin-bottom:5px">받는 사람 아이디</div>
+  <input class="gift-input" id="gift-to" placeholder="친구 아이디 입력"/>
+  <div style="font-size:13px;font-weight:600;margin-bottom:5px">메시지 (선택)</div>
+  <textarea class="gift-area" id="gift-msg" placeholder="함께 써요 😊"></textarea>
+  <button class="btn-main" onclick="sendGift()">🎁 선물 보내기</button>
+  <button class="btn-line" onclick="closeS(6)">취소</button>
+</div>
+<!-- 시트7: 공유 -->
+<div class="bk" id="bk7" onclick="closeS(7)"></div>
+<div class="bs" id="s7">
+  <div class="bs-bar"></div>
+  <div class="bs-title" style="margin-bottom:4px">공유하기</div>
+  <div style="font-size:12px;color:var(--t4);text-align:center;margin-bottom:16px" id="share-prod-name"></div>
+  <div class="share-grid">
+    <div class="share-item" onclick="doShare('kakao')">
+      <div class="share-ico" style="background:#FEE500">
+        <svg width="26" height="24" viewBox="0 0 26 24" fill="none"><path d="M13 0C5.82 0 0 4.7 0 10.5c0 3.74 2.43 7.03 6.1 8.93L4.9 24l6.1-3.62c.65.09 1.32.14 2 .14 7.18 0 13-4.7 13-10.52C26 4.7 20.18 0 13 0z" fill="#3A1D1D"/></svg>
+      </div>
+      <div class="share-label">카카오톡</div>
+    </div>
+    <div class="share-item" onclick="doShare('link')"><div class="share-ico" style="background:var(--bg)">🔗</div><div class="share-label">링크 복사</div></div>
+    <div class="share-item" onclick="doShare('insta')"><div class="share-ico" style="background:var(--blu-lt)">📷</div><div class="share-label">인스타그램</div></div>
+    <div class="share-item" onclick="doShare('copy')"><div class="share-ico" style="background:var(--grn-lt)">📋</div><div class="share-label">텍스트 복사</div></div>
+  </div>
+  <div style="background:var(--y-lt);border-radius:var(--rs);padding:10px 12px;font-size:11px;color:#7A5000;line-height:1.6;margin-bottom:14px">
+    💡 <b>카카오톡 공유</b> 버튼을 누르면 폰의 공유 메뉴가 열립니다.<br/>
+    공유 메뉴에서 카카오톡을 선택하세요!
+  </div>
+  <button class="btn-line" onclick="closeS(7)">닫기</button>
+</div>
+<!-- 시트8: 리뷰 작성 -->
+<div class="bk" id="bk8" onclick="closeS(8)"></div>
+<div class="bs" id="s8">
+  <div class="bs-bar"></div><div class="bs-title">후기 작성하기</div><div class="bs-sub" id="s8sub"></div>
+  <div class="star-input" id="star-input"><span onclick="setStar(1)">☆</span><span onclick="setStar(2)">☆</span><span onclick="setStar(3)">☆</span><span onclick="setStar(4)">☆</span><span onclick="setStar(5)">☆</span></div>
+  <textarea class="review-input" id="review-text" placeholder="구매 경험을 공유해 주세요 (최소 10자)"></textarea>
+  <button class="btn-main" onclick="submitReview()">후기 등록하기</button>
+  <button class="btn-line" onclick="closeS(8)">취소</button>
+</div>
+<!-- 시트9: 관리자 상품 추가/편집 -->
+<div class="bk" id="bk9" onclick="closeS(9)"></div>
+<div class="bs" id="s9">
+  <div class="bs-bar"></div>
+  <div class="bs-title" id="s9title">상품 추가</div>
+  <div class="bs-sub">상품 정보를 입력하세요</div>
+  <div class="admin-form-row"><div class="admin-form-label">상품명 *</div><input class="admin-form-input" id="af-name" placeholder="예: 스타벅스 아메리카노 10잔"/></div>
+  <div class="admin-form-row"><div class="admin-form-label">브랜드 *</div><input class="admin-form-input" id="af-brand" placeholder="예: STARBUCKS"/></div>
+  <div class="admin-form-row"><div class="admin-form-label">카테고리</div>
+    <select class="admin-form-input" id="af-cat"><option value="카페">카페</option><option value="음식">음식</option><option value="쇼핑">쇼핑</option><option value="문화">문화</option><option value="생활">생활</option></select></div>
+  <div class="admin-form-grid">
+    <div class="admin-form-row"><div class="admin-form-label">정가 (원) *</div><input class="admin-form-input" id="af-ori" type="number" placeholder="30000"/></div>
+    <div class="admin-form-row"><div class="admin-form-label">할인가 (원) *</div><input class="admin-form-input" id="af-dis" type="number" placeholder="18000"/></div>
+    <div class="admin-form-row"><div class="admin-form-label">총 수량 *</div><input class="admin-form-input" id="af-total" type="number" placeholder="100"/></div>
+    <div class="admin-form-row"><div class="admin-form-label">배지</div>
+      <select class="admin-form-input" id="af-badge"><option value="hot">🔥 HOT</option><option value="new">✨ NEW</option><option value="end">⏰ 마감임박</option><option value="best">👑 BEST</option></select></div>
+  </div>
+  <div class="admin-form-row"><div class="admin-form-label">이미지 URL</div><input class="admin-form-input" id="af-img" placeholder="https://..."/></div>
+  <div class="admin-form-row"><div class="admin-form-label">상품 설명</div><textarea class="admin-form-input" id="af-desc" rows="3" style="resize:none" placeholder="상품 상세 설명..."></textarea></div>
+  <input type="hidden" id="af-edit-id"/>
+  <button class="btn-main" onclick="saveAdminProduct()" style="background:var(--pur);box-shadow:none">저장하기</button>
+  <button class="btn-line" onclick="closeS(9)">취소</button>
+</div>
+
+<!-- ══ 알림 슬라이드 페이지 ══ -->
+<div class="detail-page" id="notif-page">
+  <div class="detail-hd">
+    <button class="detail-back" onclick="closeNotifPage()">←</button>
+    <span class="detail-hd-title">🔔 알림</span>
+    <button onclick="readAllNotifs()" style="font-size:12px;color:var(--t3);background:none;border:none;cursor:pointer;font-family:inherit;padding:0 4px;white-space:nowrap">모두 읽음</button>
+  </div>
+  <div id="notif-list" style="padding-top:4px"></div>
+</div>
+
+<!-- ══ 내역 상세 바텀시트 ══ -->
+<div class="bk" id="bk10" onclick="closeS(10)"></div>
+<div class="bs" id="s10">
+  <div class="bs-bar"></div>
+  <div id="hx-detail-body"></div>
+</div>
+
+<!-- ══ 로그아웃 확인 시트 ══ -->
+<div class="bk" id="logout-bk" onclick="closeLogoutSheet()" style="z-index:600"></div>
+<div class="bs" id="logout-sheet" style="z-index:601">
+  <div class="bs-bar"></div>
+  <div class="bs-ico">👤</div>
+  <div class="bs-title">로그아웃</div>
+  <div class="bs-sub"><b id="logout-uid"></b>님, 정말 로그아웃 하시겠어요?</div>
+  <button class="btn-red" onclick="doLogout()">로그아웃</button>
+  <button class="btn-line" onclick="closeLogoutSheet()">취소</button>
+</div>
+
+<!-- ══ 로그인 모달 ══ -->
+<div class="login-modal-bk" id="loginModal">
+  <div class="login-modal">
+    <div class="lm-bar"></div>
+    <div class="lm-lock" id="lm-lock">🔒</div>
+    <div class="lm-title" id="loginTitle">로그인</div>
+    <div class="lm-desc" id="loginDesc">KB Pay 서비스 이용을 위해<br/>로그인해 주세요</div>
+    <div class="lm-field"><div class="lm-label">아이디</div><input class="lm-input" id="loginId" placeholder="아이디 입력" onkeydown="if(event.key==='Enter')document.getElementById('loginPw').focus()"/></div>
+    <div class="lm-field"><div class="lm-label">비밀번호</div><input class="lm-input" id="loginPw" type="password" placeholder="비밀번호 입력" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+    <div class="lm-error" id="lm-error">아이디 또는 비밀번호가 올바르지 않습니다.</div>
+    <div class="lm-hint" style="margin-bottom:14px">
+      일반 사용자: <b>user01 ~ user10</b> / 비밀번호 <b>1234</b><br/>
+      관리자: 아이디 <b>admin</b> / 비밀번호 <b>admin1234</b>
+    </div>
+    <button class="btn-main" onclick="doLogin()">로그인</button>
+    <button class="btn-line" onclick="closeLogin()">취소</button>
+  </div>
+</div>
+
+<!-- ══ 하단 네비 (5탭) ══ -->
+<nav class="bnav">
+  <div class="bn on" id="bn0" onclick="goTab(0)"><div class="bn-ico">🏠</div><div class="bn-lbl">홈</div></div>
+  <div class="bn"    id="bn1" onclick="goTab(1)"><div class="bn-ico">❤️</div><div class="bn-lbl">찜</div></div>
+  <div class="bn"    id="bn2" onclick="goTab(2)"><div class="bn-ico">🎫</div><div class="bn-lbl">쿠폰함</div></div>
+  <div class="bn"    id="bn3" onclick="goTab(3)"><div class="bn-ico">📋</div><div class="bn-lbl">내역</div></div>
+  <div class="bn"    id="bn4" onclick="goTab(4)"><div class="bn-ico">👤</div><div class="bn-lbl">MY</div></div>
+</nav>
+
+
+<script>
+/* ══════════════════════════════════════
+   KB Pay 바로할인 — API 연동 버전
+   localStorage → Spring Boot REST API
+══════════════════════════════════════ */
+
+const API = '';  // 같은 서버에서 제공하므로 경로만 사용
+
+/* ── 상태 ── */
+let uid = sessionStorage.getItem('kbp_uid') || '';
+let userInfo = JSON.parse(sessionStorage.getItem('kbp_user') || 'null');
+let PRODS = [];
+let wishes = [];
+let recentViewed = JSON.parse(localStorage.getItem('kbp_rv') || '[]');
+let cur = null, cancelTarget = null, curPid = null;
+let curCat = '전체', curSort = 'default', searchQ = '';
+let myTabIdx = 0, histTabIdx = 0, reviewStar = 5, usePoint = false;
+let openSheets = [], loginCb = null, currentTab = 0;
+
+const isAdmin = () => userInfo && userInfo.isAdmin;
+const CATS = ['전체','카페','음식','쇼핑','문화','생활'];
+const GRADES = [
+  {name:'일반',icon:'⭐',bg:'linear-gradient(120deg,#888,#aaa)',next:'실버',next_at:50000},
+  {name:'실버',icon:'🥈',bg:'linear-gradient(120deg,#7C8DB0,#B0BEC5)',next:'골드',next_at:200000},
+  {name:'골드',icon:'🥇',bg:'linear-gradient(120deg,#F0A500,#FFB800)',next:'VIP',next_at:500000},
+  {name:'VIP', icon:'💎',bg:'linear-gradient(120deg,#7C3AED,#A855F7)',next:null,next_at:Infinity},
+];
+
+/* ══ API 호출 헬퍼 ══ */
+async function api(method, path, body) {
+  try {
+    const opts = { method, headers: { 'Content-Type': 'application/json' } };
+    if (body) opts.body = JSON.stringify(body);
+    const res = await fetch(API + path, opts);
+    return await res.json();
+  } catch(e) {
+    console.error('API 오류:', e);
+    return { success: false, message: '서버 연결 오류' };
+  }
+}
+const GET  = (path)       => api('GET',    path);
+const POST = (path, body) => api('POST',   path, body);
+const PUT  = (path, body) => api('PUT',    path, body);
+const DEL  = (path)       => api('DELETE', path);
+
+/* ══ 진동 ══ */
+function vibrate(p){ try{ if(navigator.vibrate) navigator.vibrate(p); }catch(e){} }
+const VP=[60,40,60,40,180], VC=[50,50,50], VE=[100,60,100], VT=[20];
+
+/* ══ 로그인 ══ */
+function requireLogin(title, desc, cb) {
+  if (uid) { cb(); return; }
+  loginCb = cb;
+  document.getElementById('loginTitle').textContent = title;
+  document.getElementById('loginDesc').innerHTML = desc;
+  document.getElementById('loginId').value = '';
+  document.getElementById('loginPw').value = '';
+  document.getElementById('lm-error').classList.remove('show');
+  document.getElementById('loginId').classList.remove('err');
+  document.getElementById('loginPw').classList.remove('err');
+  document.getElementById('loginModal').classList.add('on');
+  history.pushState({ modal: 'login' }, '');
+  setTimeout(() => document.getElementById('loginId').focus(), 400);
+}
+
+async function doLogin() {
+  const id = document.getElementById('loginId').value.trim();
+  const pw = document.getElementById('loginPw').value;
+  const errEl = document.getElementById('lm-error');
+  ['loginId','loginPw'].forEach(x => document.getElementById(x).classList.remove('err'));
+  errEl.classList.remove('show');
+
+  if (!id) { document.getElementById('loginId').classList.add('err'); errEl.textContent='아이디를 입력해주세요.'; errEl.classList.add('show'); return; }
+  if (!pw) { document.getElementById('loginPw').classList.add('err'); errEl.textContent='비밀번호를 입력해주세요.'; errEl.classList.add('show'); return; }
+
+  const res = await POST('/api/login', { userId: id, password: pw });
+  if (!res.success) {
+    ['loginId','loginPw'].forEach(x => document.getElementById(x).classList.add('err'));
+    errEl.textContent = res.message || '아이디 또는 비밀번호가 올바르지 않습니다.';
+    errEl.classList.add('show');
+    vibrate(VE);
+    const pwEl = document.getElementById('loginPw');
+    pwEl.style.animation = 'shake .3s ease';
+    setTimeout(() => pwEl.style.animation = '', 350);
+    return;
+  }
+
+  uid = res.data.userId;
+  userInfo = res.data;
+  sessionStorage.setItem('kbp_uid', uid);
+  sessionStorage.setItem('kbp_user', JSON.stringify(userInfo));
+
+  document.getElementById('huid').textContent = uid;
+  document.getElementById('hbtn').classList.add('on');
+  document.getElementById('admin-hd-badge').style.display = isAdmin() ? 'inline-block' : 'none';
+  document.getElementById('admin-bar').style.display = isAdmin() ? 'flex' : 'none';
+
+  closeLogin();
+  toast(isAdmin() ? `🔧 관리자로 로그인했습니다` : `안녕하세요, ${uid}님! 👋`, 'ok');
+
+  // 찜 목록 로드
+  await loadWishes();
+  updateNotifBadge();
+  render();
+
+  if (loginCb) { const cb = loginCb; loginCb = null; cb(); }
+}
+
+function closeLogin() { document.getElementById('loginModal').classList.remove('on'); loginCb = null; }
+
+function setUser() {
+  if (uid) { openLogoutSheet(); return; }
+  requireLogin('로그인', 'KB Pay 서비스 이용을 위해<br/>로그인해 주세요', () => {});
+}
+
+/* ── 로그아웃 ── */
+function openLogoutSheet() {
+  document.getElementById('logout-uid').textContent = uid;
+  document.getElementById('logout-bk').classList.add('on');
+  document.getElementById('logout-sheet').classList.add('on');
+  history.pushState({ sheet: 'logout' }, '');
+}
+function closeLogoutSheet() {
+  document.getElementById('logout-bk').classList.remove('on');
+  document.getElementById('logout-sheet').classList.remove('on');
+}
+function doLogout() {
+  uid = ''; userInfo = null; wishes = []; cur = null; curPid = null;
+  sessionStorage.removeItem('kbp_uid');
+  sessionStorage.removeItem('kbp_user');
+  document.getElementById('huid').textContent = '로그인';
+  document.getElementById('hbtn').classList.remove('on');
+  document.getElementById('admin-hd-badge').style.display = 'none';
+  document.getElementById('admin-bar').style.display = 'none';
+  closeLogoutSheet(); closeNotifPage();
+  updateNotifBadge();
+  currentTab = 0;
+  for (let i = 0; i < 5; i++) {
+    document.getElementById(`pg${i}`).style.display = i === 0 ? 'block' : 'none';
+    document.getElementById(`bn${i}`).classList.toggle('on', i === 0);
+  }
+  render();
+  toast('로그아웃 되었습니다.', 'inf');
+}
+
+/* ══ 탭 ══ */
+function goTab(n) {
+  const needLogin = [1,2,3,4];
+  const msgs = {
+    1:['❤️ 찜','찜 목록 확인을 위해 로그인해 주세요'],
+    2:['🎫 쿠폰함','쿠폰함 이용을 위해 로그인해 주세요'],
+    3:['📋 이용내역','이용내역 조회를 위해 로그인해 주세요'],
+    4:['👤 MY','MY 페이지 이용을 위해 로그인해 주세요']
+  };
+  if (needLogin.includes(n) && !uid) { requireLogin(msgs[n][0], msgs[n][1], () => goTab(n)); return; }
+  currentTab = n;
+  for (let i = 0; i < 5; i++) {
+    document.getElementById(`pg${i}`).style.display = i === n ? 'block' : 'none';
+    document.getElementById(`bn${i}`).classList.toggle('on', i === n);
+  }
+  if (n !== 0) history.pushState({ tab: n }, '');
+  if (n === 1) renderWish();
+  if (n === 2) loadMyCoupons();
+  if (n === 3) loadHistory();
+  if (n === 4) renderMyPage();
+}
+
+/* ══ 타이머 ══ */
+(function(){ const tick=()=>{ const now=new Date(),end=new Date(); end.setHours(23,59,59,999); const d=end-now,f=n=>String(Math.floor(n)).padStart(2,'0'); const el=document.getElementById('timer'); if(el) el.textContent=`${f(d/3600000)}:${f((d%3600000)/60000)}:${f((d%60000)/1000)}`; }; tick(); setInterval(tick,1000); })();
+
+/* ══ 인기 급상승 ══ */
+function renderHotRank() {
+  const sorted = [...PRODS].sort((a,b) => b.buyers - a.buyers).slice(0,6);
+  document.getElementById('hot-rank').innerHTML = sorted.map((p,i) =>
+    `<div class="hr-item" onclick="openDetail(${p.id})"><div class="hr-num">${i+1}</div><div class="hr-name">${p.brandName}</div><div class="hr-rate">-${p.discountRate}%</div></div>`
+  ).join('');
+}
+
+/* ══ 최근 본 상품 ══ */
+function addRecent(pid) {
+  recentViewed = [pid, ...recentViewed.filter(x=>x!==pid)].slice(0,8);
+  localStorage.setItem('kbp_rv', JSON.stringify(recentViewed));
+  renderRecent();
+}
+function renderRecent() {
+  const sec = document.getElementById('recent-sec');
+  if (!recentViewed.length || !PRODS.length) { if(sec) sec.style.display='none'; return; }
+  if(sec) sec.style.display='block';
+  const el = document.getElementById('recent-scroll');
+  if(el) el.innerHTML = recentViewed.map(pid => {
+    const p = PRODS.find(x=>x.id===pid); if(!p) return '';
+    return `<div class="recent-item" onclick="openDetail(${p.id})"><img class="recent-img" src="${p.imageUrl}" onerror="this.style.background='#eee'"/><div class="recent-name">${p.productName}</div></div>`;
+  }).join('');
+}
+
+/* ══ 카테고리/정렬/검색 ══ */
+function renderCats() {
+  document.getElementById('catRow').innerHTML = CATS.map(c =>
+    `<button class="cat-btn${c===curCat?' on':''}" onclick="setCat('${c}')">${c}</button>`
+  ).join('');
+}
+function setCat(c) { curCat=c; renderCats(); render(); }
+function setSort(s,el) { curSort=s; document.querySelectorAll('.sort-btn').forEach(b=>b.classList.remove('on')); el.classList.add('on'); render(); }
+function doSearch(q) { searchQ=q; document.getElementById('search-clear').style.display=q?'inline':'none'; render(); }
+function clearSearch() { searchQ=''; document.getElementById('search-inp').value=''; document.getElementById('search-clear').style.display='none'; render(); }
+
+/* ══ 상품 목록 로드 (API) ══ */
+async function loadProducts() {
+  const res = await GET('/api/products');
+  if (res.success) {
+    PRODS = res.data.map(p => ({
+      ...p,
+      // API 필드명 → 기존 변수명 매핑
+      name: p.productName, brand: p.brandName,
+      ori: p.originalPrice, dis: p.discountedPrice, rate: p.discountRate,
+      total: p.totalCount, remaining: p.remainingCount,
+      img: p.imageUrl, cat: p.category, badge: p.badge,
+      buyers: p.buyers, rating: p.rating, reviews: p.reviewCount,
+      desc: p.description, notice: p.notice,
+      timer: 86400
+    }));
+    renderHotRank(); renderRecent(); render();
+  }
+}
+
+/* ══ 상품 타이머 ══ */
+const ptIvs = {};
+function startProdTimer(pid, secs) {
+  if (ptIvs[pid]) return;
+  ptIvs[pid] = secs;
+  const iv = setInterval(() => {
+    ptIvs[pid]--;
+    const el = document.getElementById(`pt-${pid}`);
+    if (el) { const s=ptIvs[pid]; el.textContent=`${String(Math.floor(s/3600)).padStart(2,'0')}:${String(Math.floor((s%3600)/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; }
+    if (ptIvs[pid] <= 0) clearInterval(iv);
+  }, 1000);
+}
+
+/* ══ 상품 렌더 ══ */
+function render() {
+  let list = curCat==='전체' ? [...PRODS] : PRODS.filter(p=>p.cat===curCat);
+  if (searchQ) { const q=searchQ.toLowerCase(); list=list.filter(p=>p.name.toLowerCase().includes(q)||p.brand.toLowerCase().includes(q)); }
+  if (curSort==='rate')    list.sort((a,b)=>b.rate-a.rate);
+  else if (curSort==='price')   list.sort((a,b)=>a.dis-b.dis);
+  else if (curSort==='popular') list.sort((a,b)=>b.buyers-a.buyers);
+
+  document.getElementById('rem-cnt').textContent = `${list.length}개 상품`;
+  const bmap = {hot:'🔥 HOT',new:'✨ NEW',end:'⏰ 마감임박',best:'👑 BEST'};
+
+  document.getElementById('plist').innerHTML = list.length===0
+    ? `<div class="empty"><div class="emo">🔍</div><p>검색 결과가 없습니다</p></div>`
+    : list.map(p => {
+      const isWished = wishes.includes(p.id);
+      const out = p.remaining <= 0;
+      const pct = ((p.total-p.remaining)/p.total*100).toFixed(1);
+      const low = p.remaining<=15 && !out;
+      setTimeout(() => startProdTimer(p.id, p.timer||86400), 100);
+      return `
+      <div class="pc${out?' done':''}" id="pc${p.id}" style="position:relative">
+        ${out?'<div class="sold-ov"><div class="sold-tag">SOLD OUT</div></div>':''}
+        ${isAdmin()?`<div class="admin-edit-overlay"><button class="admin-edit-btn" onclick="event.stopPropagation();openAdminEdit(${p.id})">편집</button><button class="admin-del-btn" onclick="event.stopPropagation();delProduct(${p.id})">삭제</button></div>`:''}
+        <div class="pc-row" onclick="openDetail(${p.id})">
+          <div class="pc-thumb">
+            <img src="${p.img}" alt="${p.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/108x108/eee/aaa?text=IMG'"/>
+            <div class="pc-thumb-dim"></div>
+            <span class="pc-tag ${p.badge}">${bmap[p.badge]||''}</span>
+          </div>
+          <div class="pc-info">
+            <div>
+              <div class="pc-top">
+                <div><div class="pc-brand">${p.brand}</div><div class="pc-name">${p.name}</div></div>
+                <button class="heart-btn" onclick="event.stopPropagation();toggleHeart(${p.id})">${isWished?'❤️':'🤍'}</button>
+              </div>
+              <div class="pc-meta"><span class="pc-stars">⭐${p.rating}</span><span class="pc-buyers">(${p.reviews}개) · ${p.buyers.toLocaleString()}명</span></div>
+            </div>
+            <div>
+              <div class="pc-price-row"><span class="pc-rate">${p.rate}%</span><span class="pc-now">${p.dis.toLocaleString()}<small>원</small></span><span class="pc-ori">${p.ori.toLocaleString()}원</span></div>
+              <div class="pbar-row"><div class="pbar-track"><div class="pbar-fill${low||out?' crit':''}" style="width:${pct}%"></div></div><span class="pbar-rem ${out?'end':low?'low':'ok'}">${out?'마감':`잔여 ${p.remaining}`}</span></div>
+              ${!out?`<div style="margin-top:4px"><span class="pc-timer" id="pt-${p.id}">--:--:--</span></div>`:''}
+            </div>
+          </div>
+        </div>
+        <div class="pc-btn-wrap">
+          ${out
+            ? `<button class="btn-apply" disabled>선착순 마감</button>`
+            : `<button class="btn-apply" id="btn${p.id}" onclick="apply(${p.id})">바로 할인 받기</button>`}
+        </div>
+      </div>`;
+    }).join('');
+  list.forEach(p => setTimeout(() => startProdTimer(p.id, p.timer||86400), 150));
+}
+
+/* ══ 찜 ══ */
+async function loadWishes() {
+  if (!uid) return;
+  const res = await GET(`/api/wish/${uid}`);
+  if (res.success) wishes = res.data;
+}
+async function toggleHeart(pid) {
+  requireLogin('찜하기','찜 목록에 저장하려면 로그인해 주세요', async () => {
+    const res = await POST('/api/wish', { userId: uid, productId: pid });
+    if (res.success) {
+      if (res.data) { wishes.push(pid); toast('❤️ 찜 목록에 추가되었습니다!','ok'); }
+      else { wishes = wishes.filter(x=>x!==pid); toast('찜 목록에서 제거되었습니다.','inf'); }
+      render(); if(currentTab===1) renderWish();
+    }
+  });
+}
+async function toggleHeartDetail() {
+  if (!curPid) return;
+  requireLogin('찜하기','찜 목록에 저장하려면 로그인해 주세요', async () => {
+    const res = await POST('/api/wish', { userId: uid, productId: curPid });
+    if (res.success) {
+      if (res.data) { wishes.push(curPid); toast('❤️ 찜했습니다!','ok'); }
+      else { wishes = wishes.filter(x=>x!==curPid); toast('찜 목록에서 제거되었습니다.','inf'); }
+      updateDetailHeart(); render(); if(currentTab===1) renderWish();
+    }
+  });
+}
+function updateDetailHeart() {
+  const on = wishes.includes(curPid);
+  ['detail-heart-hd','detail-heart-btn'].forEach(id => { const el=document.getElementById(id); if(el){el.textContent=on?'❤️':'🤍'; el.classList&&el.classList.toggle('on',on);} });
+}
+async function renderWish() {
+  await loadWishes();
+  const wp = PRODS.filter(p=>wishes.includes(p.id));
+  document.getElementById('wish-count').textContent = `${wp.length}개`;
+  document.getElementById('wish-grid').innerHTML = wp.length===0
+    ? `<div class="empty" style="grid-column:1/-1"><div class="emo">❤️</div><p>찜한 상품이 없어요</p><button class="empty-btn" onclick="goTab(0)">🛒 쇼핑하러 가기</button></div>`
+    : wp.map(p=>`<div class="wish-card" onclick="openDetail(${p.id})"><img class="wish-card-img" src="${p.img}" onerror="this.style.background='#eee'"/><button class="wish-del" onclick="event.stopPropagation();toggleHeart(${p.id})">✕</button><div class="wish-card-body"><div class="wish-card-brand">${p.brand}</div><div class="wish-card-name">${p.name}</div><div style="font-size:11px;color:var(--red);font-weight:700">↓${p.rate}%</div><div style="font-size:14px;font-weight:800">${p.dis.toLocaleString()}원</div></div></div>`).join('');
+}
+
+/* ══ 상세 페이지 ══ */
+async function openDetail(pid) {
+  const p = PRODS.find(x=>x.id===pid); if(!p) return;
+  curPid = pid; addRecent(pid);
+  document.getElementById('detail-hd-title').textContent = p.name;
+  document.getElementById('detail-img').src = p.img||'';
+  document.getElementById('detail-brand').textContent = p.brand;
+  document.getElementById('detail-name').textContent = p.name;
+  document.getElementById('detail-rate').textContent = `${p.rate}% 할인`;
+  document.getElementById('detail-now').textContent = `${p.dis.toLocaleString()}원`;
+  document.getElementById('detail-ori').textContent = `${p.ori.toLocaleString()}원`;
+  document.getElementById('detail-save').textContent = `${(p.ori-p.dis).toLocaleString()}원 절약!`;
+  document.getElementById('detail-meta').innerHTML = `<div class="dm-item"><span>⭐</span><b>${p.rating}</b><span>(${p.reviews}개 후기)</span></div><div class="dm-item"><span>👥</span><b>${p.buyers.toLocaleString()}명</b><span>구매</span></div><div class="dm-item"><span>🎫</span><b>잔여 ${p.remaining}매</b></div>`;
+  const pct = ((p.total-p.remaining)/p.total*100).toFixed(1);
+  document.getElementById('detail-pbar').style.width = pct+'%';
+  document.getElementById('detail-pbar').className = 'detail-pbar-fill'+(p.remaining<=10?' crit':'');
+  document.getElementById('detail-rem-txt').textContent = `잔여 ${p.remaining}/${p.total}매`;
+  document.getElementById('detail-desc').textContent = p.desc||'';
+  document.getElementById('detail-notice').innerHTML = '⚠️ 유의사항<br/>'+(p.notice||'').replace(/\n/g,'<br/>');
+  document.getElementById('detail-table').innerHTML = `<tr><td>브랜드</td><td>${p.brand}</td></tr><tr><td>카테고리</td><td>${p.cat}</td></tr><tr><td>정상가</td><td>${p.ori.toLocaleString()}원</td></tr><tr><td>할인가</td><td style="color:var(--red);font-weight:700">${p.dis.toLocaleString()}원 (${p.rate}%↓)</td></tr><tr><td>유효기간</td><td>발급 후 30일</td></tr>`;
+  updateDetailHeart();
+  const ab = document.getElementById('detail-apply-btn');
+  ab.textContent = p.remaining<=0 ? '선착순 마감' : '바로 할인 받기';
+  ab.disabled = p.remaining<=0;
+  document.getElementById('detail-page').classList.add('on');
+  history.pushState({ detail: pid }, '');
+  const sn = document.getElementById('share-prod-name'); if(sn) sn.textContent = p.name;
+  // 리뷰 로드
+  await loadDetailReviews(pid);
+  // 타이머
+  let secs = p.timer||86400;
+  const dtv = document.getElementById('detail-timer-val');
+  const f = n => String(Math.floor(n)).padStart(2,'0');
+  const dtick = () => { if(dtv) dtv.textContent=`${f(secs/3600)}:${f((secs%3600)/60)}:${f(secs%60)}`; secs--; };
+  dtick(); const iv = setInterval(()=>{ if(!document.getElementById('detail-page').classList.contains('on')){clearInterval(iv);return;} dtick(); },1000);
+}
+function closeDetail() { document.getElementById('detail-page').classList.remove('on'); }
+function applyFromDetail() { if(curPid) apply(curPid); }
+
+/* ══ 리뷰 ══ */
+async function loadDetailReviews(pid) {
+  const res = await GET(`/api/reviews/${pid}`);
+  const rv = res.success ? res.data : [];
+  const avg = rv.length ? rv.reduce((a,r)=>a+r.star,0)/rv.length : 0;
+  const dist = [5,4,3,2,1].map(s=>rv.filter(r=>r.star===s).length);
+  document.getElementById('review-summary').innerHTML = `
+    <div><div class="review-big-score">${avg>0?avg.toFixed(1):'0.0'}</div><div style="font-size:20px">${'⭐'.repeat(Math.round(avg))}</div><div class="review-count">총 ${rv.length}개</div></div>
+    <div class="review-bars">${[5,4,3,2,1].map((s,i)=>`<div class="rbar-row"><span class="rbar-label">${s}</span><div class="rbar-track"><div class="rbar-fill" style="width:${rv.length?dist[i]/rv.length*100:0}%"></div></div></div>`).join('')}</div>`;
+  document.getElementById('review-list').innerHTML = rv.length===0
+    ? '<div style="text-align:center;padding:20px;color:var(--t4);font-size:13px">첫 번째 후기를 작성해보세요!</div>'
+    : rv.slice(0,5).map(r=>`<div class="review-card"><div class="rv-top"><span class="rv-user">${r.userId}</span><span class="rv-date">${r.createdAt}</span></div><div style="font-size:13px;margin-bottom:4px">${'⭐'.repeat(r.star)}</div><div class="rv-text">${r.content}</div></div>`).join('');
+  document.getElementById('write-review-btn').style.display = uid ? 'block' : 'none';
+}
+function openWriteReview() {
+  requireLogin('후기 작성','후기를 작성하려면 로그인해 주세요', () => {
+    const p=PRODS.find(x=>x.id===curPid); document.getElementById('s8sub').textContent=p?p.name:'';
+    reviewStar=5; setStar(5); document.getElementById('review-text').value=''; openS(8);
+  });
+}
+function setStar(n) { reviewStar=n; document.getElementById('star-input').querySelectorAll('span').forEach((s,i)=>s.textContent=i<n?'⭐':'☆'); }
+async function submitReview() {
+  const txt = document.getElementById('review-text').value.trim();
+  if (txt.length<10) { toast('후기를 10자 이상 작성해주세요.','err'); return; }
+  const res = await POST('/api/reviews', { userId:uid, productId:curPid, star:reviewStar, content:txt });
+  if (res.success) { closeS(8); await loadDetailReviews(curPid); toast('후기가 등록되었습니다! ⭐','ok'); }
+  else toast(res.message,'err');
+}
+
+/* ══ 공유 ══ */
+function doShare(type) {
+  const p=PRODS.find(x=>x.id===curPid); if(!p) return; closeS(7);
+  const title=`[KB Pay 바로할인] ${p.name}`, text=`${p.rate}% 특가! ${p.dis.toLocaleString()}원`, url=window.location.href;
+  if (type==='kakao'||type==='insta') {
+    if (navigator.share) navigator.share({title,text,url}).then(()=>toast('공유되었습니다! 🎉','ok')).catch(()=>copyShare(title+'\n'+text+'\n'+url));
+    else { copyShare(title+'\n'+text+'\n'+url); toast('텍스트가 복사되었습니다. 카카오톡에 붙여넣기 하세요! 📋','inf'); }
+  } else if (type==='link') { copyShare(url); toast('링크가 복사되었습니다! 🔗','ok'); }
+  else if (type==='copy') { copyShare(title+'\n'+text); toast('텍스트가 복사되었습니다! 📋','ok'); }
+}
+function copyShare(text) { if(navigator.clipboard?.writeText) navigator.clipboard.writeText(text).catch(()=>legacyCopy(text)); else legacyCopy(text); }
+function legacyCopy(text) { const ta=document.createElement('textarea'); ta.value=text; ta.style.cssText='position:fixed;top:-9999px;opacity:0'; document.body.appendChild(ta); ta.focus(); ta.select(); try{document.execCommand('copy');}catch(e){} document.body.removeChild(ta); }
+
+/* ══ 쿠폰 발급 (API) ══ */
+async function apply(pid) {
+  requireLogin('쿠폰 발급','쿠폰 발급을 위해<br/>로그인해 주세요', async () => {
+    const btn = document.getElementById('btn'+pid);
+    if (btn) { btn.classList.add('ld'); btn.innerHTML='<span class="sp"></span>&nbsp;응모 중...'; btn.disabled=true; }
+    const res = await POST('/api/coupons/apply', { userId:uid, productId:pid });
+    if (res.success) {
+      vibrate(VC);
+      // 상품 잔여수 업데이트
+      const p = PRODS.find(x=>x.id===pid); if(p) p.remaining--;
+      cur = { ...res.data, pid, name:res.data.productName, brand:res.data.brandName, img:res.data.imageUrl, amt:res.data.discountAmount, dis:res.data.discountedPrice, ori:res.data.originalPrice, exp:res.data.expiredAt, code:res.data.couponCode };
+      render();
+      if (curPid===pid) { const ab=document.getElementById('detail-apply-btn'); if(ab){ab.textContent='바로 할인 받기';ab.disabled=false;} }
+      showR(true, { couponCode:res.data.couponCode, discountAmount:res.data.discountAmount, message:`${res.data.brandName} 할인 쿠폰 발급 완료!` });
+    } else {
+      if (btn) { btn.classList.remove('ld'); btn.disabled=false; btn.textContent='바로 할인 받기'; }
+      showR(false, { message: res.message });
+    }
+  });
+}
+
+function useCouponFromList(code, couponData) {
+  cur = couponData; cur.code = code; openPayS();
+}
+
+function showR(ok, r) {
+  document.getElementById('s1i').textContent = ok?'🎉':'😢';
+  document.getElementById('s1t').textContent = ok?'쿠폰 발급 완료!':'선착순 마감!';
+  document.getElementById('s1s').textContent = r.message;
+  document.getElementById('cpnbox').style.display = ok?'block':'none';
+  document.getElementById('btntopay').style.display = ok?'block':'none';
+  document.getElementById('btnmypage').style.display = ok?'block':'none';
+  if (ok) {
+    document.getElementById('ccode').textContent = r.couponCode;
+    document.getElementById('camt').innerHTML = `${r.discountAmount.toLocaleString()}<small>원 할인</small>`;
+    document.getElementById('cexp').textContent = cur&&cur.exp ? `유효기간 ~${cur.exp.slice(0,10)}` : '유효기간 30일';
+  }
+  openS(1);
+}
+
+/* ══ 결제 ══ */
+function openPayS() {
+  if (!cur) return; closeS(1);
+  usePoint = false;
+  document.getElementById('pt-toggle').classList.remove('on');
+  document.getElementById('pt-use-amt').style.display = 'none';
+  const bal = userInfo ? userInfo.pointBalance : 0;
+  document.getElementById('avail-pt-txt').textContent = `보유 ${bal.toLocaleString()}P`;
+  setTimeout(() => { document.getElementById('s2pname').textContent = cur.productName||cur.name; updatePayBox(); openS(2); }, 260);
+}
+function togglePointUse() {
+  const bal = userInfo ? userInfo.pointBalance : 0;
+  if (bal < 100) { toast('포인트가 부족합니다 (최소 100P)','err'); return; }
+  usePoint = !usePoint;
+  document.getElementById('pt-toggle').classList.toggle('on', usePoint);
+  const ua = Math.min(bal, cur.discountedPrice||cur.dis);
+  document.getElementById('pt-use-amt').style.display = usePoint?'inline':'none';
+  document.getElementById('pt-use-amt').textContent = `-${ua.toLocaleString()}P`;
+  updatePayBox();
+}
+function updatePayBox() {
+  const dis = cur.discountedPrice||cur.dis, ori = cur.originalPrice||cur.ori, amt = cur.discountAmount||cur.amt;
+  const bal = userInfo ? userInfo.pointBalance : 0;
+  const pa = usePoint ? Math.min(bal, dis) : 0;
+  const fa = dis - pa;
+  document.getElementById('paybox').innerHTML = `
+    <div class="pr"><span class="l">정가</span><span class="v">${ori.toLocaleString()}원</span></div>
+    <div class="pr"><span class="l">KB페이 할인</span><span class="v" style="color:var(--red)">-${amt.toLocaleString()}원</span></div>
+    ${pa?`<div class="pr"><span class="l">포인트 사용</span><span class="v" style="color:var(--grn)">-${pa.toLocaleString()}P</span></div>`:''}
+    <div class="pr tot"><span class="l">최종 결제금액</span><span class="v">${fa.toLocaleString()}원</span></div>
+    <div style="margin-top:8px;font-size:11px;color:var(--t4);text-align:center">예상 포인트 적립 +${Math.floor(fa*.01).toLocaleString()}P</div>`;
+}
+async function finPay() {
+  const btn=document.getElementById('btnfin');
+  btn.innerHTML='<span class="sp"></span>&nbsp;처리 중...'; btn.disabled=true;
+  vibrate(VT);
+  const res = await POST('/api/pay', { userId:uid, couponCode:cur.couponCode||cur.code, usePoint });
+  if (res.success) {
+    vibrate(VP);
+    if (userInfo) { userInfo.pointBalance = (userInfo.pointBalance||0) - (res.data.pointUsed||0) + (res.data.pointEarned||0); sessionStorage.setItem('kbp_user', JSON.stringify(userInfo)); }
+    closeS(2);
+    setTimeout(() => {
+      document.getElementById('damt').innerHTML=`${res.data.paidAmount.toLocaleString()}<span>원</span>`;
+      document.getElementById('dsub').textContent=`${res.data.productName} · KB국민카드`;
+      document.getElementById('dinfo').innerHTML=`
+        <div class="di-row"><span class="l">할인 적용</span><span class="v" style="color:var(--red)">-${res.data.savedAmount.toLocaleString()}원!</span></div>
+        ${res.data.pointUsed?`<div class="di-row"><span class="l">포인트 사용</span><span class="v" style="color:var(--grn)">-${res.data.pointUsed.toLocaleString()}P</span></div>`:''}
+        <div class="di-row"><span class="l">포인트 적립</span><span class="v" style="color:var(--grn)">+${res.data.pointEarned.toLocaleString()}P</span></div>
+        <div class="di-row"><span class="l">결제 시각</span><span class="v">${new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})}</span></div>`;
+      openS(3); cur=null;
+    }, 230);
+    await loadProducts();
+    updateNotifBadge();
+  } else { toast(res.message,'err'); }
+  btn.innerHTML='결제하기'; btn.disabled=false;
+}
+
+/* ══ 취소 ══ */
+function askCancel(txId) {
+  cancelTarget = txId;
+  document.getElementById('s4box').innerHTML=`<div class="pr"><span class="l">취소 시 쿠폰이 복원됩니다</span></div>`;
+  openS(4);
+}
+async function doCancel() {
+  if (!cancelTarget) return;
+  const btn=document.getElementById('btncancel');
+  btn.innerHTML='<span class="sp"></span>&nbsp;처리 중...'; btn.disabled=true;
+  const res = await POST(`/api/pay/${cancelTarget}/cancel?userId=${uid}`);
+  if (res.success) {
+    vibrate(VT);
+    if (userInfo) { userInfo.pointBalance = (userInfo.pointBalance||0) - (res.data.pointEarned||0) + (res.data.pointUsed||0); sessionStorage.setItem('kbp_user', JSON.stringify(userInfo)); }
+    closeS(4);
+    setTimeout(() => {
+      document.getElementById('camt2').innerHTML=`${res.data.paidAmount.toLocaleString()}<span>원</span>`;
+      document.getElementById('cinfo').innerHTML=`<div class="di-row"><span class="l">취소 금액</span><span class="v">${res.data.paidAmount.toLocaleString()}원 환불</span></div><div class="di-row"><span class="l">쿠폰 상태</span><span class="v" style="color:var(--grn)">복원 완료 ✓</span></div>`;
+      openS(5); cancelTarget=null;
+    }, 220);
+    await loadHistory(); updateNotifBadge();
+  } else toast(res.message,'err');
+  btn.innerHTML='결제 취소하기'; btn.disabled=false;
+}
+
+/* ══ 쿠폰함 (API) ══ */
+async function loadMyCoupons() {
+  const res = await GET(`/api/my/${uid}`);
+  if (!res.success) return;
+  const d = res.data;
+  if (userInfo) { userInfo.pointBalance=d.pointBalance; userInfo.grade=d.grade; sessionStorage.setItem('kbp_user',JSON.stringify(userInfo)); }
+  const mine = d.coupons||[];
+  const avail=mine.filter(c=>c.status==='ISSUED').length, used=mine.filter(c=>c.status==='USED').length;
+  document.getElementById('my-body').innerHTML=`
+    <div class="my-card">
+      <div style="font-size:11px;color:rgba(0,0,0,.45);margin-bottom:2px">KB Pay 회원</div>
+      <div style="font-size:17px;font-weight:700;color:#111;margin-bottom:14px">👤 ${uid}</div>
+      <div class="my-stats">
+        <div class="my-st"><div class="my-st-n">${mine.length}</div><div class="my-st-l">전체쿠폰</div></div>
+        <div class="my-st"><div class="my-st-n" style="color:#003">${avail}</div><div class="my-st-l">사용가능</div></div>
+        <div class="my-st"><div class="my-st-n">${((d.totalSaved||0)/10000).toFixed(1)}만</div><div class="my-st-l">총절약액</div></div>
+      </div>
+    </div>
+    <div class="sub-tabs">
+      <button class="sub-tab${myTabIdx===0?' on':''}" onclick="switchMyTab(0)">전체(${mine.length})</button>
+      <button class="sub-tab${myTabIdx===1?' on':''}" onclick="switchMyTab(1)">가능(${avail})</button>
+      <button class="sub-tab${myTabIdx===2?' on':''}" onclick="switchMyTab(2)">완료(${used})</button>
+    </div>
+    <div id="cpn-list" style="margin-top:8px">${renderCpnList(mine, myTabIdx)}</div>`;
+}
+function switchMyTab(idx) { myTabIdx=idx; loadMyCoupons(); }
+function renderCpnList(mine, idx) {
+  let list=mine;
+  if(idx===1) list=mine.filter(c=>c.status==='ISSUED');
+  if(idx===2) list=mine.filter(c=>c.status==='USED');
+  if(!list.length) return `<div class="empty"><div class="emo">🎫</div><p>${idx===1?'사용 가능한':'사용 완료된'} 쿠폰이 없어요</p>${idx!==2?`<button class="empty-btn" onclick="goTab(0)">🔥 핫딜 보러가기</button>`:''}</div>`;
+  return list.map(c => {
+    const exp=c.expiredAt?c.expiredAt.slice(0,10):''; const d=Math.ceil((new Date(exp)-new Date())/864e5);
+    const eb=d<=3?`<span class="cc-exp-badge urgent">D-${d}</span>`:d<=7?`<span class="cc-exp-badge soon">D-${d}</span>`:`<span class="cc-exp-badge ok">~${exp}</span>`;
+    const cpnData={productName:c.productName,brandName:c.brandName,imageUrl:c.imageUrl,discountAmount:c.discountAmount,discountedPrice:c.discountedPrice,originalPrice:c.originalPrice,couponCode:c.couponCode};
+    return `<div class="cc">
+      <div class="cc-top"><img class="cc-img" src="${c.imageUrl||''}" onerror="this.style.background='#eee';this.removeAttribute('src')"/><div style="flex:1;min-width:0"><div class="cc-brand">${c.brandName}</div><div class="cc-name">${c.productName}</div>${eb}</div></div>
+      <div class="cc-bot"><div class="cc-code">${c.couponCode}</div><div class="cc-amt">${c.discountAmount.toLocaleString()}원</div>
+      ${c.status==='ISSUED'?`<button class="cc-use-btn" onclick="useCouponFromList('${c.couponCode}',${JSON.stringify(cpnData).replace(/"/g,"'")})">결제</button><button class="cc-gift-btn" onclick="openGift('${c.couponCode}','${c.productName}')">선물</button>`:`<span class="cc-st done">사용완료</span>`}
+      </div></div>`;
+  }).join('');
+}
+
+/* ══ 이용내역 (API) ══ */
+async function loadHistory() {
+  const res = await GET(`/api/history/${uid}`);
+  if (!res.success) return;
+  const myH=res.data||[];
+  const paid=myH.filter(h=>h.status==='PAID'), cancelled=myH.filter(h=>h.status==='CANCELLED');
+  const totalPaid=paid.reduce((a,h)=>a+h.paidAmount,0), totalSaved=paid.reduce((a,h)=>a+h.savedAmount,0);
+  document.getElementById('hist-body').innerHTML=`
+    <div class="list-label">💰 할인 혜택 요약</div>
+    <div class="disc-sum">
+      <div class="disc-row"><span class="l">총 결제 횟수</span><span class="v">${paid.length}건</span></div>
+      <div class="disc-row"><span class="l">총 결제 금액</span><span class="v">${totalPaid.toLocaleString()}원</span></div>
+      <div class="disc-row"><span class="l">KB포인트 잔액</span><span class="v" style="color:var(--grn)">${(userInfo?.pointBalance||0).toLocaleString()}P</span></div>
+      <div class="disc-row tot"><span class="l">🎉 총 절약 금액</span><span class="v">${totalSaved.toLocaleString()}원</span></div>
+    </div>
+    <div class="sub-tabs" style="margin:0 14px 8px">
+      <button class="sub-tab${histTabIdx===0?' on':''}" onclick="switchHistTab(0)">전체(${myH.length})</button>
+      <button class="sub-tab${histTabIdx===1?' on':''}" onclick="switchHistTab(1)">결제(${paid.length})</button>
+      <button class="sub-tab${histTabIdx===2?' on':''}" onclick="switchHistTab(2)">취소(${cancelled.length})</button>
+    </div>
+    <div id="hist-list">${renderHistList(myH, histTabIdx)}</div>`;
+}
+function switchHistTab(idx) { histTabIdx=idx; loadHistory(); }
+function renderHistList(myH, idx) {
+  let list=myH; if(idx===1) list=myH.filter(h=>h.status==='PAID'); if(idx===2) list=myH.filter(h=>h.status==='CANCELLED');
+  if(!list.length) return`<div class="empty"><div class="emo">📋</div><p>내역이 없습니다</p></div>`;
+  return list.map(h=>`
+    <div class="hx" onclick="openHistDetail(${h.id})" style="cursor:pointer">
+      <div class="hx-top"><div class="hx-name">${h.productName}</div><div class="hx-amt ${h.status==='CANCELLED'?'minus':'plus'}">${h.paidAmount.toLocaleString()}원</div></div>
+      <div style="font-size:11px;color:var(--t3);margin-bottom:6px">${h.brandName} · ${h.paidAt?h.paidAt.slice(0,16).replace('T',' '):''}</div>
+      <div class="hx-bot">
+        <div class="hx-tags">${h.status==='PAID'?`<span class="hx-tag pay">KB페이</span><span class="hx-tag save">-${h.savedAmount.toLocaleString()}원</span>${h.pointEarned?`<span class="hx-tag" style="background:var(--grn-lt);color:var(--grn)">+${h.pointEarned}P</span>`:''}`:`<span class="hx-tag cancel">취소완료</span>`}</div>
+        <span style="font-size:12px;color:var(--t4)">상세 ›</span>
+      </div>
+    </div>`).join('');
+}
+function openHistDetail(hid) {
+  // 현재 내역 목록에서 찾아 상세 표시
+  GET(`/api/history/${uid}`).then(res => {
+    const h = res.data && res.data.find(x=>x.id===hid); if(!h) return;
+    document.getElementById('hx-detail-body').innerHTML=`
+      <div style="font-size:19px;font-weight:800;text-align:center;margin-bottom:5px">${h.status==='PAID'?'결제 완료':'취소 완료'}</div>
+      <div style="font-size:13px;color:var(--t3);text-align:center;margin-bottom:16px">${h.productName}</div>
+      <div style="text-align:center;margin-bottom:16px"><span style="background:${h.status==='PAID'?'var(--grn-lt)':'var(--red-lt)'};color:${h.status==='PAID'?'var(--grn)':'var(--red)'};font-size:13px;font-weight:700;padding:5px 18px;border-radius:20px">${h.status==='PAID'?'✅ 결제 완료':'❌ 취소 완료'}</span></div>
+      <div class="pay-box">
+        <div class="pr"><span class="l">정가</span><span class="v">${(h.originalAmount||0).toLocaleString()}원</span></div>
+        <div class="pr"><span class="l">할인 적용</span><span class="v" style="color:var(--red)">-${(h.savedAmount||0).toLocaleString()}원</span></div>
+        ${h.pointUsed?`<div class="pr"><span class="l">포인트 사용</span><span class="v" style="color:var(--grn)">-${h.pointUsed.toLocaleString()}P</span></div>`:''}
+        <div class="pr tot"><span class="l">결제 금액</span><span class="v">${h.paidAmount.toLocaleString()}원</span></div>
+      </div>
+      <div class="pay-box" style="margin-bottom:14px">
+        <div class="pr"><span class="l">결제 수단</span><span class="v">KB국민카드</span></div>
+        <div class="pr"><span class="l">거래 일시</span><span class="v" style="font-size:12px">${h.paidAt?h.paidAt.slice(0,16).replace('T',' '):''}</span></div>
+        ${h.pointEarned&&h.status==='PAID'?`<div class="pr"><span class="l">포인트 적립</span><span class="v" style="color:var(--grn)">+${h.pointEarned.toLocaleString()}P</span></div>`:''}
+        <div class="pr"><span class="l">쿠폰 코드</span><span class="v" style="font-size:11px;font-family:monospace;color:var(--t3)">${h.couponCode||'-'}</span></div>
+      </div>
+      ${h.status==='PAID'?`<button class="btn-red" onclick="closeS(10);askCancel(${h.id})">결제 취소하기</button>`:'<div style="background:var(--bg);border-radius:var(--rs);padding:12px;text-align:center;font-size:13px;color:var(--t3);margin-bottom:14px">취소 처리가 완료된 내역입니다</div>'}
+      <button class="btn-line" onclick="closeS(10)">닫기</button>`;
+    openS(10);
+  });
+}
+
+/* ══ 알림 (API) ══ */
+async function updateNotifBadge() {
+  if (!uid) { document.getElementById('notif-badge').style.display='none'; return; }
+  const res = await GET(`/api/notif/${uid}`);
+  if (res.success) {
+    const n = res.data.unreadCount||0;
+    const b = document.getElementById('notif-badge');
+    if(n>0){b.style.display='flex';b.textContent=n>9?'9+':String(n);}else b.style.display='none';
+  }
+}
+async function openNotifPage() {
+  requireLogin('알림','알림 확인을 위해<br/>로그인해 주세요', async () => {
+    await POST(`/api/notif/${uid}/read-all`);
+    const res = await GET(`/api/notif/${uid}`);
+    const list = res.success ? res.data.notifications||[] : [];
+    const icoMap={y:'🎫',r:'⚠️',g:'✅',b:'💳'};
+    const bgMap={y:'var(--y-lt)',r:'var(--red-lt)',g:'var(--grn-lt)',b:'var(--blu-lt)'};
+    document.getElementById('notif-list').innerHTML = list.length===0
+      ? `<div class="empty"><div class="emo">🔔</div><p>알림이 없습니다</p></div>`
+      : list.map(n=>`<div style="background:#fff;border-bottom:1px solid var(--bd2);padding:13px 16px;display:flex;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:${bgMap[n.type]||'var(--bg)'};display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${icoMap[n.type]||'📢'}</div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;margin-bottom:2px">${n.title}</div><div style="font-size:12px;color:var(--t3);line-height:1.5">${n.description}</div><div style="font-size:11px;color:var(--t4);margin-top:3px">${n.createdAt?n.createdAt.slice(0,16).replace('T',' '):''}</div></div></div>`).join('');
+    updateNotifBadge();
+    document.getElementById('notif-page').classList.add('on');
+    history.pushState({notif:true},'');
+  });
+}
+function closeNotifPage() { document.getElementById('notif-page').classList.remove('on'); }
+async function readAllNotifs() { await POST(`/api/notif/${uid}/read-all`); await openNotifPage(); toast('모든 알림을 읽었습니다.','inf'); }
+
+/* ══ 선물 (API) ══ */
+function openGift(code, name) {
+  cur = { couponCode:code, name }; document.getElementById('s6sub').textContent=name;
+  document.getElementById('gift-to').value=''; document.getElementById('gift-msg').value=''; openS(6);
+}
+async function sendGift() {
+  const to=document.getElementById('gift-to').value.trim(), msg=document.getElementById('gift-msg').value.trim();
+  if(!to){toast('받는 사람 아이디를 입력해주세요.','err');return;}
+  if(to===uid){toast('본인에게는 선물할 수 없습니다.','err');return;}
+  const btn=document.querySelector('#s6 .btn-main'); btn.innerHTML='<span class="sp"></span>&nbsp;전송 중...'; btn.disabled=true;
+  const res=await POST('/api/gift',{fromUserId:uid,toUserId:to,couponCode:cur.couponCode,message:msg});
+  if(res.success){closeS(6);toast(`🎁 ${to}님께 선물을 보냈습니다!`,'ok');loadMyCoupons();}
+  else toast(res.message,'err');
+  btn.innerHTML='🎁 선물 보내기'; btn.disabled=false;
+}
+
+/* ══ 관리자: 상품 추가/편집/삭제 (API) ══ */
+function openAdminAdd() {
+  document.getElementById('s9title').textContent='상품 추가';
+  ['af-name','af-brand','af-ori','af-dis','af-total','af-img','af-desc'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('af-edit-id').value=''; openS(9);
+}
+function openAdminEdit(pid) {
+  const p=PRODS.find(x=>x.id===pid); if(!p) return;
+  document.getElementById('s9title').textContent='상품 편집';
+  document.getElementById('af-name').value=p.name;
+  document.getElementById('af-brand').value=p.brand;
+  document.getElementById('af-cat').value=p.cat;
+  document.getElementById('af-ori').value=p.ori;
+  document.getElementById('af-dis').value=p.dis;
+  document.getElementById('af-total').value=p.total;
+  document.getElementById('af-badge').value=p.badge;
+  document.getElementById('af-img').value=p.img||'';
+  document.getElementById('af-desc').value=p.desc||'';
+  document.getElementById('af-edit-id').value=pid; openS(9);
+}
+async function saveAdminProduct() {
+  const name=document.getElementById('af-name').value.trim(), brand=document.getElementById('af-brand').value.trim();
+  const ori=parseInt(document.getElementById('af-ori').value)||0, dis=parseInt(document.getElementById('af-dis').value)||0;
+  const total=parseInt(document.getElementById('af-total').value)||0;
+  if(!name||!brand||!ori||!dis||!total){toast('필수 항목을 모두 입력해주세요.','err');return;}
+  if(dis>=ori){toast('할인가는 정가보다 낮아야 합니다.','err');return;}
+  const body={productName:name,brandName:brand,category:document.getElementById('af-cat').value,originalPrice:ori,discountedPrice:dis,totalCount:total,badge:document.getElementById('af-badge').value,imageUrl:document.getElementById('af-img').value.trim(),description:document.getElementById('af-desc').value.trim(),notice:'• 자세한 이용 조건은 해당 매장에서 확인해주세요.'};
+  const editId=document.getElementById('af-edit-id').value;
+  const res=editId ? await PUT(`/api/admin/products/${editId}`,body) : await POST('/api/admin/products',body);
+  if(res.success){closeS(9);await loadProducts();toast(res.message,'ok');}else toast(res.message,'err');
+}
+async function delProduct(pid) {
+  const p=PRODS.find(x=>x.id===pid); if(!p) return;
+  if(!confirm(`"${p.name}" 상품을 삭제하시겠어요?`)) return;
+  const res=await DEL(`/api/admin/products/${pid}`);
+  if(res.success){await loadProducts();toast(`🗑️ "${p.name}" 상품이 삭제되었습니다.`,'ok');}else toast(res.message,'err');
+}
+
+/* ══ MY 페이지 ══ */
+function getGradeIdx() {
+  const grade = userInfo?.grade||'일반';
+  return grade==='VIP'?3:grade==='골드'?2:grade==='실버'?1:0;
+}
+async function renderMyPage() {
+  if (!uid) { document.getElementById('my-page-body').innerHTML=`<div class="empty"><div class="emo">👤</div><p>로그인이 필요합니다</p><button class="empty-btn" onclick="requireLogin('로그인','로그인해 주세요',()=>renderMyPage())">로그인하기</button></div>`; return; }
+  const res = await GET(`/api/my/${uid}`);
+  if (res.success && userInfo) { userInfo.pointBalance=res.data.pointBalance; userInfo.grade=res.data.grade; sessionStorage.setItem('kbp_user',JSON.stringify(userInfo)); }
+  const gIdx=getGradeIdx(), g=GRADES[gIdx];
+  const totalSpent=res.success?res.data.totalSaved*3:0; // 근사치
+  const prog=gIdx<3?Math.min(100,totalSpent/g.next_at*100):100;
+  const couponCount=res.success?res.data.availCoupons:0;
+  const txRes=await GET(`/api/history/${uid}`);
+  const txCount=txRes.success?txRes.data.filter(h=>h.status==='PAID').length:0;
+  const wishRes=await GET(`/api/wish/${uid}`);
+  const wishCount=wishRes.success?wishRes.data.length:0;
+
+  document.getElementById('my-page-body').innerHTML=`
+    <div class="grade-banner" style="background:${g.bg}"><div class="grade-inner"><div class="grade-left"><div class="label">내 등급</div><div class="gname">${g.icon} ${g.name} 회원${isAdmin()?'<span style="background:rgba(255,255,255,.3);font-size:11px;padding:1px 8px;border-radius:10px;margin-left:8px">관리자</span>':''}</div></div><div class="grade-badge">${g.icon}</div></div><div class="grade-progress"><div class="grade-progress-fill" style="width:${prog}%"></div></div><div class="grade-info"><span>등급: ${g.name}</span>${gIdx<3?`<span>${g.name}→${g.next} 결제 누적 ${g.next_at.toLocaleString()}원</span>`:'<span>최고 등급 달성! 🎉</span>'}</div></div>
+    <div class="list-label">KB 포인트</div>
+    <div class="point-card"><div style="display:flex;align-items:center;justify-content:space-between"><div><div style="font-size:13px;color:var(--t3)">보유 포인트</div><div style="font-size:11px;color:var(--t4);margin-top:2px">결제 금액의 1% 자동 적립</div></div><div style="text-align:right"><div style="font-size:22px;font-weight:900">${(userInfo?.pointBalance||0).toLocaleString()}P</div><button style="background:var(--y);color:#111;border:none;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;margin-top:4px" onclick="toast('결제 시 포인트 토글로 사용 가능합니다','inf')">사용하기</button></div></div></div>
+    <div class="list-label">내 활동</div>
+    <div class="my-menu">
+      <div class="my-menu-item" onclick="goTab(1)"><div class="my-menu-left"><div class="my-menu-ico">❤️</div><div><div class="my-menu-label">찜한 상품</div><div class="my-menu-sub">관심 상품 목록</div></div></div><div class="my-menu-right"><div class="my-menu-val">${wishCount}개</div><span style="color:var(--t5)">›</span></div></div>
+      <div class="my-menu-item" onclick="goTab(2)"><div class="my-menu-left"><div class="my-menu-ico">🎫</div><div><div class="my-menu-label">쿠폰함</div><div class="my-menu-sub">발급받은 쿠폰 관리</div></div></div><div class="my-menu-right"><div class="my-menu-val">${couponCount}장</div><span style="color:var(--t5)">›</span></div></div>
+      <div class="my-menu-item" onclick="goTab(3)"><div class="my-menu-left"><div class="my-menu-ico">📋</div><div><div class="my-menu-label">이용내역</div><div class="my-menu-sub">결제 및 취소 내역</div></div></div><div class="my-menu-right"><div class="my-menu-val">${txCount}건</div><span style="color:var(--t5)">›</span></div></div>
+      ${isAdmin()?`<div class="my-menu-item" style="background:var(--pur-lt)" onclick="openAdminAdd()"><div class="my-menu-left"><div class="my-menu-ico">⚙️</div><div><div class="my-menu-label" style="color:var(--pur)">상품 추가</div><div class="my-menu-sub">새 핫딜 상품 등록</div></div></div><div class="my-menu-right"><span style="color:var(--pur)">›</span></div></div>`:''}
+    </div>
+    <div class="list-label">자주 묻는 질문</div>
+    <div style="background:#fff;border:1px solid var(--bd);border-radius:var(--r);margin:0 14px;overflow:hidden;box-shadow:var(--sh)">${[['쿠폰 유효기간이 지나면?','발급 후 30일이 지나면 자동 만료됩니다.'],['결제 취소 시 포인트는?','취소 시 적립 포인트는 회수되고 사용 포인트는 복원됩니다.'],['KB포인트 적립 방식?','KB페이 결제 금액의 1%가 자동 적립됩니다.'],['관리자 기능이란?','admin 계정으로 로그인하면 상품 추가·편집·삭제가 가능합니다.']].map(([q,a])=>`<div class="faq-item"><div class="faq-q" onclick="this.nextSibling.classList.toggle('open');this.lastChild.textContent=this.nextSibling.classList.contains('open')?'▲':'▼'"><span>Q. ${q}</span><span>▼</span></div><div class="faq-a">A. ${a}</div></div>`).join('')}</div>
+    <div style="padding:16px 14px"><button onclick="openLogoutSheet()" style="width:100%;padding:12px;background:transparent;border:1px solid var(--bd);border-radius:var(--rs);font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:600;color:var(--t3);cursor:pointer">로그아웃</button></div>`;
+}
+
+/* ══ 시트 유틸 ══ */
+function openS(n){document.getElementById(`bk${n}`).classList.add('on');document.getElementById(`s${n}`).classList.add('on');openSheets.push(n);history.pushState({sheet:n},'');}
+function closeS(n){document.getElementById(`bk${n}`).classList.remove('on');document.getElementById(`s${n}`).classList.remove('on');openSheets=openSheets.filter(x=>x!==n);}
+
+/* ══ 뒤로가기 ══ */
+window.addEventListener('popstate',()=>{
+  if(document.getElementById('logout-sheet').classList.contains('on')){closeLogoutSheet();return;}
+  if(document.getElementById('loginModal').classList.contains('on')){closeLogin();return;}
+  if(openSheets.length>0){closeS(openSheets[openSheets.length-1]);return;}
+  if(document.getElementById('notif-page').classList.contains('on')){closeNotifPage();return;}
+  if(document.getElementById('detail-page').classList.contains('on')){closeDetail();return;}
+  if(currentTab!==0)goTab(0);
+});
+
+/* ══ 토스트/유틸 ══ */
+function toast(msg,type='inf'){const el=document.createElement('div');el.className=`toast ${type}`;el.textContent=msg;document.getElementById('tw').appendChild(el);setTimeout(()=>{el.style.opacity='0';el.style.transition='.3s';setTimeout(()=>el.remove(),300);},3200);}
+const delay=ms=>new Promise(r=>setTimeout(r,ms));
+const r8=()=>Math.random().toString(36).substring(2,10).toUpperCase();
+
+/* ══ 초기화 ══ */
+history.replaceState({tab:0},'');
+const shakeStyle=document.createElement('style');
+shakeStyle.textContent='@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}';
+document.head.appendChild(shakeStyle);
+
+// 세션 복원 (페이지 새로고침 시)
+if(uid && userInfo){
+  document.getElementById('huid').textContent=uid;
+  document.getElementById('hbtn').classList.add('on');
+  document.getElementById('admin-hd-badge').style.display=isAdmin()?'inline-block':'none';
+  document.getElementById('admin-bar').style.display=isAdmin()?'flex':'none';
+}
+
+renderCats();
+loadProducts();  // API에서 상품 로드
+updateNotifBadge();
+if(uid) loadWishes();
+</script>
+</body>
+</html>
