@@ -77,42 +77,35 @@ public class KbPayService {
         return ApiResponse.ok("삭제되었습니다.", null);
     }
 
-    /* ── 쿠폰 발급 (선착순, Optimistic Lock) ── */
-    public synchronized ApiResponse<CouponResponse> applyCoupon(ApplyRequest req) {
-        for (int attempt = 1; attempt <= 3; attempt++) {
-            try {
-                return doApply(req.getUserId(), req.getProductId());
-            } catch (OptimisticLockingFailureException e) {
-                if (attempt == 3) return ApiResponse.fail("잠시 후 다시 시도해주세요.");
-                try { Thread.sleep(50L * attempt); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
-            }
-        }
-        return ApiResponse.fail("처리 실패");
-    }
-
+    /* ── 쿠폰 발급 (선착순) ── */
     @Transactional
-    protected ApiResponse<CouponResponse> doApply(String userId, Long productId) {
-        if (couponRepo.existsByUserIdAndProductId(userId, productId))
-            return ApiResponse.fail("이미 발급받은 쿠폰입니다.");
+    public synchronized ApiResponse<CouponResponse> applyCoupon(ApplyRequest req) {
+        try {
+            if (couponRepo.existsByUserIdAndProductId(req.getUserId(), req.getProductId()))
+                return ApiResponse.fail("이미 발급받은 쿠폰입니다.");
 
-        Product p = productRepo.findByIdWithLock(productId)
-            .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+            Product p = productRepo.findByIdWithLock(req.getProductId())
+                .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
 
-        if (!p.hasRemaining()) return ApiResponse.fail("선착순이 마감되었습니다.");
+            if (!p.hasRemaining()) return ApiResponse.fail("선착순이 마감되었습니다.");
 
-        p.decreaseRemaining();
-        productRepo.save(p);
+            p.decreaseRemaining();
+            productRepo.save(p);
 
-        String code = "KB-" + productId + "-" + userId.substring(0,Math.min(4,userId.length())).toUpperCase()
-            + "-" + UUID.randomUUID().toString().substring(0,8).toUpperCase();
+            String code = "KB-" + req.getProductId() + "-"
+                + req.getUserId().substring(0, Math.min(4, req.getUserId().length())).toUpperCase()
+                + "-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
 
-        DiscountCoupon coupon = DiscountCoupon.builder()
-            .userId(userId).product(p).couponCode(code)
-            .discountAmount(p.getOriginalPrice() - p.getDiscountedPrice())
-            .status(DiscountCoupon.CouponStatus.ISSUED).build();
-        couponRepo.save(coupon);
+            DiscountCoupon coupon = DiscountCoupon.builder()
+                .userId(req.getUserId()).product(p).couponCode(code)
+                .discountAmount(p.getOriginalPrice() - p.getDiscountedPrice())
+                .status(DiscountCoupon.CouponStatus.ISSUED).build();
+            couponRepo.save(coupon);
 
-        return ApiResponse.ok("쿠폰이 발급되었습니다!", CouponResponse.from(coupon));
+            return ApiResponse.ok("쿠폰이 발급되었습니다!", CouponResponse.from(coupon));
+        } catch (OptimisticLockingFailureException e) {
+            return ApiResponse.fail("잠시 후 다시 시도해주세요.");
+        }
     }
 
     /* ── 쿠폰함 조회 ── */
