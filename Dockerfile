@@ -1,10 +1,7 @@
-FROM gradle:8.5-jdk17 AS build
+FROM eclipse-temurin:17-jdk-jammy
 WORKDIR /app
 COPY . .
+RUN apt-get update && apt-get install -y gradle
 RUN gradle bootJar --no-daemon
-
-FROM openjdk:17-jre-slim
-WORKDIR /app
-COPY --from=build /app/build/libs/app.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+CMD ["java", "-jar", "build/libs/app.jar"]
