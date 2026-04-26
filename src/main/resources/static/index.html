@@ -890,6 +890,7 @@ function doLogout() {
     document.getElementById(`bn${i}`).classList.toggle('on', i === 0);
   }
   render();
+  renderRecent(); // 최근 본 상품 숨김
   toast('로그아웃 되었습니다.', 'inf');
 }
 
@@ -934,7 +935,8 @@ function addRecent(pid) {
 }
 function renderRecent() {
   const sec = document.getElementById('recent-sec');
-  if (!recentViewed.length || !PRODS.length) { if(sec) sec.style.display='none'; return; }
+  // 로그인 안 된 경우 숨김
+  if (!uid || !recentViewed.length || !PRODS.length) { if(sec) sec.style.display='none'; return; }
   if(sec) sec.style.display='block';
   const el = document.getElementById('recent-scroll');
   if(el) el.innerHTML = recentViewed.map(pid => {
@@ -1189,41 +1191,47 @@ function doShare(type) {
   const title = `[KB Pay 바로할인] ${p.name}`;
   const text  = `${p.rate}% 특가! ${p.dis.toLocaleString()}원 (정가 ${p.ori.toLocaleString()}원) 선착순 할인!`;
   const url   = `${window.location.origin}${window.location.pathname}?pid=${curPid}`;
+  const full  = title + '\n' + text + '\n' + url;
 
   if (type === 'kakao') {
-    // Web Share API → 폰에서 카카오톡으로 직접 공유 가능
-    if (navigator.share) {
-      navigator.share({ title, text, url })
-        .then(() => toast('공유되었습니다! 🎉', 'ok'))
-        .catch(err => {
-          if (err.name !== 'AbortError') {
-            copyShare(url);
-            toast('링크가 복사됐습니다! 카카오톡에 붙여넣기 하세요 📋', 'inf');
-          }
-        });
-    } else {
-      copyShare(url);
-      toast('링크가 복사됐습니다! 카카오톡에 붙여넣기 하세요 📋', 'inf');
-    }
+    // 카카오톡 앱으로만 공유 — kakaolink 스킴 시도 후 클립보드 복사
+    const kakaoScheme = `kakaolink://send?text=${encodeURIComponent(full)}`;
+    const a = document.createElement('a');
+    a.href = kakaoScheme;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    // 앱 미설치 또는 PC 환경 대비 — 잠시 후 클립보드에도 복사
+    setTimeout(() => {
+      copyShare(full);
+      toast('카카오톡이 열리지 않으면 복사된 텍스트를 카카오톡에 붙여넣기 하세요 💬', 'inf');
+    }, 1000);
+
   } else if (type === 'insta') {
-    if (navigator.share) {
-      navigator.share({ title, text, url })
-        .then(() => toast('공유되었습니다! 🎉', 'ok'))
-        .catch(err => {
-          if (err.name !== 'AbortError') {
-            copyShare(url);
-            toast('링크가 복사됐습니다! 인스타그램에 붙여넣기 하세요 📷', 'inf');
-          }
-        });
-    } else {
-      copyShare(url);
-      toast('링크가 복사됐습니다! 📋', 'inf');
-    }
+    // 인스타그램 앱 스킴 시도
+    const instaScheme = `instagram://library`;
+    const a = document.createElement('a');
+    a.href = instaScheme;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    // 인스타 미설치 시 — 폰 공유 메뉴로 대체
+    setTimeout(() => {
+      if (navigator.share) {
+        navigator.share({ title, text, url })
+          .catch(() => { copyShare(url); toast('링크가 복사됐습니다! 📋', 'inf'); });
+      } else {
+        copyShare(url);
+        toast('인스타그램이 없어 링크가 복사됐습니다! 📋', 'inf');
+      }
+    }, 1000);
+
   } else if (type === 'link') {
     copyShare(url);
     toast('링크가 복사되었습니다! 🔗', 'ok');
+
   } else if (type === 'copy') {
-    copyShare(title + '\n' + text + '\n' + url);
+    copyShare(full);
     toast('텍스트가 복사되었습니다! 📋', 'ok');
   }
 }
