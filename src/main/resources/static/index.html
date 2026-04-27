@@ -2458,6 +2458,9 @@ function showGiftMsg(from, msg) {
 function closeGiftMsg() {
   document.getElementById('gift-msg-bk').style.display = 'none';
 }
+function closeGiftBox() {
+  document.getElementById('gift-box-page').classList.remove('on');
+}
 
 async function useCouponFromGift(pid, couponCode) {
   closeGiftBox();
