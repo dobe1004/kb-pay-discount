@@ -1547,30 +1547,34 @@ const HOW_TO_USE = {
 const DEEP_LINKS = {
   'COUPANG EATS': {
     label: '🛵 쿠팡이츠',
-    scheme: 'coupangeats://',
+    scheme_aos: 'coupangeats://',
+    scheme_ios: 'coupangeats://',
     store_aos: 'https://play.google.com/store/apps/details?id=com.coupang.mobile.eats',
-    store_ios: 'https://apps.apple.com/kr/app/id1249808192',
+    store_ios: 'https://apps.apple.com/kr/app/id1445504255',
     web: 'https://www.coupangeats.com',
   },
   'BAEMIN': {
     label: '🛵 배달의민족',
-    scheme: 'baemin://',
+    scheme_aos: 'baemin://',
+    scheme_ios: 'baemin://',
     store_aos: 'https://play.google.com/store/apps/details?id=com.sampleapp',
     store_ios: 'https://apps.apple.com/kr/app/id378084485',
     web: 'https://www.baemin.com',
   },
   'NAVER': {
     label: '🟢 네이버',
-    scheme: 'naversearchapp://',
+    scheme_aos: 'naversearchapp://',
+    scheme_ios: 'naversearchapp://',
     store_aos: 'https://play.google.com/store/apps/details?id=com.nhn.android.search',
     store_ios: 'https://apps.apple.com/kr/app/id393499958',
     web: 'https://www.naver.com',
   },
   'MUSINSA': {
     label: '👗 무신사',
-    scheme: 'musinsa://',
+    scheme_aos: 'musinsa://',
+    scheme_ios: 'musinsaapp://',
     store_aos: 'https://play.google.com/store/apps/details?id=com.musinsa.store',
-    store_ios: 'https://apps.apple.com/kr/app/id917793057',
+    store_ios: 'https://apps.apple.com/kr/app/id1003139529',
     web: 'https://www.musinsa.com',
   },
 };
@@ -1599,6 +1603,7 @@ function openOnlineCouponSheet(coupon) {
 
   if (dl) {
     const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent);
+    const scheme = isIos ? dl.scheme_ios : dl.scheme_aos;
     const storeUrl = isIos ? dl.store_ios : dl.store_aos;
     const storeLabel = isIos ? `🍎 앱스토어에서 설치` : `▶ 플레이스토어에서 설치`;
 
@@ -1627,7 +1632,7 @@ function openOnlineCouponSheet(coupon) {
       const waitMs = isIos ? 2000 : 1800;
 
       // 앱 scheme 실행
-      window.location.href = dl.scheme;
+      window.location.href = scheme;
 
       let appLaunched = false;
 
