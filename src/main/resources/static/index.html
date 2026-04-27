@@ -829,21 +829,41 @@ select.admin-form-input{cursor:pointer}
   <div class="bs-bar"></div>
   <div class="bs-title" id="oc-title">온라인 쿠폰 사용</div>
   <div class="bs-sub" id="oc-sub" style="margin-bottom:12px"></div>
-  <div style="background:var(--y-lt);border-radius:var(--r);padding:16px;margin-bottom:14px;text-align:center">
+
+  <!-- 쿠폰 코드 -->
+  <div style="background:var(--y-lt);border-radius:var(--r);padding:16px;margin-bottom:12px;text-align:center">
     <div style="font-size:11px;color:#7A5000;margin-bottom:6px">쿠폰 코드</div>
     <div id="oc-code" style="font-size:20px;font-weight:900;font-family:monospace;letter-spacing:2px;color:#111;margin-bottom:8px"></div>
     <button onclick="copyOnlineCode()" style="background:var(--y);border:none;border-radius:var(--rs);padding:8px 20px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;color:#111">
       📋 코드 복사하기
     </button>
   </div>
-  <div style="background:var(--bg);border-radius:var(--rs);padding:12px;margin-bottom:14px">
-    <div id="oc-discount" style="font-size:18px;font-weight:900;color:var(--red);margin-bottom:4px;text-align:center"></div>
+
+  <!-- 할인 정보 + 사용 방법 -->
+  <div style="background:var(--bg);border-radius:var(--rs);padding:12px;margin-bottom:12px">
+    <div id="oc-discount" style="font-size:16px;font-weight:900;color:var(--red);margin-bottom:4px;text-align:center"></div>
     <div id="oc-how" style="font-size:12px;color:var(--t3);text-align:center;line-height:1.6"></div>
   </div>
-  <button class="btn-main" onclick="confirmOnlineUse()" style="background:var(--grn)">
-    ✅ 앱에서 사용 완료했습니다
-  </button>
-  <button class="btn-line" onclick="closeS(12)">나중에 사용하기</button>
+
+  <!-- 로그인 안내 -->
+  <div style="background:#FFF8E1;border-radius:var(--rs);padding:10px 12px;margin-bottom:12px;display:flex;gap:8px;align-items:flex-start">
+    <span style="font-size:14px;flex-shrink:0">⚠️</span>
+    <div style="font-size:12px;color:#7A5000;line-height:1.5">앱 로그인 후 쿠폰 등록 화면에서 위 코드를 입력하세요.<br/>코드를 먼저 복사해두면 편리합니다.</div>
+  </div>
+
+  <!-- 앱 열기 버튼 -->
+  <button id="oc-deeplink-btn" class="btn-main" style="background:#1a73e8;margin-bottom:8px;display:none"></button>
+
+  <!-- 앱 없을 때 선택 버튼 (hidden 기본) -->
+  <div id="oc-fallback" style="display:none;margin-bottom:8px">
+    <div style="font-size:12px;color:var(--t3);text-align:center;margin-bottom:8px">앱이 설치되어 있지 않으신가요?</div>
+    <div style="display:flex;gap:8px">
+      <button id="oc-store-btn" class="btn-line" style="flex:1;font-size:13px"></button>
+      <button id="oc-web-btn" class="btn-line" style="flex:1;font-size:13px"></button>
+    </div>
+  </div>
+
+  <button class="btn-line" onclick="closeS(12)">닫기</button>
 </div>
 
 <!-- ══ 바코드 시트 ══ -->
@@ -1455,9 +1475,39 @@ const HOW_TO_USE = {
   'MUSINSA': '무신사 앱 또는 웹 → 장바구니 → 쿠폰 적용 → 코드를 입력하세요',
 };
 
+// 앱 딥링크 + 스토어 + 웹 링크
+const DEEP_LINKS = {
+  'COUPANG EATS': {
+    app: 'coupangeats://', label: '🛵 쿠팡이츠 앱 열기',
+    store_aos: 'https://play.google.com/store/apps/details?id=com.coupang.eats',
+    store_ios: 'https://apps.apple.com/kr/app/id1249808192',
+    web: 'https://www.coupangeats.com',
+  },
+  'BAEMIN': {
+    app: 'baemin://', label: '🛵 배달의민족 앱 열기',
+    store_aos: 'https://play.google.com/store/apps/details?id=com.woowahan.android',
+    store_ios: 'https://apps.apple.com/kr/app/id431589174',
+    web: 'https://www.baemin.com',
+  },
+  'NAVER': {
+    app: 'naverapp://', label: '🟢 네이버 멤버십 열기',
+    store_aos: 'https://play.google.com/store/apps/details?id=com.nhn.android.search',
+    store_ios: 'https://apps.apple.com/kr/app/id393499958',
+    web: 'https://new.membership.naver.com',
+  },
+  'MUSINSA': {
+    app: 'musinsa://', label: '👗 무신사 쿠폰함 열기',
+    store_aos: 'https://play.google.com/store/apps/details?id=com.musinsa.app',
+    store_ios: 'https://apps.apple.com/kr/app/id917793057',
+    web: 'https://www.musinsa.com/app/coupon/list',
+  },
+};
+
 function openOnlineCouponSheet(coupon) {
   const p = PRODS.find(x => x.id === coupon.pid);
   const brand = p?.brand || '';
+  const dl = DEEP_LINKS[brand];
+
   document.getElementById('oc-title').textContent = coupon.productName || coupon.name;
   document.getElementById('oc-sub').textContent = coupon.brandName || coupon.brand;
   document.getElementById('oc-code').textContent = coupon.couponCode || coupon.code;
@@ -1465,6 +1515,48 @@ function openOnlineCouponSheet(coupon) {
     `${(coupon.discountAmount||coupon.amt||0).toLocaleString()}원 할인`;
   document.getElementById('oc-how').textContent =
     HOW_TO_USE[brand] || '해당 앱에서 쿠폰 코드를 입력하여 사용하세요';
+
+  const dlBtn = document.getElementById('oc-deeplink-btn');
+  const fallback = document.getElementById('oc-fallback');
+  const storeBtn = document.getElementById('oc-store-btn');
+  const webBtn = document.getElementById('oc-web-btn');
+
+  if (dl) {
+    // 앱 열기 버튼
+    dlBtn.style.display = 'block';
+    dlBtn.textContent = dl.label;
+    dlBtn.onclick = () => {
+      // 딥링크 시도
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      document.body.appendChild(iframe);
+      iframe.src = dl.app;
+
+      // 1초 후 앱 안 열리면 폴백 선택 UI 표시
+      const timer = setTimeout(() => {
+        document.body.removeChild(iframe);
+        fallback.style.display = 'block';
+        // OS 감지해서 스토어 링크 설정
+        const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent);
+        storeBtn.textContent = isIos ? '🍎 앱스토어에서 설치' : '▶ 플레이스토어에서 설치';
+        storeBtn.onclick = () => window.open(isIos ? dl.store_ios : dl.store_aos, '_blank');
+        webBtn.textContent = '🌐 웹에서 이용하기';
+        webBtn.onclick = () => window.open(dl.web, '_blank');
+      }, 1000);
+
+      // 앱이 열리면 타이머 취소 (visibilitychange로 감지)
+      const onHide = () => {
+        clearTimeout(timer);
+        document.removeEventListener('visibilitychange', onHide);
+      };
+      document.addEventListener('visibilitychange', onHide);
+    };
+    fallback.style.display = 'none';
+  } else {
+    dlBtn.style.display = 'none';
+    fallback.style.display = 'none';
+  }
+
   openS(12);
 }
 
@@ -1473,12 +1565,6 @@ function copyOnlineCode() {
   copyShare(code);
   toast('쿠폰 코드가 복사되었습니다! 📋', 'ok');
   vibrate(VC);
-}
-
-async function confirmOnlineUse() {
-  closeS(12);
-  vibrate(VP);
-  setTimeout(() => openPayS(), 200);
 }
 
 let bcTimerIv = null;
@@ -1640,11 +1726,13 @@ function render() {
           <div class="pc-info">
             <div>
               <div class="pc-top">
-                <div>
-                  <div class="pc-brand">${p.brand}
-                    <span style="font-size:10px;font-weight:600;padding:1px 6px;border-radius:8px;margin-left:4px;${isOnlineBrand(p.brand)?'background:#E8F0FE;color:#1a73e8':'background:#E8F5E9;color:#2e7d32'}">
+                <div style="flex:1;min-width:0">
+                  <!-- 배지(왼쪽) + 브랜드명(우측) -->
+                  <div style="display:flex;align-items:center;gap:5px;margin-bottom:2px">
+                    <span style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:8px;white-space:nowrap;flex-shrink:0;${isOnlineBrand(p.brand)?'background:#E8F0FE;color:#1a73e8':'background:#FFEBEE;color:#C62828'}">
                       ${isOnlineBrand(p.brand)?'📱 온라인 전용':'🏪 오프라인 전용'}
                     </span>
+                    <div class="pc-brand" style="margin-bottom:0;text-align:right;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.brand}</div>
                   </div>
                   <div class="pc-name">${p.name}</div>
                 </div>
@@ -1720,7 +1808,7 @@ async function openDetail(pid) {
   document.getElementById('detail-hd-title').textContent = p.name;
   document.getElementById('detail-img').src = p.img||'';
   document.getElementById('detail-brand').innerHTML =
-    `${p.brand} <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px;${isOnlineBrand(p.brand)?'background:#E8F0FE;color:#1a73e8':'background:#E8F5E9;color:#2e7d32'}">${isOnlineBrand(p.brand)?'📱 온라인 전용':'🏪 오프라인 전용'}</span>`;
+    `<span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;margin-right:6px;${isOnlineBrand(p.brand)?'background:#E8F0FE;color:#1a73e8':'background:#FFEBEE;color:#C62828'}">${isOnlineBrand(p.brand)?'📱 온라인 전용':'🏪 오프라인 전용'}</span>${p.brand}`;
   document.getElementById('detail-name').textContent = p.name;
   document.getElementById('detail-rate').textContent = `${p.rate}% 할인`;
   document.getElementById('detail-now').textContent = `${p.dis.toLocaleString()}원`;
