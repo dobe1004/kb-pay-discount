@@ -77,7 +77,9 @@ public class Dto {
         private String brandName; private String imageUrl;
         private Integer discountAmount; private Integer originalPrice; private Integer discountedPrice;
         private String status; private String issuedAt; private String expiredAt;
-        private Long productId; // JS에서 상품 매핑에 필요
+        private Long productId;
+        private String giftFromUserId;
+        private String giftMessage;
 
         public static CouponResponse from(DiscountCoupon c) {
             return CouponResponse.builder()
@@ -90,6 +92,8 @@ public class Dto {
                 .productId(c.getProduct().getId())
                 .issuedAt(c.getIssuedAt() != null ? c.getIssuedAt().toLocalDate().toString() : "")
                 .expiredAt(c.getExpiredAt() != null ? c.getExpiredAt().toLocalDate().toString() : "")
+                .giftFromUserId(c.getGiftFromUserId())
+                .giftMessage(c.getGiftMessage())
                 .build();
         }
     }
