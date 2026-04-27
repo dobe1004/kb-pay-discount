@@ -68,7 +68,9 @@ img{display:block}
 /* ─── 공지바 ─── */
 .nbar{background:var(--y-lt);border-bottom:1px solid var(--y-md);padding:7px 16px;display:flex;align-items:center;gap:7px}
 .ntag{background:var(--y);border-radius:4px;padding:1px 6px;font-size:10px;font-weight:700;color:#000;flex-shrink:0}
-.ntxt{font-size:12px;color:#7A5000;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ntxt{font-size:12px;color:#7A5000;font-weight:500;white-space:normal;overflow:visible;text-overflow:unset;line-height:1.4}
+.ntxt-marquee{font-size:12px;color:#7A5000;font-weight:500;white-space:nowrap;display:inline-block;animation:nmarquee 60s linear infinite}
+@keyframes nmarquee{0%{transform:translateX(100vw)}100%{transform:translateX(-100%)}}
 
 /* ─── 검색 ─── */
 .search-wrap{padding:10px 14px;background:#fff;border-bottom:1px solid var(--bd)}
@@ -418,7 +420,20 @@ select.admin-form-input{cursor:pointer}
 .toast.inf{background:#fff;color:var(--t1);border:1px solid var(--bd)}
 .sp{width:16px;height:16px;border:2px solid rgba(0,0,0,.1);border-top-color:#888;border-radius:50%;animation:sp .6s linear infinite;display:inline-block;vertical-align:middle}
 @keyframes sp{to{transform:rotate(360deg)}}
-@keyframes bl{0%,100%{opacity:1}50%{opacity:0.3}}
+/* ── 슬라이드 배너 ── */
+.banner-slide-wrap{position:relative;overflow:hidden;border-radius:0;margin-bottom:0}
+.banner-slide-track{display:flex;transition:transform .4s cubic-bezier(.4,0,.2,1)}
+.banner-slide{min-width:100%;display:flex;align-items:center;justify-content:space-between;padding:14px 18px 22px;background:linear-gradient(135deg,#FFF8E1,#FFF3CD)}
+.banner-dots{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);display:flex;gap:5px}
+.bdot{width:5px;height:5px;border-radius:3px;background:rgba(0,0,0,.2);transition:all .3s}
+.bdot.on{width:16px;background:rgba(0,0,0,.4)}
+
+/* ── 쿠폰 D-day 강조 ── */
+.cc-exp-badge.urgent{background:#ffebee!important;color:#c62828!important;font-weight:800!important;animation:pulse .8s infinite!important;font-size:11px!important}
+.cc-exp-badge.soon{background:#fff3e0!important;color:#e65100!important;font-weight:700!important}
+.cc-exp-badge.ok{background:var(--grn-lt)!important;color:var(--grn)!important}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+
 
 /* ─── PC/태블릿 반응형 ─── */
 @media(min-width:600px){
@@ -470,19 +485,79 @@ select.admin-form-input{cursor:pointer}
 
 <!-- ══════════ 홈 탭 ══════════ -->
 <div id="pg0">
-  <div class="banner">
-    <div class="bn-left">
-      <div class="bn-tag"><div class="bn-dot"></div>LIVE DEAL</div>
-      <div class="bn-title">최대 50% 바로 할인<br/>KB페이 단독 특가</div>
-      <div class="bn-sub">선착순 마감 · KB포인트 추가 적립</div>
-      <div class="bn-chips"><div class="bn-chip">오늘만</div><div class="bn-chip">선착순</div><div class="bn-chip">KB전용</div></div>
+  <!-- 슬라이드 배너 -->
+  <div class="banner-slide-wrap" id="bannerWrap">
+    <div class="banner-slide-track" id="bannerTrack">
+      <!-- 배너 1: KB페이 단독 특가 → 상품 목록으로 스크롤 (로그인 불필요) -->
+      <div class="banner-slide" style="background:linear-gradient(135deg,#FFF3B0,#FFE040,#FFC800);cursor:pointer" onclick="bannerClick(0)">
+        <div class="bn-left">
+          <div class="bn-tag" style="color:rgba(0,0,0,.5)"><div class="bn-dot" style="background:#C47F00"></div>LIVE DEAL</div>
+          <div class="bn-title" style="color:#1A1A1A;font-size:17px">최대 50% 바로 할인<br/>KB페이 단독 특가</div>
+          <div class="bn-sub" style="color:rgba(0,0,0,.55)">선착순 마감 · KB포인트 추가 적립</div>
+          <div class="bn-chips">
+            <div class="bn-chip" style="background:rgba(0,0,0,.1);color:#333;font-size:11px">오늘만</div>
+            <div class="bn-chip" style="background:rgba(0,0,0,.1);color:#333;font-size:11px">선착순</div>
+            <div class="bn-chip" style="background:rgba(0,0,0,.1);color:#333;font-size:11px">KB전용</div>
+          </div>
+        </div>
+        <div class="bn-right">
+          <div class="bn-tlabel" style="color:rgba(0,0,0,.45);font-size:10px">마감까지</div>
+          <div class="bn-timer" id="timer" style="color:#1A1A1A;font-size:18px">00:00:00</div>
+        </div>
+      </div>
+      <!-- 배너 2: 스타벅스 특가 → 카페 카테고리 (로그인 불필요) -->
+      <div class="banner-slide" style="background:linear-gradient(135deg,#DBEAFE,#93C5FD,#60A5FA);cursor:pointer" onclick="bannerClick(1)">
+        <div class="bn-left">
+          <div class="bn-tag" style="color:rgba(0,0,0,.5)"><div class="bn-dot" style="background:#1D6FD8"></div>☕ 카페 특가</div>
+          <div class="bn-title" style="color:#1A1A1A;font-size:17px">스타벅스 40% 할인<br/>아메리카노 10잔</div>
+          <div class="bn-sub" style="color:rgba(0,0,0,.55)">39,000원 · 선착순 100매</div>
+          <div class="bn-chips">
+            <div class="bn-chip" style="background:#1D6FD8;color:#fff;font-size:11px">HOT</div>
+            <div class="bn-chip" style="background:rgba(0,0,0,.1);color:#333;font-size:11px">인기1위</div>
+          </div>
+        </div>
+        <div class="bn-right" style="font-size:40px">☕</div>
+      </div>
+      <!-- 배너 3: 포인트 → MY 탭 (로그인 필요) -->
+      <div class="banner-slide" style="background:linear-gradient(135deg,#FFF3B0,#FFE040,#FFC800);cursor:pointer" onclick="bannerClick(2)">
+        <div class="bn-left">
+          <div class="bn-tag" style="color:rgba(0,0,0,.5)"><div class="bn-dot" style="background:#C47F00"></div>💎 KB포인트</div>
+          <div class="bn-title" style="color:#1A1A1A;font-size:17px">결제 금액의 1%<br/>포인트 자동 적립</div>
+          <div class="bn-sub" style="color:rgba(0,0,0,.55)">등급 업그레이드 혜택까지</div>
+          <div class="bn-chips">
+            <div class="bn-chip" style="background:rgba(0,0,0,.1);color:#333;font-size:10px">일반→실버→골드→VIP</div>
+          </div>
+        </div>
+        <div class="bn-right" style="font-size:40px">💎</div>
+      </div>
+      <!-- 배너 4: 선물하기 → 쿠폰함 (로그인 필요) -->
+      <div class="banner-slide" style="background:linear-gradient(135deg,#DBEAFE,#93C5FD,#60A5FA);cursor:pointer" onclick="bannerClick(3)">
+        <div class="bn-left">
+          <div class="bn-tag" style="color:rgba(0,0,0,.5)"><div class="bn-dot" style="background:#1D6FD8"></div>🎁 선물하기</div>
+          <div class="bn-title" style="color:#1A1A1A;font-size:17px">소중한 사람에게<br/>KB페이 쿠폰 선물</div>
+          <div class="bn-sub" style="color:rgba(0,0,0,.55)">쿠폰함에서 바로 선물 가능</div>
+          <div class="bn-chips">
+            <div class="bn-chip" style="background:#1D6FD8;color:#fff;font-size:11px">NEW</div>
+            <div class="bn-chip" style="background:rgba(0,0,0,.1);color:#333;font-size:11px">쿠폰함 이용</div>
+          </div>
+        </div>
+        <div class="bn-right" style="font-size:40px">🎁</div>
+      </div>
     </div>
-    <div class="bn-right">
-      <div class="bn-tlabel">마감까지</div>
-      <div class="bn-timer" id="timer">00:00:00</div>
+    <!-- 인디케이터 -->
+    <div class="banner-dots" id="bannerDots">
+      <span class="bdot on"></span>
+      <span class="bdot"></span>
+      <span class="bdot"></span>
+      <span class="bdot"></span>
     </div>
   </div>
-  <div class="nbar"><span class="ntag">안내</span><span class="ntxt">쿠폰 발급 후 30일 이내 언제든지 KB페이로 결제 가능합니다</span></div>
+  <div class="nbar">
+    <span class="ntag" onclick="openNoticePage()" style="cursor:pointer;flex-shrink:0">공지사항</span>
+    <div style="flex:1;overflow:hidden;position:relative" onclick="openNoticePage()">
+      <div class="ntxt-marquee" id="nbarMarquee"></div>
+    </div>
+  </div>
   <!-- 관리자 바 -->
   <div class="admin-bar" id="admin-bar" style="display:none">
     <div class="admin-bar-label">⚙️ 관리자 모드 — 상품을 편집할 수 있습니다</div>
@@ -720,6 +795,15 @@ select.admin-form-input{cursor:pointer}
   <input type="hidden" id="af-edit-id"/>
   <button class="btn-main" onclick="saveAdminProduct()" style="background:var(--pur);box-shadow:none">저장하기</button>
   <button class="btn-line" onclick="closeS(9)">취소</button>
+</div>
+
+<!-- ══ 공지사항 페이지 ══ -->
+<div class="detail-page" id="notice-page">
+  <div class="detail-hd">
+    <span class="detail-hd-title" style="margin-left:16px">📢 공지사항</span>
+    <button onclick="closeNoticePage()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--t3);padding:8px;line-height:1">✕</button>
+  </div>
+  <div id="notice-list" style="padding:8px 0"></div>
 </div>
 
 <!-- ══ 알림 슬라이드 페이지 ══ -->
@@ -1003,6 +1087,210 @@ function goTab(n) {
   if (n === 3) loadHistory();
   if (n === 4) renderMyPage();
 }
+
+/* ══ 배너 클릭 (로그인 체크 포함) ══ */
+function bannerClick(idx) {
+  const actions = [
+    // 0: 특가 목록 → 로그인 불필요, 상품 목록으로 스크롤
+    () => { goTab(0); setTimeout(()=>window.scrollTo({top:document.getElementById('catRow')?.offsetTop-60||0,behavior:'smooth'}),100); },
+    // 1: 카페 특가 → 로그인 불필요, 카페 카테고리 필터
+    () => { goTab(0); setCat('카페'); },
+    // 2: 포인트 → 로그인 필요, MY탭
+    () => requireLogin('KB포인트 확인', '로그인 후 포인트를 확인할 수 있습니다', () => goTab(4)),
+    // 3: 선물하기 → 로그인 필요, 쿠폰함
+    () => requireLogin('선물하기', '로그인 후 쿠폰함에서 선물할 수 있습니다', () => goTab(2)),
+  ];
+  if (actions[idx]) actions[idx]();
+}
+
+/* ══ 공지사항 ══ */
+const NOTICES = [
+  {
+    id:1, type:'urgent', icon:'🚨',
+    title:'KB페이 바로할인 서비스 오픈 안내',
+    date:'2025.12.01',
+    content:'KB페이 바로할인 서비스가 정식 오픈했습니다!\n\n최대 50% 할인 쿠폰을 선착순으로 발급받아 전국 제휴 매장에서 바로 사용하세요.\n\n오픈 기념으로 일부 상품의 잔여 수량을 한시적으로 증가 운영합니다.'
+  },
+  {
+    id:2, type:'notice', icon:'📢',
+    title:'쿠폰 유효기간 안내',
+    date:'2025.12.05',
+    content:'발급받으신 쿠폰은 발급일로부터 30일 이내 사용 가능합니다.\n\n유효기간이 지난 쿠폰은 자동 소멸되며 복구가 불가합니다.\n\n쿠폰함의 D-day 표시를 확인하여 기간 내 사용해 주세요.'
+  },
+  {
+    id:3, type:'event', icon:'🎁',
+    title:'선물하기 기능 출시 이벤트',
+    date:'2025.12.10',
+    content:'친구/가족에게 KB페이 쿠폰을 선물할 수 있는 기능이 출시되었습니다!\n\n쿠폰함에서 발급받은 쿠폰을 선택하여 상대방 아이디로 바로 선물하세요.\n\n이벤트 기간 중 선물하기 이용 시 KB포인트 100P 추가 적립!'
+  },
+  {
+    id:4, type:'notice', icon:'📋',
+    title:'오프라인/온라인 쿠폰 사용 방법 안내',
+    date:'2025.12.15',
+    content:'🏪 오프라인 전용 쿠폰\n바코드 화면을 매장 직원에게 제시 후 스캔 요청하세요. 바코드는 1분간 유효하며, 만료 시 재발급 가능합니다.\n\n📱 온라인 전용 쿠폰\n쿠폰 코드를 복사 후 해당 앱 결제 화면에서 입력하세요.'
+  },
+  {
+    id:5, type:'event', icon:'🔥',
+    title:'실시간 인기 급상승 상품들을 확인하세요',
+    date:'2025.12.20',
+    content:'홈 화면의 🚀 인기 급상승 섹션에서 실시간 인기 쿠폰 순위를 확인하세요!\n\n실제 쿠폰 발급 수를 기준으로 순위가 실시간 변동됩니다.\n\n※ 발급 수가 같을 경우 잔여 수량 적은 순 → 할인율 높은 순으로 정렬됩니다.\n※ 쿠폰 발급이 없으면 인기 급상승 섹션은 표시되지 않습니다.'
+  },
+  {
+    id:6, type:'notice', icon:'⚠️',
+    title:'개인정보 처리방침 업데이트 안내',
+    date:'2025.12.28',
+    content:'2026년 1월 1일부터 개인정보 처리방침이 업데이트됩니다.\n\n주요 변경 사항:\n• 쿠폰 발급 이력 보관 기간 변경 (1년 → 3년)\n• 제휴사 정보 제공 항목 추가\n\n자세한 내용은 MY탭 > 자주 묻는 질문을 참고해 주세요.'
+  },
+];
+
+let noticeExpanded = {};
+
+/* ══ 안내바 마퀴 초기화 (NOTICES 제목으로) ══ */
+function initNbarMarquee() {
+  const el = document.getElementById('nbarMarquee');
+  if (!el) return;
+  // 각 공지 제목 클릭 시 해당 공지로 이동
+  const items = NOTICES.slice().reverse()
+    .map(n => `<span onclick="event.stopPropagation();openNoticePage(${n.id})" style="cursor:pointer">${n.icon} ${n.title}</span>`)
+    .join('&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;');
+  // 끊김 방지 2회 반복
+  el.innerHTML = items + '&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;' + items;
+}
+
+function openNoticePage(targetId) {
+  const typeStyle = {
+    urgent: { bg:'#FFF0F0', border:'#FFB3B3', dot:'#FF4444', label:'중요', lbg:'#FF4444', lc:'#fff' },
+    event:  { bg:'#FFFBEA', border:'#FFE066', dot:'#F0A500', label:'이벤트', lbg:'#FFB800', lc:'#111' },
+    notice: { bg:'#F8F9FA', border:'#E0E0E0', dot:'#9E9E9E', label:'공지', lbg:'#EEEEEE', lc:'#555' },
+  };
+
+  const list = document.getElementById('notice-list');
+  list.innerHTML = NOTICES.slice().reverse().map(n => {
+    const ts = typeStyle[n.type] || typeStyle.notice;
+    return `
+    <div id="notice-item-${n.id}" style="margin:10px 14px;border-radius:14px;border:1px solid ${ts.border};background:${ts.bg};overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06)">
+      <div onclick="toggleNotice(${n.id})" style="padding:14px 16px;cursor:pointer;display:flex;align-items:flex-start;gap:12px">
+        <div style="margin-top:3px;width:8px;height:8px;border-radius:50%;background:${ts.dot};flex-shrink:0"></div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;flex-wrap:wrap">
+            <span style="font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px;background:${ts.lbg};color:${ts.lc};letter-spacing:.3px">${ts.label}</span>
+            <span style="font-size:11px;color:var(--t4)">${n.date}</span>
+          </div>
+          <div style="font-size:14px;font-weight:700;color:var(--t1);line-height:1.45">${n.icon} ${n.title}</div>
+        </div>
+        <span id="notice-arrow-${n.id}" style="font-size:12px;color:var(--t4);transition:transform .2s;margin-top:2px;flex-shrink:0">▼</span>
+      </div>
+      <div id="notice-body-${n.id}" style="display:none;padding:0 16px 16px 36px">
+        <div style="height:1px;background:${ts.border};margin-bottom:12px;opacity:.5"></div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.8;white-space:pre-line">${n.content}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('notice-page').classList.add('on');
+  history.pushState({notice:true}, '');
+
+  // 특정 공지로 이동 + 자동 펼침
+  if (targetId) {
+    setTimeout(() => {
+      const el = document.getElementById(`notice-item-${targetId}`);
+      const page = document.getElementById('notice-page');
+      if (el && page) {
+        // detail-page 안에서 스크롤
+        page.scrollTop = el.offsetTop - 60;
+        // 자동 펼침
+        const body = document.getElementById(`notice-body-${targetId}`);
+        const arrow = document.getElementById(`notice-arrow-${targetId}`);
+        if (body && body.style.display === 'none') {
+          body.style.display = 'block';
+          if (arrow) arrow.style.transform = 'rotate(180deg)';
+        }
+        // 강조 효과
+        el.style.transition = 'box-shadow .3s';
+        el.style.boxShadow = '0 0 0 3px rgba(255,184,0,.6)';
+        setTimeout(() => { el.style.boxShadow = '0 1px 4px rgba(0,0,0,.06)'; }, 1800);
+      }
+    }, 350);
+  }
+}
+
+function toggleNotice(id) {
+  const body  = document.getElementById(`notice-body-${id}`);
+  const arrow = document.getElementById(`notice-arrow-${id}`);
+  if (!body) return;
+  const isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : 'block';
+  if (arrow) arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+}
+
+function closeNoticePage() {
+  document.getElementById('notice-page').classList.remove('on');
+}
+/* ══ 배너 슬라이드 ══ */
+(function(){
+  const TOTAL = 4;
+  let cur = 0, iv = null, jumping = false;
+
+  function setup() {
+    const track = document.getElementById('bannerTrack');
+    if (!track) return;
+    // 처음과 끝에 복제 슬라이드 추가
+    const slides = [...track.children];
+    track.insertBefore(slides[TOTAL-1].cloneNode(true), slides[0]); // 앞에 마지막 복제
+    track.appendChild(slides[0].cloneNode(true));                    // 뒤에 첫번째 복제
+    // 실제 1번으로 위치 세팅 (index 1)
+    track.style.transition = 'none';
+    track.style.transform = 'translateX(-100%)';
+    dot(0);
+  }
+
+  function dot(n) {
+    document.querySelectorAll('.bdot').forEach((d,i) => d.classList.toggle('on', i===n));
+  }
+
+  function moveTo(pos, animate) {
+    const track = document.getElementById('bannerTrack');
+    if (!track) return;
+    track.style.transition = animate ? 'transform .45s cubic-bezier(.4,0,.2,1)' : 'none';
+    track.style.transform = `translateX(-${pos * 100}%)`;
+  }
+
+  function next() {
+    if (jumping) return;
+    cur++;
+    moveTo(cur + 1, true); // +1 because index 0 is clone of last
+    dot(cur % TOTAL);
+
+    if (cur >= TOTAL) {
+      // 복제 첫번째 보여준 후 실제 첫번째로 순간이동
+      jumping = true;
+      setTimeout(() => {
+        cur = 0;
+        moveTo(1, false);
+        dot(0);
+        jumping = false;
+      }, 460);
+    }
+  }
+
+  function start() { iv = setInterval(next, 3500); }
+  function stop()  { clearInterval(iv); }
+
+  window.addEventListener('load', () => {
+    setup();
+    start();
+
+    const wrap = document.getElementById('bannerWrap');
+    if (!wrap) return;
+    let sx = 0;
+    wrap.addEventListener('touchstart', e => { sx = e.touches[0].clientX; stop(); }, {passive:true});
+    wrap.addEventListener('touchend',   e => {
+      const dx = e.changedTouches[0].clientX - sx;
+      if (Math.abs(dx) > 40) next();
+      start();
+    }, {passive:true});
+  });
+})();
 
 /* ══ 타이머 ══ */
 (function(){ const tick=()=>{ const now=new Date(),end=new Date(); end.setHours(23,59,59,999); const d=end-now,f=n=>String(Math.floor(n)).padStart(2,'0'); const el=document.getElementById('timer'); if(el) el.textContent=`${f(d/3600000)}:${f((d%3600000)/60000)}:${f((d%60000)/1000)}`; }; tick(); setInterval(tick,1000); })();
@@ -1760,8 +2048,15 @@ function renderCpnList(mine, idx) {
   if(idx===2) list=mine.filter(c=>c.status==='USED');
   if(!list.length) return `<div class="empty"><div class="emo">🎫</div><p>${idx===1?'사용 가능한':'사용 완료된'} 쿠폰이 없어요</p>${idx!==2?`<button class="empty-btn" onclick="goTab(0)">🔥 핫딜 보러가기</button>`:''}</div>`;
   return list.map(c => {
-    const exp=c.expiredAt?c.expiredAt.slice(0,10):''; const d=Math.ceil((new Date(exp)-new Date())/864e5);
-    const eb=d<=3?`<span class="cc-exp-badge urgent">D-${d}</span>`:d<=7?`<span class="cc-exp-badge soon">D-${d}</span>`:`<span class="cc-exp-badge ok">~${exp}</span>`;
+    const exp=c.expiredAt?c.expiredAt.slice(0,10):'';
+    const daysLeft = exp ? Math.ceil((new Date(exp)-new Date())/(1000*60*60*24)) : 999;
+    const eb = daysLeft <= 0
+      ? `<span class="cc-exp-badge urgent">⚠️ 오늘 만료</span>`
+      : daysLeft <= 3
+        ? `<span class="cc-exp-badge urgent">🔥 D-${daysLeft} 마감임박!</span>`
+        : daysLeft <= 7
+          ? `<span class="cc-exp-badge soon">⏰ D-${daysLeft}</span>`
+          : `<span class="cc-exp-badge ok">~${exp}</span>`;
     const cpnData={productName:c.productName,brandName:c.brandName,imageUrl:c.imageUrl,discountAmount:c.discountAmount,discountedPrice:c.discountedPrice,originalPrice:c.originalPrice,couponCode:c.couponCode};
     return `<div class="cc">
       <div class="cc-top"><img class="cc-img" src="${c.imageUrl||''}" onerror="this.style.background='#eee';this.removeAttribute('src')"/><div style="flex:1;min-width:0"><div class="cc-brand">${c.brandName}</div><div class="cc-name">${c.productName}</div>${eb}</div></div>
@@ -2319,6 +2614,7 @@ window.addEventListener('popstate',()=>{
   if(document.getElementById('logout-sheet').classList.contains('on')){closeLogoutSheet();return;}
   if(document.getElementById('loginModal').classList.contains('on')){closeLogin();return;}
   if(document.getElementById('s11').classList.contains('on')){closeBarcodeSheet();return;}
+  if(document.getElementById('notice-page').classList.contains('on')){closeNoticePage();return;}
   if(openSheets.length>0){closeS(openSheets[openSheets.length-1]);return;}
   if(document.getElementById('notif-page').classList.contains('on')){closeNotifPage();return;}
   if(document.getElementById('detail-page').classList.contains('on')){closeDetail();return;}
@@ -2354,6 +2650,7 @@ if(uid && userInfo){
 }
 
 renderCats();
+initNbarMarquee();
 // 상품 로드 완료 후 공유 링크 처리
 loadProducts().then(() => {
   // 공유 링크로 들어온 경우 (?pid=숫자) 해당 상품 자동 열기
