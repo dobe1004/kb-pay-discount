@@ -19,7 +19,7 @@
   --r:12px;--rs:8px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:'Noto Sans KR',sans-serif;background:#fff;color:var(--t1);min-height:100vh;padding-bottom:68px;-webkit-font-smoothing:antialiased}
+body{font-family:'Noto Sans KR',sans-serif;background:#fff;color:var(--t1);min-height:100vh;padding-bottom:80px;-webkit-font-smoothing:antialiased}
 img{display:block}
 
 /* ─── 헤더 ─── */
@@ -38,7 +38,6 @@ img{display:block}
 /* ─── 하단 네비 (5탭) ─── */
 /* 하단 네비 */
 .bnav{position:fixed;bottom:0;left:0;right:0;z-index:200;background:#fff;border:none;outline:none;box-shadow:none;display:flex;height:62px}
-.bnav::before{content:'';position:fixed;bottom:62px;left:0;right:0;height:16px;background:linear-gradient(to bottom,transparent,#fff);pointer-events:none;z-index:199}
 .bn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;position:relative}
 .bn-ico{font-size:20px;line-height:1}
 .bn-lbl{font-size:10px;font-weight:500;color:var(--t4)}
@@ -1564,7 +1563,7 @@ const DEEP_LINKS = {
   },
   'NAVER': {
     label: '🟢 네이버',
-    scheme_aos: 'https://www.naver.com',
+    scheme_aos: 'intent://#Intent;package=com.nhn.android.search;scheme=naversearchapp;end',
     scheme_ios: 'naversearchapp://',
     store_aos: 'https://play.google.com/store/apps/details?id=com.nhn.android.search',
     store_ios: 'https://apps.apple.com/kr/app/id393499958',
@@ -2111,8 +2110,8 @@ function showR(ok, r) {
       btnpay.textContent = '🎫 쿠폰 사용하기';
       btnpay.onclick = () => { closeS(1); setTimeout(() => openPayFromIssued(curPid), 200); };
     } else {
-      btnpay.textContent = '💳 지금 바로 결제하기';
-      btnpay.onclick = openPayS;
+      btnpay.textContent = '🏪 바코드로 결제하기';
+      btnpay.onclick = () => { closeS(1); setTimeout(() => openPayFromIssued(curPid), 200); };
     }
   } else {
     btnpay.style.display = 'none';
