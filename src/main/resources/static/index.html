@@ -2,7 +2,21 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover"/>
+<meta name="theme-color" content="#ffffff"/>
+<meta name="background-color" content="#ffffff"/>
+<meta name="msapplication-navbutton-color" content="#ffffff"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="white"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="KB Pay"/>
+<link rel="manifest" href="data:application/json,{&quot;name&quot;:&quot;KB Pay 바로할인&quot;,&quot;short_name&quot;:&quot;KB Pay&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;#ffffff&quot;,&quot;theme_color&quot;:&quot;#FFB800&quot;,&quot;start_url&quot;:&quot;/&quot;}"/>
+<style>
+  :root { color-scheme: light; }
+  html { background: #ffffff !important; color-scheme: light !important; }
+  body { background: #ffffff !important; color-scheme: light !important; }
+</style>
 <title>KB Pay · 바로할인</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
@@ -12,14 +26,15 @@
   --red:#E8282D;--red-lt:#FFF0F0;--grn:#00A86B;--grn-lt:#E8F7F1;
   --blu:#1565C0;--blu-lt:#E8F0FE;--pur:#7C3AED;--pur-lt:#F3EEFF;
   --org:#F97316;--org-lt:#FFF3E8;
-  --bg:#F2F3F5;--white:#fff;
+  --bg:#ffffff;--white:#fff;
   --t1:#1A1A1A;--t2:#333;--t3:#777;--t4:#AAA;--t5:#CCC;
   --bd:#E8E9EB;--bd2:#F0F0F2;
-  --sh:0 1px 6px rgba(0,0,0,.07);--sh2:0 3px 14px rgba(0,0,0,.10);
+  --sh:none;--sh2:0 2px 8px rgba(0,0,0,.06);
   --r:12px;--rs:8px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:'Noto Sans KR',sans-serif;background:#fff;color:var(--t1);min-height:100vh;padding-bottom:80px;-webkit-font-smoothing:antialiased}
+html,body{background:#fff !important}
+body{font-family:'Noto Sans KR',sans-serif;background:#fff;color:var(--t1);min-height:100vh;padding-bottom:62px;-webkit-font-smoothing:antialiased}
 img{display:block}
 
 /* ─── 헤더 ─── */
@@ -37,8 +52,11 @@ img{display:block}
 
 /* ─── 하단 네비 (5탭) ─── */
 /* 하단 네비 */
-.bnav{position:fixed;bottom:0;left:0;right:0;z-index:200;background:#fff;border:none;outline:none;box-shadow:none;display:flex;height:62px}
-.bn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;position:relative}
+.bnav{position:fixed;bottom:0;left:0;right:0;z-index:200;background:#ffffff !important;border:none;outline:none;box-shadow:none;display:flex;flex-direction:column;backdrop-filter:none;-webkit-backdrop-filter:none;color-scheme:light;padding-bottom:env(safe-area-inset-bottom,0px);margin-bottom:0}
+.bnav-inner{display:flex;width:100%;height:62px}
+.bn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;position:relative;background:#ffffff !important}
+/* 네비바 아래 빈공간 흰색으로 덮기 */
+.bnav::after{content:'';position:fixed;bottom:0;left:0;right:0;height:env(safe-area-inset-bottom,0px);background:#ffffff;z-index:199}
 .bn-ico{font-size:20px;line-height:1}
 .bn-lbl{font-size:10px;font-weight:500;color:var(--t4)}
 .bn.on .bn-lbl{color:var(--y);font-weight:700}
@@ -74,7 +92,7 @@ img{display:block}
 
 /* ─── 검색 ─── */
 .search-wrap{padding:10px 14px;background:#fff}
-.search-box{display:flex;align-items:center;gap:8px;background:var(--bg);border-radius:var(--rs);padding:9px 12px;border:1.5px solid transparent}
+.search-box{display:flex;align-items:center;gap:8px;background:#fff;border-radius:var(--rs);padding:9px 12px;border:1.5px solid var(--bd)}
 .search-box:focus-within{border-color:var(--y);background:#fff}
 .search-box input{flex:1;background:transparent;border:none;outline:none;font-family:inherit;font-size:14px;color:var(--t1)}
 .search-box input::placeholder{color:var(--t4)}
@@ -150,7 +168,7 @@ img{display:block}
 .pbar-rem{font-size:10px;font-weight:700;white-space:nowrap;flex-shrink:0}
 .pbar-rem.ok{color:var(--grn)}.pbar-rem.low{color:var(--red)}.pbar-rem.end{color:var(--t4)}
 .pc-timer{font-size:10px;font-weight:700;color:var(--red);background:var(--red-lt);padding:2px 6px;border-radius:4px;font-family:monospace}
-.pc-btn-wrap{border-top:1px solid var(--bd2);padding:7px 12px;display:flex;gap:7px}
+.pc-btn-wrap{padding:7px 12px;display:flex;gap:7px}
 .btn-apply{flex:1;padding:9px;background:var(--y);color:#111;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;border:none;border-radius:var(--rs);cursor:pointer;transition:.12s}
 .btn-apply:active{background:var(--yd);transform:scale(.98)}
 .btn-apply:disabled{background:var(--bg);color:var(--t5);cursor:not-allowed;transform:none}
@@ -460,7 +478,7 @@ select.admin-form-input{cursor:pointer}
 }
 </style>
 </head>
-<body>
+<body style="background:#fff !important">
 <div class="tw" id="tw"></div>
 
 <!-- ══ 헤더 ══ -->
@@ -483,7 +501,7 @@ select.admin-form-input{cursor:pointer}
 </header>
 
 <!-- ══════════ 홈 탭 ══════════ -->
-<div id="pg0">
+<div id="pg0" style="background:#fff;min-height:100vh">
   <!-- 슬라이드 배너 -->
   <div class="banner-slide-wrap" id="bannerWrap">
     <div class="banner-slide-track" id="bannerTrack">
@@ -589,7 +607,7 @@ select.admin-form-input{cursor:pointer}
 </div>
 
 <!-- ══════════ 찜 탭 ══════════ -->
-<div id="pg1" style="display:none">
+<div id="pg1" style="display:none;background:#fff;min-height:100vh">
   <div style="padding:12px 14px 4px;display:flex;align-items:center;justify-content:space-between">
     <span style="font-size:15px;font-weight:700">❤️ 찜한 상품</span>
     <span id="wish-count" style="font-size:13px;color:var(--t4)">0개</span>
@@ -598,17 +616,17 @@ select.admin-form-input{cursor:pointer}
 </div>
 
 <!-- ══════════ 쿠폰함 탭 ══════════ -->
-<div id="pg2" style="display:none;padding-top:8px">
+<div id="pg2" style="display:none;padding-top:8px;background:#fff;min-height:100vh">
   <div id="my-body"><div class="empty"><div class="emo">🎫</div><p>로그인 후 확인할 수 있습니다</p></div></div>
 </div>
 
 <!-- ══════════ 내역 탭 ══════════ -->
-<div id="pg3" style="display:none;padding-top:8px">
+<div id="pg3" style="display:none;padding-top:8px;background:#fff;min-height:100vh">
   <div id="hist-body"><div class="empty"><div class="emo">📋</div><p>로그인 후 확인할 수 있습니다</p></div></div>
 </div>
 
 <!-- ══════════ MY 탭 ══════════ -->
-<div id="pg4" style="display:none">
+<div id="pg4" style="display:none;background:#fff;min-height:100vh">
   <div id="my-page-body"></div>
 </div>
 
@@ -957,11 +975,13 @@ select.admin-form-input{cursor:pointer}
 
 <!-- ══ 하단 네비 (5탭) ══ -->
 <nav class="bnav">
+  <div class="bnav-inner">
   <div class="bn on" id="bn0" onclick="goTab(0)"><div class="bn-ico">🏠</div><div class="bn-lbl">홈</div></div>
   <div class="bn"    id="bn1" onclick="goTab(1)"><div class="bn-ico">❤️</div><div class="bn-lbl">찜</div></div>
   <div class="bn"    id="bn2" onclick="goTab(2)"><div class="bn-ico">🎫</div><div class="bn-lbl">쿠폰함</div></div>
   <div class="bn"    id="bn3" onclick="goTab(3)"><div class="bn-ico">📋</div><div class="bn-lbl">내역</div></div>
   <div class="bn"    id="bn4" onclick="goTab(4)"><div class="bn-ico">👤</div><div class="bn-lbl">MY</div></div>
+  </div>
 </nav>
 
 
@@ -1563,7 +1583,7 @@ const DEEP_LINKS = {
   },
   'NAVER': {
     label: '🟢 네이버',
-    scheme_aos: 'intent://#Intent;package=com.nhn.android.search;scheme=naversearchapp;end',
+    scheme_aos: 'naver://',
     scheme_ios: 'naversearchapp://',
     store_aos: 'https://play.google.com/store/apps/details?id=com.nhn.android.search',
     store_ios: 'https://apps.apple.com/kr/app/id393499958',
@@ -2110,7 +2130,7 @@ function showR(ok, r) {
       btnpay.textContent = '🎫 쿠폰 사용하기';
       btnpay.onclick = () => { closeS(1); setTimeout(() => openPayFromIssued(curPid), 200); };
     } else {
-      btnpay.textContent = '🏪 바코드로 결제하기';
+      btnpay.textContent = '🏪 바코드 확인하기';
       btnpay.onclick = () => { closeS(1); setTimeout(() => openPayFromIssued(curPid), 200); };
     }
   } else {
