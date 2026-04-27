@@ -28,6 +28,7 @@ public class DiscountCoupon {
 
     // 선물받은 쿠폰 정보
     private String giftFromUserId;
+    private String giftMessage;
 
     @PrePersist
     public void prePersist() {
