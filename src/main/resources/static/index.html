@@ -965,7 +965,20 @@ const GRADES = [
 ];
 
 /* ══ API 호출 헬퍼 ══ */
+function showLoading(show) {
+  let el = document.getElementById('global-loading');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'global-loading';
+    el.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;display:none';
+    el.innerHTML = '<div style="background:#fff;border-radius:16px;padding:24px 32px;display:flex;flex-direction:column;align-items:center;gap:12px"><div style="width:36px;height:36px;border:3px solid #eee;border-top-color:var(--y);border-radius:50%;animation:sp .7s linear infinite"></div><div style="font-size:13px;color:var(--t3);font-weight:600">잠시만요...</div></div>';
+    document.body.appendChild(el);
+  }
+  el.style.display = show ? 'flex' : 'none';
+}
+
 async function api(method, path, body) {
+  showLoading(true);
   try {
     const opts = { method, headers: { 'Content-Type': 'application/json' } };
     if (body) opts.body = JSON.stringify(body);
@@ -974,6 +987,8 @@ async function api(method, path, body) {
   } catch(e) {
     console.error('API 오류:', e);
     return { success: false, message: '서버 연결 오류' };
+  } finally {
+    showLoading(false);
   }
 }
 const GET  = (path)       => api('GET',    path);
@@ -1105,20 +1120,6 @@ function goTab(n) {
 }
 
 /* ══ 배너 클릭 (로그인 체크 포함) ══ */
-function bannerClick(idx) {
-  const actions = [
-    // 0: 특가 목록 → 로그인 불필요, 상품 목록으로 스크롤
-    () => { goTab(0); setTimeout(()=>window.scrollTo({top:document.getElementById('catRow')?.offsetTop-60||0,behavior:'smooth'}),100); },
-    // 1: 카페 특가 → 로그인 불필요, 카페 카테고리 필터
-    () => { goTab(0); setCat('카페'); },
-    // 2: 포인트 → 로그인 필요, MY탭
-    () => requireLogin('KB포인트 확인', '로그인 후 포인트를 확인할 수 있습니다', () => goTab(4)),
-    // 3: 선물하기 → 로그인 필요, 쿠폰함
-    () => requireLogin('선물하기', '로그인 후 쿠폰함에서 선물할 수 있습니다', () => goTab(2)),
-  ];
-  if (actions[idx]) actions[idx]();
-}
-
 /* ══ 공지사항 ══ */
 const NOTICES = [
   {
@@ -1250,11 +1251,9 @@ function closeNoticePage() {
   function setup() {
     const track = document.getElementById('bannerTrack');
     if (!track) return;
-    // 처음과 끝에 복제 슬라이드 추가
     const slides = [...track.children];
-    track.insertBefore(slides[TOTAL-1].cloneNode(true), slides[0]); // 앞에 마지막 복제
-    track.appendChild(slides[0].cloneNode(true));                    // 뒤에 첫번째 복제
-    // 실제 1번으로 위치 세팅 (index 1)
+    track.insertBefore(slides[TOTAL-1].cloneNode(true), slides[0]);
+    track.appendChild(slides[0].cloneNode(true));
     track.style.transition = 'none';
     track.style.transform = 'translateX(-100%)';
     dot(0);
@@ -1274,18 +1273,26 @@ function closeNoticePage() {
   function next() {
     if (jumping) return;
     cur++;
-    moveTo(cur + 1, true); // +1 because index 0 is clone of last
+    moveTo(cur + 1, true);
     dot(cur % TOTAL);
-
     if (cur >= TOTAL) {
-      // 복제 첫번째 보여준 후 실제 첫번째로 순간이동
       jumping = true;
-      setTimeout(() => {
-        cur = 0;
-        moveTo(1, false);
-        dot(0);
-        jumping = false;
-      }, 460);
+      setTimeout(() => { cur = 0; moveTo(1, false); dot(0); jumping = false; }, 460);
+    }
+  }
+
+  function prev() {
+    if (jumping) return;
+    if (cur <= 0) {
+      // 첫번째에서 왼쪽 → 복제 마지막으로 이동 후 순간이동
+      jumping = true;
+      moveTo(0, true);
+      dot(TOTAL - 1);
+      setTimeout(() => { cur = TOTAL - 1; moveTo(TOTAL, false); dot(TOTAL-1); jumping = false; }, 460);
+    } else {
+      cur--;
+      moveTo(cur + 1, true);
+      dot(cur % TOTAL);
     }
   }
 
@@ -1295,18 +1302,39 @@ function closeNoticePage() {
   window.addEventListener('load', () => {
     setup();
     start();
-
     const wrap = document.getElementById('bannerWrap');
     if (!wrap) return;
-    let sx = 0;
-    wrap.addEventListener('touchstart', e => { sx = e.touches[0].clientX; stop(); }, {passive:true});
-    wrap.addEventListener('touchend',   e => {
+    let sx = 0, sy = 0;
+    wrap.addEventListener('touchstart', e => {
+      sx = e.touches[0].clientX;
+      sy = e.touches[0].clientY;
+      stop();
+    }, {passive:true});
+    wrap.addEventListener('touchend', e => {
       const dx = e.changedTouches[0].clientX - sx;
-      if (Math.abs(dx) > 40) next();
+      const dy = e.changedTouches[0].clientY - sy;
+      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
+        dx < 0 ? next() : prev(); // 왼쪽 스와이프 → next, 오른쪽 → prev
+      }
       start();
     }, {passive:true});
   });
 })();
+
+/* ══ 배너 클릭 ══ */
+function bannerClick(idx) {
+  const actions = [
+    // 0: KB페이 특가 → 상품 목록 (로그인 불필요)
+    () => { goTab(0); setTimeout(()=>{ const el=document.getElementById('catRow'); if(el) window.scrollTo({top:el.offsetTop-60,behavior:'smooth'}); },100); },
+    // 1: 스타벅스 특가 → 카페 카테고리 (로그인 불필요)
+    () => { goTab(0); setTimeout(()=>setCat('카페'), 100); },
+    // 2: 포인트 → MY탭 (로그인 필요)
+    () => requireLogin('KB포인트 확인', '로그인 후 포인트를 확인할 수 있습니다', () => goTab(4)),
+    // 3: 선물하기 → 쿠폰함 (로그인 필요)
+    () => requireLogin('선물하기', '로그인 후 쿠폰함에서 선물할 수 있습니다', () => goTab(2)),
+  ];
+  if (actions[idx]) actions[idx]();
+}
 
 /* ══ 타이머 ══ */
 (function(){ const tick=()=>{ const now=new Date(),end=new Date(); end.setHours(23,59,59,999); const d=end-now,f=n=>String(Math.floor(n)).padStart(2,'0'); const el=document.getElementById('timer'); if(el) el.textContent=`${f(d/3600000)}:${f((d%3600000)/60000)}:${f((d%60000)/1000)}`; }; tick(); setInterval(tick,1000); })();
@@ -1503,19 +1531,15 @@ function openOnlineCouponSheet(coupon) {
     dlBtn.style.display = 'block';
     dlBtn.textContent = dl.label;
     dlBtn.onclick = () => {
-      // 딥링크 시도 (window.location.href 방식)
-      window.location.href = dl.app;
-      // 1.5초 후 앱 안 열리면 폴백 표시
-      setTimeout(() => {
-        fallback.style.display = 'block';
-        const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent);
-        storeBtn.textContent = isIos ? '🍎 앱스토어에서 설치' : '▶ 플레이스토어에서 설치';
-        storeBtn.onclick = () => window.open(isIos ? dl.store_ios : dl.store_aos, '_blank');
-        webBtn.textContent = '🌐 웹에서 이용하기';
-        webBtn.onclick = () => window.open(dl.web, '_blank');
-      }, 1500);
+      // a 태그 방식으로 딥링크 시도 (가장 호환성 높음)
+      const a = document.createElement('a');
+      a.href = dl.app;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     };
-    // 처음부터 폴백 버튼도 표시 (앱 없는 경우 대비)
+    // 처음부터 폴백 버튼도 표시
     fallback.style.display = 'block';
     const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent);
     storeBtn.textContent = isIos ? '🍎 앱스토어에서 설치' : '▶ 플레이스토어에서 설치';
