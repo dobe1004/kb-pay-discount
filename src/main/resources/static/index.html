@@ -37,7 +37,7 @@ img{display:block}
 
 /* ─── 하단 네비 (5탭) ─── */
 /* 하단 네비 */
-.bnav{position:fixed;bottom:0;left:0;right:0;z-index:200;background:#fff;border:none;display:flex;height:62px}
+.bnav{position:fixed;bottom:0;left:0;right:0;z-index:200;background:#fff;border:none;outline:none;box-shadow:none;display:flex;height:62px}
 .bn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;position:relative}
 .bn-ico{font-size:20px;line-height:1}
 .bn-lbl{font-size:10px;font-weight:500;color:var(--t4)}
@@ -970,8 +970,8 @@ function showLoading(show) {
   if (!el) {
     el = document.createElement('div');
     el.id = 'global-loading';
-    el.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;display:none';
-    el.innerHTML = '<div style="background:#fff;border-radius:16px;padding:24px 32px;display:flex;flex-direction:column;align-items:center;gap:12px"><div style="width:36px;height:36px;border:3px solid #eee;border-top-color:var(--y);border-radius:50%;animation:sp .7s linear infinite"></div><div style="font-size:13px;color:var(--t3);font-weight:600">잠시만요...</div></div>';
+    el.style.cssText = 'position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;pointer-events:none';
+    el.innerHTML = '<div style="width:40px;height:40px;border:3px solid rgba(0,0,0,.08);border-top-color:var(--y);border-radius:50%;animation:sp .7s linear infinite"></div>';
     document.body.appendChild(el);
   }
   el.style.display = show ? 'flex' : 'none';
@@ -1327,7 +1327,7 @@ function bannerClick(idx) {
     // 0: KB페이 특가 → 상품 목록 (로그인 불필요)
     () => { goTab(0); setTimeout(()=>{ const el=document.getElementById('catRow'); if(el) window.scrollTo({top:el.offsetTop-60,behavior:'smooth'}); },100); },
     // 1: 스타벅스 특가 → 카페 카테고리 (로그인 불필요)
-    () => { goTab(0); setTimeout(()=>setCat('카페'), 100); },
+    () => { goTab(0); setTimeout(()=>{ setCat('카페'); window.scrollTo({top:0,behavior:'smooth'}); }, 300); },
     // 2: 포인트 → MY탭 (로그인 필요)
     () => requireLogin('KB포인트 확인', '로그인 후 포인트를 확인할 수 있습니다', () => goTab(4)),
     // 3: 선물하기 → 쿠폰함 (로그인 필요)
@@ -1474,37 +1474,45 @@ async function openPayFromIssued(pid) {
 
 /* ══ 온라인 쿠폰 시트 ══ */
 const HOW_TO_USE = {
-  'COUPANG EATS': '쿠팡이츠 앱 → 주문 → 결제 → 쿠폰 입력란에 코드를 붙여넣기 하세요',
-  'BAEMIN': '배달의민족 앱 → 주문 → 결제 → 쿠폰/포인트 → 쿠폰 코드 입력하세요',
-  'NAVER': '네이버 앱 → 네이버플러스 멤버십 → 쿠폰 등록 → 코드를 입력하세요',
-  'MUSINSA': '무신사 앱 또는 웹 → 장바구니 → 쿠폰 적용 → 코드를 입력하세요',
+  'COUPANG EATS': '① 코드 복사 → ② 쿠팡이츠 앱 실행 → ③ 주문 결제 화면에서 쿠폰 코드 입력',
+  'BAEMIN': '① 코드 복사 → ② 배달의민족 앱 실행 → ③ 결제 시 쿠폰/포인트에서 코드 입력',
+  'NAVER': '① 코드 복사 → ② 네이버 앱 실행 → ③ 네이버플러스 멤버십에서 코드 등록',
+  'MUSINSA': '① 코드 복사 → ② 무신사 앱/웹 실행 → ③ 장바구니 쿠폰 적용에서 코드 입력',
 };
 
-// 앱 딥링크 + 스토어 + 웹 링크
+// 앱 딥링크 + 스토어 + 웹 링크 (실제 동작하는 URL)
 const DEEP_LINKS = {
   'COUPANG EATS': {
-    app: 'coupangeats://', label: '🛵 쿠팡이츠 앱 열기',
+    label: '🛵 쿠팡이츠 열기',
+    app_aos: 'intent://home#Intent;scheme=coupangeats;package=com.coupang.eats;end',
+    app_ios: 'coupangeats://',
     store_aos: 'https://play.google.com/store/apps/details?id=com.coupang.eats',
     store_ios: 'https://apps.apple.com/kr/app/id1249808192',
     web: 'https://www.coupangeats.com',
   },
   'BAEMIN': {
-    app: 'baemin://', label: '🛵 배달의민족 앱 열기',
-    store_aos: 'https://play.google.com/store/apps/details?id=com.woowahan.android',
+    label: '🛵 배달의민족 열기',
+    app_aos: 'intent://main#Intent;scheme=baemin;package=com.woowahan.android11;end',
+    app_ios: 'baemin://',
+    store_aos: 'https://play.google.com/store/apps/details?id=com.woowahan.android11',
     store_ios: 'https://apps.apple.com/kr/app/id431589174',
     web: 'https://www.baemin.com',
   },
   'NAVER': {
-    app: 'naverapp://', label: '🟢 네이버 멤버십 열기',
+    label: '🟢 네이버 앱 열기',
+    app_aos: 'intent://search#Intent;scheme=naversearchapp;package=com.nhn.android.search;end',
+    app_ios: 'naversearchapp://',
     store_aos: 'https://play.google.com/store/apps/details?id=com.nhn.android.search',
     store_ios: 'https://apps.apple.com/kr/app/id393499958',
-    web: 'https://new.membership.naver.com',
+    web: 'https://www.naver.com',
   },
   'MUSINSA': {
-    app: 'musinsa://', label: '👗 무신사 쿠폰함 열기',
+    label: '👗 무신사 앱 열기',
+    app_aos: 'intent://home#Intent;scheme=musinsa;package=com.musinsa.app;end',
+    app_ios: 'musinsa://',
     store_aos: 'https://play.google.com/store/apps/details?id=com.musinsa.app',
     store_ios: 'https://apps.apple.com/kr/app/id917793057',
-    web: 'https://www.musinsa.com/app/coupon/list',
+    web: 'https://www.musinsa.com',
   },
 };
 
@@ -1527,25 +1535,44 @@ function openOnlineCouponSheet(coupon) {
   const webBtn = document.getElementById('oc-web-btn');
 
   if (dl) {
+    const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent);
+    const appUrl = isIos ? dl.app_ios : dl.app_aos;
+    const storeUrl = isIos ? dl.store_ios : dl.store_aos;
+
     // 앱 열기 버튼
     dlBtn.style.display = 'block';
     dlBtn.textContent = dl.label;
     dlBtn.onclick = () => {
-      // a 태그 방식으로 딥링크 시도 (가장 호환성 높음)
-      const a = document.createElement('a');
-      a.href = dl.app;
-      a.style.display = 'none';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      // 앱으로 이동 후 돌아왔을 때 처리
+      const onReturn = () => {
+        if (document.visibilityState === 'visible') {
+          document.removeEventListener('visibilitychange', onReturn);
+          // 앱에서 돌아오면 쿠폰 시트 그대로 유지 (이미 열려있음)
+          toast('앱에서 쿠폰 코드를 입력해주세요 😊', 'inf');
+        }
+      };
+      document.addEventListener('visibilitychange', onReturn);
+      window.location.href = appUrl;
     };
-    // 처음부터 폴백 버튼도 표시
+
+    // 폴백 버튼 항상 표시
     fallback.style.display = 'block';
-    const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent);
     storeBtn.textContent = isIos ? '🍎 앱스토어에서 설치' : '▶ 플레이스토어에서 설치';
-    storeBtn.onclick = () => window.open(isIos ? dl.store_ios : dl.store_aos, '_blank');
+    storeBtn.onclick = () => {
+      const onReturn = () => {
+        if (document.visibilityState === 'visible') {
+          document.removeEventListener('visibilitychange', onReturn);
+          toast('설치 후 앱 열기 버튼을 눌러주세요 😊', 'inf');
+        }
+      };
+      document.addEventListener('visibilitychange', onReturn);
+      window.location.href = storeUrl;
+    };
     webBtn.textContent = '🌐 웹에서 이용하기';
-    webBtn.onclick = () => window.open(dl.web, '_blank');
+    webBtn.onclick = () => {
+      history.pushState({ externalNav: true }, '');
+      window.location.href = dl.web;
+    };
   } else {
     dlBtn.style.display = 'none';
     fallback.style.display = 'none';
