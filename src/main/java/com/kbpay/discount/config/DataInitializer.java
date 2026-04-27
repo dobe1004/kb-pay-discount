@@ -84,7 +84,7 @@ public class DataInitializer implements CommandLineRunner {
                 "👗 무신사 스토어 5만원 즉시 할인!",
                 "• 일부 한정 상품 제외"),
             build("GS칼텍스 주유권 5만원","GS CALTEX",50000,37500,25,40,"생활","new",234,4.4,21,
-                "https://images.unsplash.com/photo-1545262810-a9b5b5d6dcdf?w=400&q=80",
+                "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=400&q=80",
                 "⛽ 기름값 아끼자! GS칼텍스 주유권",
                 "• 세차, 편의점 이용 불가"),
             build("쿠팡이츠 1만원 할인쿠폰","COUPANG EATS",10000,5000,50,200,"음식","hot",5621,4.6,412,
