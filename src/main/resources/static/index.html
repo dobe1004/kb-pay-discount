@@ -364,10 +364,6 @@ img{display:block}
 .di-row .l{color:var(--t3)}.di-row .v{font-weight:700}
 
 /* ─── 로그인 모달 ─── */
-.login-modal-bk{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.5);display:none;align-items:flex-end}
-.login-modal-bk.on{display:flex;animation:bkfi .2s ease}
-.login-modal{background:#fff;border-radius:20px 20px 0 0;width:100%;padding:0 20px 48px;transform:translateY(100%);transition:transform .35s cubic-bezier(.34,1.15,.64,1)}
-.login-modal-bk.on .login-modal{transform:translateY(0)}
 .lm-bar{width:34px;height:4px;background:var(--bd);border-radius:2px;margin:12px auto 18px}
 .lm-lock{width:56px;height:56px;background:var(--y-lt);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:26px}
 .lm-title{font-size:18px;font-weight:800;text-align:center;margin-bottom:6px}
@@ -1417,25 +1413,6 @@ async function checkIssuedStatus() {
 }
 
 // 발급된 쿠폰으로 바코드 시트 열기
-async function openPayFromIssued(pid) {
-  requireLogin('쿠폰 사용', '로그인이 필요합니다', async () => {
-    const res = await GET(`/api/my/${uid}`);
-    if (!res.success) { toast('오류가 발생했습니다.', 'err'); return; }
-    const c = (res.data.coupons || []).find(c => c.productId === pid && c.status === 'ISSUED');
-    if (!c) { toast('사용 가능한 쿠폰이 없습니다.', 'err'); return; }
-    cur = {
-      productName: c.productName, brandName: c.brandName,
-      imageUrl: c.imageUrl, discountAmount: c.discountAmount,
-      discountedPrice: c.discountedPrice, originalPrice: c.originalPrice,
-      couponCode: c.couponCode, expiredAt: c.expiredAt,
-      name: c.productName, brand: c.brandName, img: c.imageUrl,
-      amt: c.discountAmount, dis: c.discountedPrice, ori: c.originalPrice,
-      exp: c.expiredAt, code: c.couponCode, pid
-    };
-    openBarcodeSheet(cur);
-  });
-}
-
 // 온라인 전용 브랜드
 const ONLINE_BRANDS = ['COUPANG EATS', 'BAEMIN', 'NAVER', 'MUSINSA'];
 const isOnlineBrand = (brand) => ONLINE_BRANDS.includes(brand);
@@ -1982,25 +1959,7 @@ function useCouponFromList(code, couponData) {
   openPayS();
 }
 
-// 상품 카드에서 이미 발급된 쿠폰으로 결제 열기
-async function openPayFromIssued(pid) {
-  requireLogin('결제', '로그인이 필요합니다', async () => {
-    const res = await GET(`/api/my/${uid}`);
-    if (!res.success) { toast('오류가 발생했습니다.', 'err'); return; }
-    const c = (res.data.coupons || []).find(c => c.productId === pid && c.status === 'ISSUED');
-    if (!c) { toast('사용 가능한 쿠폰이 없습니다.', 'err'); return; }
-    cur = {
-      productName: c.productName, brandName: c.brandName,
-      imageUrl: c.imageUrl, discountAmount: c.discountAmount,
-      discountedPrice: c.discountedPrice, originalPrice: c.originalPrice,
-      couponCode: c.couponCode, expiredAt: c.expiredAt,
-      name: c.productName, brand: c.brandName, img: c.imageUrl,
-      amt: c.discountAmount, dis: c.discountedPrice, ori: c.originalPrice,
-      exp: c.expiredAt, code: c.couponCode, pid
-    };
-    openPayS();
-  });
-}
+// 상품 카드에서 이미 발급된 쿠폰으로 결제 열기 → openPayFromIssued 로 통합
 
 function showR(ok, r) {
   document.getElementById('s1i').textContent = ok?'🎉':'😢';
