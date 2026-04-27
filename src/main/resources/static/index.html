@@ -36,12 +36,19 @@ img{display:block}
 .admin-badge{display:inline-block;background:var(--pur);color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;margin-left:4px;vertical-align:middle}
 
 /* ─── 하단 네비 (5탭) ─── */
-.bnav{position:fixed;bottom:0;left:0;right:0;z-index:200;background:#fff;border-top:1px solid var(--bd);display:flex;height:62px;box-shadow:0 -1px 8px rgba(0,0,0,.06)}
+/* 하단 네비 - 그림자만 사용, border-top 제거로 흐릿한 줄 제거 */
+.bnav{position:fixed;bottom:0;left:0;right:0;z-index:200;background:#fff;border-top:none;display:flex;height:62px;box-shadow:0 -2px 12px rgba(0,0,0,.08)}
 .bn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;position:relative}
 .bn-ico{font-size:20px;line-height:1}
 .bn-lbl{font-size:10px;font-weight:500;color:var(--t4)}
 .bn.on .bn-lbl{color:var(--y);font-weight:700}
 .bn-badge{position:absolute;top:8px;right:calc(50% - 14px);min-width:14px;height:14px;background:var(--red);border-radius:7px;border:2px solid #fff;font-size:8px;font-weight:700;color:#fff;display:none;align-items:center;justify-content:center;padding:0 2px}
+
+/* 로그인 모달 - 키패드 올라올 때 흔들림 방지 */
+.login-modal-bk{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.5);display:none;align-items:flex-end;overflow:hidden}
+.login-modal-bk.on{display:flex;animation:bkfi .2s ease}
+.login-modal{background:#fff;border-radius:20px 20px 0 0;width:100%;padding:0 20px env(safe-area-inset-bottom, 48px);padding-bottom:max(48px, env(safe-area-inset-bottom, 48px));transform:translateY(100%);transition:transform .35s cubic-bezier(.34,1.15,.64,1);max-height:85vh;overflow-y:auto}
+.login-modal-bk.on .login-modal{transform:translateY(0)}
 
 /* ─── 배너 ─── */
 .banner{background:linear-gradient(110deg,#FF8F00,#FFB800 55%,#FFD54F);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;position:relative;overflow:hidden}
@@ -489,7 +496,7 @@ select.admin-form-input{cursor:pointer}
     </div>
   </div>
   <!-- 인기 급상승 -->
-  <div class="sec"><div class="sec-hd"><span class="sec-title">🚀 인기 급상승</span></div><div class="hot-rank" id="hot-rank"></div></div>
+  <div class="sec" id="hot-rank-sec"><div class="sec-hd"><span class="sec-title">🚀 인기 급상승</span></div><div class="hot-rank" id="hot-rank"></div></div>
   <!-- 최근 본 상품 -->
   <div class="recent-row" id="recent-sec" style="display:none"><div class="recent-title">최근 본 상품</div><div class="recent-scroll" id="recent-scroll"></div></div>
   <!-- 카테고리 + 정렬 -->
@@ -921,9 +928,39 @@ function goTab(n) {
 
 /* ══ 인기 급상승 ══ */
 function renderHotRank() {
-  const sorted = [...PRODS].sort((a,b) => b.buyers - a.buyers).slice(0,6);
-  document.getElementById('hot-rank').innerHTML = sorted.map((p,i) =>
-    `<div class="hr-item" onclick="openDetail(${p.id})"><div class="hr-num">${i+1}</div><div class="hr-name">${p.brandName}</div><div class="hr-rate">-${p.discountRate}%</div></div>`
+  // 발급된 쿠폰 수 = total - remaining
+  const withIssued = PRODS.map(p => ({
+    ...p,
+    issuedCount: (p.total||0) - (p.remaining||0)
+  })).filter(p => p.issuedCount > 0); // 발급된 게 없으면 목록에서 제외
+
+  if (withIssued.length === 0) {
+    // 발급된 쿠폰이 하나도 없으면 인기 급상승 섹션 숨김
+    document.getElementById('hot-rank-sec').style.display = 'none';
+    return;
+  }
+
+  document.getElementById('hot-rank-sec').style.display = 'block';
+
+  const sorted = withIssued
+    .sort((a, b) => {
+      // 1순위: 발급 수 많은 순
+      if (b.issuedCount !== a.issuedCount) return b.issuedCount - a.issuedCount;
+      // 2순위: 남은 쿠폰 적은 순
+      if (a.remaining !== b.remaining) return a.remaining - b.remaining;
+      // 3순위: 할인율 높은 순
+      if (b.rate !== a.rate) return b.rate - a.rate;
+      // 4순위: 이름순
+      return (a.name||'').localeCompare(b.name||'', 'ko');
+    })
+    .slice(0, 6);
+
+  document.getElementById('hot-rank').innerHTML = sorted.map((p, i) =>
+    `<div class="hr-item" onclick="openDetail(${p.id})">
+      <div class="hr-num">${i+1}</div>
+      <div class="hr-name">${p.brandName}</div>
+      <div class="hr-rate">${p.issuedCount}명</div>
+    </div>`
   ).join('');
 }
 
@@ -1653,6 +1690,15 @@ history.replaceState({tab:0},'');
 const shakeStyle=document.createElement('style');
 shakeStyle.textContent='@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}';
 document.head.appendChild(shakeStyle);
+
+// 키패드 올라올 때 로그인 모달 흔들림 방지
+window.addEventListener('resize', () => {
+  const modal = document.getElementById('loginModal');
+  if (modal && modal.classList.contains('on')) {
+    // 키패드 올라와도 모달 위치 고정
+    modal.style.height = window.innerHeight + 'px';
+  }
+});
 
 // 세션 복원 (페이지 새로고침 시)
 if(uid && userInfo){
