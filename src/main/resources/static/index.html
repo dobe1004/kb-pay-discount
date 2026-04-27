@@ -920,10 +920,14 @@ select.admin-form-input{cursor:pointer}
     <div class="lm-field"><div class="lm-label">아이디</div><input class="lm-input" id="loginId" placeholder="아이디 입력" onkeydown="if(event.key==='Enter')document.getElementById('loginPw').focus()"/></div>
     <div class="lm-field"><div class="lm-label">비밀번호</div><input class="lm-input" id="loginPw" type="password" placeholder="비밀번호 입력" onkeydown="if(event.key==='Enter')doLogin()"/></div>
     <div class="lm-error" id="lm-error">아이디 또는 비밀번호가 올바르지 않습니다.</div>
-    <div class="lm-hint" style="margin-bottom:14px">
+    <div class="lm-hint" style="margin-bottom:10px">
       일반 사용자: <b>user01 ~ user10</b> / 비밀번호 <b>1234</b><br/>
       관리자: 아이디 <b>admin</b> / 비밀번호 <b>admin1234</b>
     </div>
+    <label style="display:flex;align-items:center;gap:8px;margin-bottom:14px;cursor:pointer;font-size:13px;color:var(--t2)">
+      <input type="checkbox" id="autoLoginCheck" style="width:16px;height:16px;accent-color:var(--y);cursor:pointer"/>
+      자동 로그인
+    </label>
     <button class="btn-main" onclick="doLogin()">로그인</button>
     <button class="btn-line" onclick="closeLogin()">취소</button>
   </div>
@@ -948,8 +952,28 @@ select.admin-form-input{cursor:pointer}
 const API = '';  // 같은 서버에서 제공하므로 경로만 사용
 
 /* ── 상태 ── */
+// 웹페이지 닫으면 로그아웃 (sessionStorage 기반)
+// 자동로그인 체크 시 localStorage에도 저장
 let uid = sessionStorage.getItem('kbp_uid') || '';
 let userInfo = JSON.parse(sessionStorage.getItem('kbp_user') || 'null');
+
+// 자동로그인 복원 (localStorage)
+if (!uid) {
+  const saved = localStorage.getItem('kbp_auto_user');
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      uid = parsed.uid || '';
+      userInfo = parsed.userInfo || null;
+      // sessionStorage에도 세팅
+      if (uid) {
+        sessionStorage.setItem('kbp_uid', uid);
+        sessionStorage.setItem('kbp_user', JSON.stringify(userInfo));
+      }
+    } catch(e) {}
+  }
+}
+
 let PRODS = [];
 let wishes = [];
 let recentViewed = JSON.parse(localStorage.getItem('kbp_rv') || '[]');
@@ -1046,6 +1070,14 @@ async function doLogin() {
   sessionStorage.setItem('kbp_uid', uid);
   sessionStorage.setItem('kbp_user', JSON.stringify(userInfo));
 
+  // 자동로그인 체크 시 localStorage에 저장
+  const autoCheck = document.getElementById('autoLoginCheck');
+  if (autoCheck && autoCheck.checked) {
+    localStorage.setItem('kbp_auto_user', JSON.stringify({ uid, userInfo }));
+  } else {
+    localStorage.removeItem('kbp_auto_user');
+  }
+
   document.getElementById('huid').textContent = uid;
   document.getElementById('hbtn').classList.add('on');
   document.getElementById('admin-hd-badge').style.display = isAdmin() ? 'inline-block' : 'none';
@@ -1084,6 +1116,7 @@ function doLogout() {
   uid = ''; userInfo = null; wishes = []; cur = null; curPid = null;
   sessionStorage.removeItem('kbp_uid');
   sessionStorage.removeItem('kbp_user');
+  localStorage.removeItem('kbp_auto_user'); // 자동로그인 해제
   document.getElementById('huid').textContent = '로그인';
   document.getElementById('hbtn').classList.remove('on');
   document.getElementById('admin-hd-badge').style.display = 'none';
@@ -1514,7 +1547,7 @@ const DEEP_LINKS = {
   },
   'NAVER': {
     label: '🟢 네이버',
-    scheme: 'naversearchapp://',
+    scheme: 'naver://',
     store_aos: 'https://play.google.com/store/apps/details?id=com.nhn.android.search',
     store_ios: 'https://apps.apple.com/kr/app/id393499958',
     web: 'https://www.naver.com',
@@ -1577,52 +1610,40 @@ function openOnlineCouponSheet(coupon) {
 
     dlBtn.onclick = () => {
       const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent);
+      const waitMs = isIos ? 2000 : 1800;
 
-      if (isIos) {
-        // iOS: scheme 시도 → 2초 후 앱스토어 폴백
-        window.location.href = dl.scheme;
-        const fallbackTimer = setTimeout(() => {
+      // 앱 scheme 실행
+      window.location.href = dl.scheme;
+
+      let appLaunched = false;
+
+      // 앱이 열리면 (화면 hidden) → 앱에 주도권
+      const onHidden = () => {
+        if (document.visibilityState === 'hidden') {
+          appLaunched = true;
+          clearTimeout(fallbackTimer);
+          document.removeEventListener('visibilitychange', onHidden);
+
+          // 앱에서 돌아올 때 (앱 종료 후)
+          const onVisible = () => {
+            if (document.visibilityState === 'visible') {
+              document.removeEventListener('visibilitychange', onVisible);
+              toast('앱에서 코드를 입력해주세요 😊', 'inf');
+            }
+          };
+          document.addEventListener('visibilitychange', onVisible);
+        }
+      };
+      document.addEventListener('visibilitychange', onHidden);
+
+      // 앱 없으면 폴백 메뉴 펼침
+      const fallbackTimer = setTimeout(() => {
+        if (!appLaunched) {
+          document.removeEventListener('visibilitychange', onHidden);
           fallback.style.display = 'block';
           setTimeout(() => { fallback.style.maxHeight = '200px'; }, 10);
-        }, 2000);
-        const onVisChange = () => {
-          if (document.visibilityState === 'hidden') {
-            clearTimeout(fallbackTimer);
-            document.removeEventListener('visibilitychange', onVisChange);
-            const onReturn = () => {
-              if (document.visibilityState === 'visible') {
-                document.removeEventListener('visibilitychange', onReturn);
-                toast('앱에서 코드를 입력해주세요 😊', 'inf');
-              }
-            };
-            document.addEventListener('visibilitychange', onReturn);
-          }
-        };
-        document.addEventListener('visibilitychange', onVisChange);
-      } else {
-        // 안드로이드: scheme 시도 → 1.8초 후 플레이스토어 폴백
-        window.location.href = dl.scheme;
-        const fallbackTimer = setTimeout(() => {
-          if (document.visibilityState === 'visible') {
-            fallback.style.display = 'block';
-            setTimeout(() => { fallback.style.maxHeight = '200px'; }, 10);
-          }
-        }, 1800);
-        const onVisChange = () => {
-          if (document.visibilityState === 'hidden') {
-            clearTimeout(fallbackTimer);
-            document.removeEventListener('visibilitychange', onVisChange);
-            const onReturn = () => {
-              if (document.visibilityState === 'visible') {
-                document.removeEventListener('visibilitychange', onReturn);
-                toast('앱에서 코드를 입력해주세요 😊', 'inf');
-              }
-            };
-            document.addEventListener('visibilitychange', onReturn);
-          }
-        };
-        document.addEventListener('visibilitychange', onVisChange);
-      }
+        }
+      }, waitMs);
     };
 
   } else {
