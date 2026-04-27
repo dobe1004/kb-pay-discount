@@ -830,7 +830,7 @@ select.admin-form-input{cursor:pointer}
   <div style="background:var(--y-lt);border-radius:var(--r);padding:16px;margin-bottom:12px;text-align:center">
     <div style="font-size:11px;color:#7A5000;margin-bottom:6px">쿠폰 코드</div>
     <div id="oc-code" style="font-size:20px;font-weight:900;font-family:monospace;letter-spacing:2px;color:#111;margin-bottom:8px"></div>
-    <button onclick="copyOnlineCode()" style="background:var(--y);border:none;border-radius:var(--rs);padding:8px 20px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;color:#111">
+    <button onclick="copyOnlineCode()" style="background:#fff;border:1.5px solid var(--y);border-radius:var(--rs);padding:8px 20px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;color:#7A5000">
       📋 코드 복사하기
     </button>
   </div>
@@ -848,14 +848,14 @@ select.admin-form-input{cursor:pointer}
   </div>
 
   <!-- 앱 열기 버튼 -->
-  <button id="oc-deeplink-btn" class="btn-main" style="margin-bottom:8px;display:none"></button>
+  <button id="oc-deeplink-btn" class="btn-main" style="margin-bottom:12px;display:none"></button>
 
-  <!-- 앱 없을 때 선택 버튼 (hidden 기본) -->
+  <!-- 앱 없을 때 선택 버튼 -->
   <div id="oc-fallback" style="display:none;margin-bottom:8px">
     <div style="font-size:12px;color:var(--t3);text-align:center;margin-bottom:8px">앱이 설치되어 있지 않으신가요?</div>
     <div style="display:flex;gap:8px">
-      <button id="oc-store-btn" class="btn-line" style="flex:1;font-size:13px"></button>
-      <button id="oc-web-btn" class="btn-line" style="flex:1;font-size:13px"></button>
+      <button id="oc-store-btn" style="flex:1;padding:12px 8px;border:1.5px solid var(--bd);border-radius:var(--rs);background:#fff;font-family:inherit;font-size:12px;font-weight:700;color:var(--t1);cursor:pointer;text-align:center;line-height:1.4"></button>
+      <button id="oc-web-btn" style="flex:1;padding:12px 8px;border:1.5px solid var(--bd);border-radius:var(--rs);background:#fff;font-family:inherit;font-size:12px;font-weight:700;color:var(--t1);cursor:pointer;text-align:center;line-height:1.4"></button>
     </div>
   </div>
 
@@ -1503,32 +1503,25 @@ function openOnlineCouponSheet(coupon) {
     dlBtn.style.display = 'block';
     dlBtn.textContent = dl.label;
     dlBtn.onclick = () => {
-      // 딥링크 시도
-      const iframe = document.createElement('iframe');
-      iframe.style.display = 'none';
-      document.body.appendChild(iframe);
-      iframe.src = dl.app;
-
-      // 1초 후 앱 안 열리면 폴백 선택 UI 표시
-      const timer = setTimeout(() => {
-        document.body.removeChild(iframe);
+      // 딥링크 시도 (window.location.href 방식)
+      window.location.href = dl.app;
+      // 1.5초 후 앱 안 열리면 폴백 표시
+      setTimeout(() => {
         fallback.style.display = 'block';
-        // OS 감지해서 스토어 링크 설정
         const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent);
         storeBtn.textContent = isIos ? '🍎 앱스토어에서 설치' : '▶ 플레이스토어에서 설치';
         storeBtn.onclick = () => window.open(isIos ? dl.store_ios : dl.store_aos, '_blank');
         webBtn.textContent = '🌐 웹에서 이용하기';
         webBtn.onclick = () => window.open(dl.web, '_blank');
-      }, 1000);
-
-      // 앱이 열리면 타이머 취소 (visibilitychange로 감지)
-      const onHide = () => {
-        clearTimeout(timer);
-        document.removeEventListener('visibilitychange', onHide);
-      };
-      document.addEventListener('visibilitychange', onHide);
+      }, 1500);
     };
-    fallback.style.display = 'none';
+    // 처음부터 폴백 버튼도 표시 (앱 없는 경우 대비)
+    fallback.style.display = 'block';
+    const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent);
+    storeBtn.textContent = isIos ? '🍎 앱스토어에서 설치' : '▶ 플레이스토어에서 설치';
+    storeBtn.onclick = () => window.open(isIos ? dl.store_ios : dl.store_aos, '_blank');
+    webBtn.textContent = '🌐 웹에서 이용하기';
+    webBtn.onclick = () => window.open(dl.web, '_blank');
   } else {
     dlBtn.style.display = 'none';
     fallback.style.display = 'none';
@@ -1974,14 +1967,16 @@ function showR(ok, r) {
     document.getElementById('camt').innerHTML = `${r.discountAmount.toLocaleString()}<small>원 할인</small>`;
     document.getElementById('cexp').textContent = cur&&cur.exp ? `유효기간 ~${cur.exp.slice(0,10)}` : '유효기간 30일';
 
-    // 온라인 전용이면 버튼 텍스트/동작 변경
-    const p = PRODS.find(x => x.id === cur?.pid);
-    if (p && isOnlineBrand(p.brand)) {
-      btnpay.style.display = 'block';
+    // 온라인 전용 여부 확인 (pid로 PRODS에서 찾기, 타입 일치 보장)
+    const curPid = cur ? Number(cur.pid) : null;
+    const p = curPid ? PRODS.find(x => Number(x.id) === curPid) : null;
+    const online = p ? isOnlineBrand(p.brand) : false;
+
+    btnpay.style.display = 'block';
+    if (online) {
       btnpay.textContent = '🎫 쿠폰 사용하기';
-      btnpay.onclick = () => { closeS(1); openPayFromIssued(cur.pid); };
+      btnpay.onclick = () => { closeS(1); setTimeout(() => openPayFromIssued(curPid), 200); };
     } else {
-      btnpay.style.display = 'block';
       btnpay.textContent = '💳 지금 바로 결제하기';
       btnpay.onclick = openPayS;
     }
