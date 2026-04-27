@@ -38,16 +38,17 @@ img{display:block}
 /* ─── 하단 네비 (5탭) ─── */
 /* 하단 네비 */
 .bnav{position:fixed;bottom:0;left:0;right:0;z-index:200;background:#fff;border:none;outline:none;box-shadow:none;display:flex;height:62px}
+.bnav::before{content:'';position:fixed;bottom:62px;left:0;right:0;height:16px;background:linear-gradient(to bottom,transparent,#fff);pointer-events:none;z-index:199}
 .bn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;position:relative}
 .bn-ico{font-size:20px;line-height:1}
 .bn-lbl{font-size:10px;font-weight:500;color:var(--t4)}
 .bn.on .bn-lbl{color:var(--y);font-weight:700}
 .bn-badge{position:absolute;top:8px;right:calc(50% - 14px);min-width:14px;height:14px;background:var(--red);border-radius:7px;border:2px solid #fff;font-size:8px;font-weight:700;color:#fff;display:none;align-items:center;justify-content:center;padding:0 2px}
 
-/* 로그인 모달 - 키패드 올라올 때 흔들림 방지 */
-.login-modal-bk{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.5);display:none;align-items:flex-end;overflow:hidden}
-.login-modal-bk.on{display:flex;animation:bkfi .2s ease}
-.login-modal{position:fixed;bottom:0;left:0;right:0;background:#fff;border-radius:20px 20px 0 0;padding:0 20px env(safe-area-inset-bottom,48px);padding-bottom:max(48px,env(safe-area-inset-bottom,48px));transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);max-height:85vh;overflow-y:auto;z-index:501}
+/* 로그인 모달 - 키패드 올라와도 위치 고정 */
+.login-modal-bk{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.5);display:none;overflow:hidden}
+.login-modal-bk.on{display:block;animation:bkfi .2s ease}
+.login-modal{position:fixed;bottom:0;left:0;right:0;background:#fff;border-radius:20px 20px 0 0;padding:0 20px 48px;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);max-height:75vh;overflow-y:auto;z-index:501}
 .login-modal-bk.on .login-modal{transform:translateY(0)}
 
 /* ─── 배너 ─── */
@@ -346,9 +347,9 @@ img{display:block}
 .card-chip{width:38px;height:26px;border-radius:5px;background:linear-gradient(135deg,var(--y),var(--yd));display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:#111;flex-shrink:0}
 .card-sel{cursor:pointer;transition:all .15s;border:2px solid var(--bd)}
 .card-sel.on{border-color:var(--y);background:var(--y-lt)}
-.card-sel .card-ck{color:var(--y);font-weight:900;font-size:16px}
+.card-ck{width:20px;height:20px;border-radius:50%;border:2px solid var(--bd);background:#fff;flex-shrink:0;transition:all .15s}
+.card-sel.on .card-ck{background:var(--y);border-color:var(--y)}
 .card-info{flex:1}.card-name{font-size:13px;font-weight:700}.card-num{font-size:11px;color:var(--t3);margin-top:1px}
-.card-ck{width:18px;height:18px;border-radius:50%;background:var(--y);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#111}
 .pay-box{background:#FAFAFA;border:1px solid var(--bd);border-radius:var(--rs);padding:13px;margin-bottom:12px}
 .pt-use-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bd2);margin-bottom:8px}
 .pr{display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:13px}
@@ -697,7 +698,7 @@ select.admin-form-input{cursor:pointer}
       <div class="pay-card card-sel on" onclick="selectCard(this,'KB국민카드 (신용)','•••• •••• •••• 1234')">
         <div class="card-chip">KB</div>
         <div class="card-info"><div class="card-name">KB국민카드 (신용)</div><div class="card-num">•••• •••• •••• 1234</div></div>
-        <div class="card-ck">✓</div>
+        <div class="card-ck"></div>
       </div>
       <div class="pay-card card-sel" onclick="selectCard(this,'KB국민카드 (체크)','•••• •••• •••• 5678')">
         <div class="card-chip" style="background:linear-gradient(135deg,#1a73e8,#0d47a1)">KB</div>
@@ -1563,7 +1564,7 @@ const DEEP_LINKS = {
   },
   'NAVER': {
     label: '🟢 네이버',
-    scheme_aos: 'naversearchapp://',
+    scheme_aos: 'https://www.naver.com',
     scheme_ios: 'naversearchapp://',
     store_aos: 'https://play.google.com/store/apps/details?id=com.nhn.android.search',
     store_ios: 'https://apps.apple.com/kr/app/id393499958',
@@ -2125,10 +2126,8 @@ let selectedCard = 'KB국민카드 (신용)';
 function selectCard(el, name, num) {
   document.querySelectorAll('.card-sel').forEach(c => {
     c.classList.remove('on');
-    c.querySelector('.card-ck').textContent = '';
   });
   el.classList.add('on');
-  el.querySelector('.card-ck').textContent = '✓';
   selectedCard = name;
 }
 
