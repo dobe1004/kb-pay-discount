@@ -47,7 +47,7 @@ img{display:block}
 /* 로그인 모달 - 키패드 올라올 때 흔들림 방지 */
 .login-modal-bk{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.5);display:none;align-items:flex-end;overflow:hidden}
 .login-modal-bk.on{display:flex;animation:bkfi .2s ease}
-.login-modal{background:#fff;border-radius:20px 20px 0 0;width:100%;padding:0 20px env(safe-area-inset-bottom, 48px);padding-bottom:max(48px, env(safe-area-inset-bottom, 48px));transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);max-height:85vh;overflow-y:auto}
+.login-modal{position:fixed;bottom:0;left:0;right:0;background:#fff;border-radius:20px 20px 0 0;padding:0 20px env(safe-area-inset-bottom,48px);padding-bottom:max(48px,env(safe-area-inset-bottom,48px));transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);max-height:85vh;overflow-y:auto;z-index:501}
 .login-modal-bk.on .login-modal{transform:translateY(0)}
 
 /* ─── 배너 ─── */
@@ -73,7 +73,7 @@ img{display:block}
 @keyframes nmarquee{0%{transform:translateX(100vw)}100%{transform:translateX(-100%)}}
 
 /* ─── 검색 ─── */
-.search-wrap{padding:10px 14px;background:#fff;border-bottom:1px solid var(--bd)}
+.search-wrap{padding:10px 14px;background:#fff}
 .search-box{display:flex;align-items:center;gap:8px;background:var(--bg);border-radius:var(--rs);padding:9px 12px;border:1.5px solid transparent}
 .search-box:focus-within{border-color:var(--y);background:#fff}
 .search-box input{flex:1;background:transparent;border:none;outline:none;font-family:inherit;font-size:14px;color:var(--t1)}
@@ -344,6 +344,9 @@ img{display:block}
 .btn-red{width:100%;padding:12px;background:var(--red-lt);color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;border:1px solid rgba(232,40,45,.2);border-radius:var(--rs);cursor:pointer;margin-bottom:9px}
 .pay-card{background:var(--y-lt);border:1px solid var(--y-md);border-radius:var(--rs);padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:12px}
 .card-chip{width:38px;height:26px;border-radius:5px;background:linear-gradient(135deg,var(--y),var(--yd));display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:#111;flex-shrink:0}
+.card-sel{cursor:pointer;transition:all .15s;border:2px solid var(--bd)}
+.card-sel.on{border-color:var(--y);background:var(--y-lt)}
+.card-sel .card-ck{color:var(--y);font-weight:900;font-size:16px}
 .card-info{flex:1}.card-name{font-size:13px;font-weight:700}.card-num{font-size:11px;color:var(--t3);margin-top:1px}
 .card-ck{width:18px;height:18px;border-radius:50%;background:var(--y);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#111}
 .pay-box{background:#FAFAFA;border:1px solid var(--bd);border-radius:var(--rs);padding:13px;margin-bottom:12px}
@@ -686,8 +689,28 @@ select.admin-form-input{cursor:pointer}
 <div class="bk" id="bk2" onclick="closeS(2)"></div>
 <div class="bs" id="s2">
   <div class="bs-bar"></div><div class="bs-title" style="margin-bottom:4px">KB페이 결제</div>
-  <div class="bs-sub" id="s2pname" style="margin-bottom:14px">-</div>
-  <div class="pay-card"><div class="card-chip">KB</div><div class="card-info"><div class="card-name">KB국민카드 (신용)</div><div class="card-num">•••• •••• •••• 1234</div></div><div class="card-ck">✓</div></div>
+  <div class="bs-sub" id="s2pname" style="margin-bottom:12px">-</div>
+  <!-- 카드 선택 -->
+  <div style="margin-bottom:12px">
+    <div style="font-size:12px;font-weight:700;color:var(--t3);margin-bottom:8px">결제 카드 선택</div>
+    <div style="display:flex;flex-direction:column;gap:8px" id="card-list">
+      <div class="pay-card card-sel on" onclick="selectCard(this,'KB국민카드 (신용)','•••• •••• •••• 1234')">
+        <div class="card-chip">KB</div>
+        <div class="card-info"><div class="card-name">KB국민카드 (신용)</div><div class="card-num">•••• •••• •••• 1234</div></div>
+        <div class="card-ck">✓</div>
+      </div>
+      <div class="pay-card card-sel" onclick="selectCard(this,'KB국민카드 (체크)','•••• •••• •••• 5678')">
+        <div class="card-chip" style="background:linear-gradient(135deg,#1a73e8,#0d47a1)">KB</div>
+        <div class="card-info"><div class="card-name">KB국민카드 (체크)</div><div class="card-num">•••• •••• •••• 5678</div></div>
+        <div class="card-ck"></div>
+      </div>
+      <div class="pay-card card-sel" onclick="selectCard(this,'KB국민 비즈카드','•••• •••• •••• 9012')">
+        <div class="card-chip" style="background:linear-gradient(135deg,#FF8F00,#F57F17)">KB</div>
+        <div class="card-info"><div class="card-name">KB국민 비즈카드</div><div class="card-num">•••• •••• •••• 9012</div></div>
+        <div class="card-ck"></div>
+      </div>
+    </div>
+  </div>
   <div class="pt-use-row"><div><div style="font-size:13px;color:var(--t3)">KB포인트 사용</div><div style="font-size:11px;color:var(--grn);font-weight:600" id="avail-pt-txt">보유 0P</div></div>
   <div style="display:flex;align-items:center;gap:8px"><span id="pt-use-amt" style="font-size:12px;font-weight:700;color:var(--grn);display:none"></span><div class="toggle" id="pt-toggle" onclick="togglePointUse()"></div></div></div>
   <div class="pay-box" id="paybox"></div>
@@ -992,15 +1015,7 @@ const GRADES = [
 
 /* ══ API 호출 헬퍼 ══ */
 function showLoading(show) {
-  let el = document.getElementById('global-loading');
-  if (!el) {
-    el = document.createElement('div');
-    el.id = 'global-loading';
-    el.style.cssText = 'position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;pointer-events:none';
-    el.innerHTML = '<div style="width:40px;height:40px;border:3px solid rgba(0,0,0,.08);border-top-color:var(--y);border-radius:50%;animation:sp .7s linear infinite"></div>';
-    document.body.appendChild(el);
-  }
-  el.style.display = show ? 'flex' : 'none';
+  // 전체 로딩 스피너 제거 - 버튼 자체의 .ld 클래스로 처리
 }
 
 async function api(method, path, body) {
@@ -1622,15 +1637,6 @@ function openOnlineCouponSheet(coupon) {
           appLaunched = true;
           clearTimeout(fallbackTimer);
           document.removeEventListener('visibilitychange', onHidden);
-
-          // 앱에서 돌아올 때 (앱 종료 후)
-          const onVisible = () => {
-            if (document.visibilityState === 'visible') {
-              document.removeEventListener('visibilitychange', onVisible);
-              toast('앱에서 코드를 입력해주세요 😊', 'inf');
-            }
-          };
-          document.addEventListener('visibilitychange', onVisible);
         }
       };
       document.addEventListener('visibilitychange', onHidden);
@@ -2109,6 +2115,18 @@ function showR(ok, r) {
 }
 
 /* ══ 결제 ══ */
+let selectedCard = 'KB국민카드 (신용)';
+
+function selectCard(el, name, num) {
+  document.querySelectorAll('.card-sel').forEach(c => {
+    c.classList.remove('on');
+    c.querySelector('.card-ck').textContent = '';
+  });
+  el.classList.add('on');
+  el.querySelector('.card-ck').textContent = '✓';
+  selectedCard = name;
+}
+
 function openPayS() {
   if (!cur) return; closeS(1);
   usePoint = false;
@@ -2155,7 +2173,7 @@ async function finPay() {
     closeS(2);
     setTimeout(() => {
       document.getElementById('damt').innerHTML=`${res.data.paidAmount.toLocaleString()}<span>원</span>`;
-      document.getElementById('dsub').textContent=`${res.data.productName} · KB국민카드`;
+      document.getElementById('dsub').textContent=`${res.data.productName} · ${selectedCard}`;
       document.getElementById('dinfo').innerHTML=`
         <div class="di-row"><span class="l">할인 적용</span><span class="v" style="color:var(--red)">-${res.data.savedAmount.toLocaleString()}원!</span></div>
         ${res.data.pointUsed?`<div class="di-row"><span class="l">포인트 사용</span><span class="v" style="color:var(--grn)">-${res.data.pointUsed.toLocaleString()}P</span></div>`:''}
