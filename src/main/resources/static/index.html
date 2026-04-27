@@ -1333,10 +1333,17 @@ function closeNoticePage() {
 /* ══ 배너 클릭 ══ */
 function bannerClick(idx) {
   const actions = [
-    // 0: KB페이 특가 → 상품 목록 (로그인 불필요)
+    // 0: KB페이 특가 → 상품 목록 스크롤
     () => { goTab(0); setTimeout(()=>{ const el=document.getElementById('catRow'); if(el) window.scrollTo({top:el.offsetTop-60,behavior:'smooth'}); },100); },
-    // 1: 스타벅스 특가 → 카페 카테고리 (로그인 불필요)
-    () => { goTab(0); setTimeout(()=>{ setCat('카페'); window.scrollTo({top:0,behavior:'smooth'}); }, 300); },
+    // 1: 스타벅스 → 스타벅스 상품 상세 직접 이동
+    () => {
+      goTab(0);
+      setTimeout(() => {
+        // PRODS에서 STARBUCKS 찾아서 상세로
+        const p = PRODS.find(x => x.brand === 'STARBUCKS');
+        if (p) openDetail(p.id);
+      }, 200);
+    },
     // 2: 포인트 → MY탭 (로그인 필요)
     () => requireLogin('KB포인트 확인', '로그인 후 포인트를 확인할 수 있습니다', () => goTab(4)),
     // 3: 선물하기 → 쿠폰함 (로그인 필요)
@@ -1492,26 +1499,30 @@ const HOW_TO_USE = {
 // 앱 딥링크 + 스토어 + 웹 링크 (실제 동작하는 URL)
 const DEEP_LINKS = {
   'COUPANG EATS': {
-    label: '🛵 쿠팡이츠 앱',
-    store_aos: 'https://play.google.com/store/apps/details?id=com.coupang.eats',
+    label: '🛵 쿠팡이츠',
+    scheme: 'coupangeats://',
+    store_aos: 'https://play.google.com/store/apps/details?id=com.coupang.mobile.eats',
     store_ios: 'https://apps.apple.com/kr/app/id1249808192',
     web: 'https://www.coupangeats.com',
   },
   'BAEMIN': {
-    label: '🛵 배달의민족 앱',
-    store_aos: 'https://play.google.com/store/apps/details?id=com.woowahan.android11',
-    store_ios: 'https://apps.apple.com/kr/app/id431589174',
+    label: '🛵 배달의민족',
+    scheme: 'baemin://',
+    store_aos: 'https://play.google.com/store/apps/details?id=com.sampleapp',
+    store_ios: 'https://apps.apple.com/kr/app/id378084485',
     web: 'https://www.baemin.com',
   },
   'NAVER': {
-    label: '🟢 네이버 앱',
+    label: '🟢 네이버',
+    scheme: 'naversearchapp://',
     store_aos: 'https://play.google.com/store/apps/details?id=com.nhn.android.search',
     store_ios: 'https://apps.apple.com/kr/app/id393499958',
     web: 'https://www.naver.com',
   },
   'MUSINSA': {
-    label: '👗 무신사 앱',
-    store_aos: 'https://play.google.com/store/apps/details?id=com.musinsa.app',
+    label: '👗 무신사',
+    scheme: 'musinsa://',
+    store_aos: 'https://play.google.com/store/apps/details?id=com.musinsa.store',
     store_ios: 'https://apps.apple.com/kr/app/id917793057',
     web: 'https://www.musinsa.com',
   },
@@ -1535,35 +1546,21 @@ function openOnlineCouponSheet(coupon) {
   const storeBtn = document.getElementById('oc-store-btn');
   const webBtn = document.getElementById('oc-web-btn');
 
-  // 폴백 초기화 (닫힘)
+  // 폴백 초기화
   fallback.style.display = 'none';
   fallback.style.maxHeight = '0';
 
   if (dl) {
     const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent);
     const storeUrl = isIos ? dl.store_ios : dl.store_aos;
-    const storeLabel = isIos ? `🍎 앱스토어 - ${dl.label}` : `▶ 플레이스토어 - ${dl.label}`;
+    const storeLabel = isIos ? `🍎 앱스토어에서 설치` : `▶ 플레이스토어에서 설치`;
 
-    // 앱 열기 버튼 → 스토어로 이동 (앱 있으면 자동 실행)
     dlBtn.style.display = 'block';
-    dlBtn.textContent = `${dl.label} 실행하기`;
-    dlBtn.onclick = () => {
-      window.location.href = storeUrl;
-      // 스토어 갔다 돌아오면 폴백 메뉴 펼침
-      const onReturn = () => {
-        if (document.visibilityState === 'visible') {
-          document.removeEventListener('visibilitychange', onReturn);
-          fallback.style.display = 'block';
-          setTimeout(() => { fallback.style.maxHeight = '200px'; }, 10);
-        }
-      };
-      document.addEventListener('visibilitychange', onReturn);
-    };
+    dlBtn.textContent = `${dl.label} 앱 실행하기`;
 
-    // 스토어/웹 버튼
+    // 스토어/웹 버튼 세팅
     storeBtn.textContent = storeLabel;
     storeBtn.onclick = () => { window.location.href = storeUrl; };
-
     webBtn.textContent = '🌐 웹에서 이용하기';
     webBtn.onclick = () => {
       const scrollY = window.scrollY;
@@ -1576,6 +1573,56 @@ function openOnlineCouponSheet(coupon) {
         setTimeout(() => window.scrollTo({ top: scrollY }), 100);
       };
       window.addEventListener('focus', onFocus);
+    };
+
+    dlBtn.onclick = () => {
+      const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent);
+
+      if (isIos) {
+        // iOS: scheme 시도 → 2초 후 앱스토어 폴백
+        window.location.href = dl.scheme;
+        const fallbackTimer = setTimeout(() => {
+          fallback.style.display = 'block';
+          setTimeout(() => { fallback.style.maxHeight = '200px'; }, 10);
+        }, 2000);
+        const onVisChange = () => {
+          if (document.visibilityState === 'hidden') {
+            clearTimeout(fallbackTimer);
+            document.removeEventListener('visibilitychange', onVisChange);
+            const onReturn = () => {
+              if (document.visibilityState === 'visible') {
+                document.removeEventListener('visibilitychange', onReturn);
+                toast('앱에서 코드를 입력해주세요 😊', 'inf');
+              }
+            };
+            document.addEventListener('visibilitychange', onReturn);
+          }
+        };
+        document.addEventListener('visibilitychange', onVisChange);
+      } else {
+        // 안드로이드: scheme 시도 → 1.8초 후 플레이스토어 폴백
+        window.location.href = dl.scheme;
+        const fallbackTimer = setTimeout(() => {
+          if (document.visibilityState === 'visible') {
+            fallback.style.display = 'block';
+            setTimeout(() => { fallback.style.maxHeight = '200px'; }, 10);
+          }
+        }, 1800);
+        const onVisChange = () => {
+          if (document.visibilityState === 'hidden') {
+            clearTimeout(fallbackTimer);
+            document.removeEventListener('visibilitychange', onVisChange);
+            const onReturn = () => {
+              if (document.visibilityState === 'visible') {
+                document.removeEventListener('visibilitychange', onReturn);
+                toast('앱에서 코드를 입력해주세요 😊', 'inf');
+              }
+            };
+            document.addEventListener('visibilitychange', onReturn);
+          }
+        };
+        document.addEventListener('visibilitychange', onVisChange);
+      }
     };
 
   } else {
