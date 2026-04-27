@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8"/>
@@ -37,7 +37,7 @@ img{display:block}
 
 /* ─── 하단 네비 (5탭) ─── */
 /* 하단 네비 - 그림자만 사용, border-top 제거로 흐릿한 줄 제거 */
-.bnav{position:fixed;bottom:0;left:0;right:0;z-index:200;background:#fff;border-top:none;display:flex;height:62px;box-shadow:0 -2px 12px rgba(0,0,0,.08)}
+.bnav{position:fixed;bottom:0;left:0;right:0;z-index:200;background:#fff;border-top:none;border:none;display:flex;height:62px;box-shadow:0 -1px 0 rgba(0,0,0,.06),0 -4px 12px rgba(0,0,0,.05)}
 .bn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;position:relative}
 .bn-ico{font-size:20px;line-height:1}
 .bn-lbl{font-size:10px;font-weight:500;color:var(--t4)}
@@ -848,7 +848,7 @@ select.admin-form-input{cursor:pointer}
   </div>
 
   <!-- 앱 열기 버튼 -->
-  <button id="oc-deeplink-btn" class="btn-main" style="background:#1a73e8;margin-bottom:8px;display:none"></button>
+  <button id="oc-deeplink-btn" class="btn-main" style="margin-bottom:8px;display:none"></button>
 
   <!-- 앱 없을 때 선택 버튼 (hidden 기본) -->
   <div id="oc-fallback" style="display:none;margin-bottom:8px">
@@ -1966,12 +1966,27 @@ function showR(ok, r) {
   document.getElementById('s1t').textContent = ok?'쿠폰 발급 완료!':'선착순 마감!';
   document.getElementById('s1s').textContent = r.message;
   document.getElementById('cpnbox').style.display = ok?'block':'none';
-  document.getElementById('btntopay').style.display = ok?'block':'none';
   document.getElementById('btnmypage').style.display = ok?'block':'none';
+
+  const btnpay = document.getElementById('btntopay');
   if (ok) {
     document.getElementById('ccode').textContent = r.couponCode;
     document.getElementById('camt').innerHTML = `${r.discountAmount.toLocaleString()}<small>원 할인</small>`;
     document.getElementById('cexp').textContent = cur&&cur.exp ? `유효기간 ~${cur.exp.slice(0,10)}` : '유효기간 30일';
+
+    // 온라인 전용이면 버튼 텍스트/동작 변경
+    const p = PRODS.find(x => x.id === cur?.pid);
+    if (p && isOnlineBrand(p.brand)) {
+      btnpay.style.display = 'block';
+      btnpay.textContent = '🎫 쿠폰 사용하기';
+      btnpay.onclick = () => { closeS(1); openPayFromIssued(cur.pid); };
+    } else {
+      btnpay.style.display = 'block';
+      btnpay.textContent = '💳 지금 바로 결제하기';
+      btnpay.onclick = openPayS;
+    }
+  } else {
+    btnpay.style.display = 'none';
   }
   openS(1);
 }
