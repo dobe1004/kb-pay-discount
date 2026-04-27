@@ -834,6 +834,26 @@ select.admin-form-input{cursor:pointer}
   <button class="btn-line" onclick="closeS(9)">취소</button>
 </div>
 
+<!-- ══ 선물 메시지 팝업 ══ -->
+<div id="gift-msg-bk" style="display:none;position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.5);align-items:center;justify-content:center;padding:24px" onclick="closeGiftMsg()">
+  <div onclick="event.stopPropagation()" style="background:#fff;border-radius:20px;padding:28px 24px;width:100%;max-width:340px;text-align:center">
+    <div style="font-size:32px;margin-bottom:12px">💌</div>
+    <div id="gift-msg-from" style="font-size:13px;color:var(--t3);margin-bottom:8px"></div>
+    <div id="gift-msg-text" style="font-size:15px;color:var(--t1);line-height:1.7;background:var(--y-lt);border-radius:12px;padding:14px 16px;margin-bottom:20px;word-break:keep-all"></div>
+    <button onclick="closeGiftMsg()" class="btn-main" style="margin-bottom:0">확인</button>
+  </div>
+</div>
+
+<!-- ══ 선물함 페이지 ══ -->
+<div class="detail-page" id="gift-box-page">
+  <div class="detail-hd">
+    <button class="detail-back" onclick="closeGiftBox()">←</button>
+    <span class="detail-hd-title">🎁 선물함</span>
+    <span></span>
+  </div>
+  <div id="gift-box-list" style="padding:8px 0"></div>
+</div>
+
 <!-- ══ 공지사항 페이지 ══ -->
 <div class="detail-page" id="notice-page">
   <div class="detail-hd">
@@ -843,7 +863,7 @@ select.admin-form-input{cursor:pointer}
   <div id="notice-list" style="padding:8px 0"></div>
 </div>
 
-<!-- ══ 알림 슬라이드 페이지 ══ -->
+<!-- ══ 알림 페이지 ══ -->
 <div class="detail-page" id="notif-page">
   <div class="detail-hd">
     <button class="detail-back" onclick="closeNotifPage()">←</button>
@@ -1585,7 +1605,7 @@ const DEEP_LINKS = {
   },
   'NAVER': {
     label: '🟢 네이버',
-    scheme_aos: 'https://play.google.com/store/apps/details?id=com.nhn.android.search',
+    scheme_aos: 'naversearchapp://',
     scheme_ios: 'naversearchapp://',
     store_aos: 'https://play.google.com/store/apps/details?id=com.nhn.android.search',
     store_ios: 'https://apps.apple.com/kr/app/id393499958',
@@ -2367,9 +2387,19 @@ async function openNotifPage() {
     const list = res.success ? res.data.notifications||[] : [];
     const icoMap={y:'🎫',r:'⚠️',g:'✅',b:'💳'};
     const bgMap={y:'var(--y-lt)',r:'var(--red-lt)',g:'var(--grn-lt)',b:'var(--blu-lt)'};
+    // 알림 타입별 이동 메뉴
+    const tabMap={y:2, g:3, b:3, r:0};
     document.getElementById('notif-list').innerHTML = list.length===0
       ? `<div class="empty"><div class="emo">🔔</div><p>알림이 없습니다</p></div>`
-      : list.map(n=>`<div style="background:#fff;border-bottom:1px solid var(--bd2);padding:13px 16px;display:flex;gap:10px"><div style="width:36px;height:36px;border-radius:50%;background:${bgMap[n.type]||'var(--bg)'};display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${icoMap[n.type]||'📢'}</div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;margin-bottom:2px">${n.title}</div><div style="font-size:12px;color:var(--t3);line-height:1.5">${n.description}</div><div style="font-size:11px;color:var(--t4);margin-top:3px">${n.createdAt?n.createdAt.slice(0,16).replace('T',' '):''}</div></div></div>`).join('');
+      : list.map(n=>`<div style="background:#fff;border-bottom:1px solid var(--bd2);padding:13px 16px;display:flex;gap:10px;cursor:pointer" onclick="closeNotifPage();goTab(${tabMap[n.type]||0})">
+          <div style="width:36px;height:36px;border-radius:50%;background:${bgMap[n.type]||'var(--bg)'};display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${icoMap[n.type]||'📢'}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;font-weight:700;margin-bottom:2px">${n.title}</div>
+            <div style="font-size:12px;color:var(--t3);line-height:1.5">${n.description}</div>
+            <div style="font-size:11px;color:var(--t4);margin-top:3px">${n.createdAt?n.createdAt.slice(0,16).replace('T',' '):''}</div>
+          </div>
+          <span style="color:var(--t5);font-size:12px;align-self:center">›</span>
+        </div>`).join('');
     updateNotifBadge();
     document.getElementById('notif-page').classList.add('on');
     history.pushState({notif:true},'');
@@ -2377,6 +2407,81 @@ async function openNotifPage() {
 }
 function closeNotifPage() { document.getElementById('notif-page').classList.remove('on'); }
 async function readAllNotifs() { await POST(`/api/notif/${uid}/read-all`); await openNotifPage(); toast('모든 알림을 읽었습니다.','inf'); }
+
+/* ══ 선물함 ══ */
+async function openGiftBox() {
+  const res = await GET(`/api/my/${uid}`);
+  if (!res.success) { toast('오류가 발생했습니다.', 'err'); return; }
+  const gifts = (res.data.coupons||[]).filter(c => c.giftFromUserId);
+  const el = document.getElementById('gift-box-list');
+  if (!el) return;
+  el.innerHTML = gifts.length === 0
+    ? `<div class="empty"><div class="emo">🎁</div><p>받은 선물이 없습니다</p></div>`
+    : gifts.map(c => {
+        const online = isOnlineBrand(c.brandName);
+        const badgeStyle = online ? 'background:#E8F0FE;color:#1a73e8' : 'background:#FFEBEE;color:#C62828';
+        const badgeText = online ? '📱 온라인 전용' : '🏪 오프라인 전용';
+        return `
+        <div style="background:#fff;border:1px solid var(--bd);border-radius:var(--r);margin:0 14px 10px;padding:14px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <img src="${c.imageUrl||''}" style="width:48px;height:48px;border-radius:8px;object-fit:cover;border:1px solid var(--bd)" onerror="this.style.display='none'"/>
+            <div style="flex:1">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap">
+                <span style="font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px;${badgeStyle}">${badgeText}</span>
+                <span style="font-size:11px;padding:2px 8px;border-radius:10px;font-weight:700;${c.status==='ISSUED'?'background:var(--grn-lt);color:var(--grn)':'background:var(--bg);color:var(--t4)'}">
+                  ${c.status==='ISSUED'?'사용가능':'사용완료'}
+                </span>
+              </div>
+              <div style="font-size:13px;font-weight:700">${c.productName}</div>
+              <div style="font-size:11px;color:var(--t3);margin-top:2px">🎁 <b>${c.giftFromUserId}</b>님의 선물</div>
+              ${c.giftMessage?`
+              <button onclick="showGiftMsg('${c.giftFromUserId}','${c.giftMessage.replace(/'/g,"\\'")}')" style="margin-top:6px;font-size:11px;color:var(--y-dk,#a07000);background:var(--y-lt);border:1px solid var(--y-md);border-radius:6px;padding:4px 10px;cursor:pointer;font-family:inherit;font-weight:600">
+                💌 메시지 확인하기
+              </button>`:''}
+              <div style="font-size:12px;color:var(--red);font-weight:700;margin-top:4px">${(c.discountAmount||0).toLocaleString()}원 할인</div>
+              ${c.expiredAt?`<div style="font-size:11px;color:var(--t4)">유효기간 ~${c.expiredAt}</div>`:''}
+            </div>
+          </div>
+          ${c.status==='ISSUED'?`<button class="btn-main" style="margin-bottom:0;font-size:13px" onclick="useCouponFromGift(${c.productId},'${c.couponCode}')">🎫 쿠폰 사용하기</button>`:''}
+        </div>`;
+      }).join('');
+  document.getElementById('gift-box-page').classList.add('on');
+  history.pushState({giftbox:true},'');
+}
+function showGiftMsg(from, msg) {
+  document.getElementById('gift-msg-from').textContent = `🎁 ${from}님의 메시지`;
+  document.getElementById('gift-msg-text').textContent = `"${msg}"`;
+  const bk = document.getElementById('gift-msg-bk');
+  bk.style.display = 'flex';
+  history.pushState({giftMsg:true}, '');
+}
+function closeGiftMsg() {
+  document.getElementById('gift-msg-bk').style.display = 'none';
+}
+
+async function useCouponFromGift(pid, couponCode) {
+  closeGiftBox();
+  // openPayFromIssued와 동일한 온/오프 프로세스
+  const res = await GET(`/api/my/${uid}`);
+  if (!res.success) { toast('오류가 발생했습니다.', 'err'); return; }
+  const c = (res.data.coupons||[]).find(x => x.productId === pid && x.couponCode === couponCode && x.status === 'ISSUED');
+  if (!c) { toast('사용 가능한 쿠폰이 없습니다.', 'err'); return; }
+  cur = {
+    productName: c.productName, brandName: c.brandName,
+    imageUrl: c.imageUrl, discountAmount: c.discountAmount,
+    discountedPrice: c.discountedPrice, originalPrice: c.originalPrice,
+    couponCode: c.couponCode, expiredAt: c.expiredAt,
+    name: c.productName, brand: c.brandName, img: c.imageUrl,
+    amt: c.discountAmount, dis: c.discountedPrice, ori: c.originalPrice,
+    exp: c.expiredAt, code: c.couponCode, pid
+  };
+  const p = PRODS.find(x => Number(x.id) === Number(pid));
+  if (p && isOnlineBrand(p.brand)) {
+    openOnlineCouponSheet(cur);
+  } else {
+    openBarcodeSheet(cur);
+  }
+}
 
 /* ══ 선물 (API) ══ */
 function openGift(code, name) {
@@ -2475,6 +2580,7 @@ async function renderMyPage() {
     <div class="my-menu">
       <div class="my-menu-item" onclick="goTab(1)"><div class="my-menu-left"><div class="my-menu-ico">❤️</div><div><div class="my-menu-label">찜한 상품</div><div class="my-menu-sub">관심 상품 목록</div></div></div><div class="my-menu-right"><div class="my-menu-val">${wishCount}개</div><span style="color:var(--t5)">›</span></div></div>
       <div class="my-menu-item" onclick="goTab(2)"><div class="my-menu-left"><div class="my-menu-ico">🎫</div><div><div class="my-menu-label">쿠폰함</div><div class="my-menu-sub">발급받은 쿠폰 관리</div></div></div><div class="my-menu-right"><div class="my-menu-val">${couponCount}장</div><span style="color:var(--t5)">›</span></div></div>
+      <div class="my-menu-item" onclick="openGiftBox()"><div class="my-menu-left"><div class="my-menu-ico">🎁</div><div><div class="my-menu-label">선물함</div><div class="my-menu-sub">받은 선물 쿠폰 확인</div></div></div><div class="my-menu-right"><span style="color:var(--t5)">›</span></div></div>
       <div class="my-menu-item" onclick="goTab(3)"><div class="my-menu-left"><div class="my-menu-ico">📋</div><div><div class="my-menu-label">이용내역</div><div class="my-menu-sub">결제 및 취소 내역</div></div></div><div class="my-menu-right"><div class="my-menu-val">${txCount}건</div><span style="color:var(--t5)">›</span></div></div>
       ${isAdmin()?`<div class="my-menu-item" style="background:var(--pur-lt)" onclick="openAdminAdd()"><div class="my-menu-left"><div class="my-menu-ico">⚙️</div><div><div class="my-menu-label" style="color:var(--pur)">상품 추가</div><div class="my-menu-sub">새 핫딜 상품 등록</div></div></div><div class="my-menu-right"><span style="color:var(--pur)">›</span></div></div>`:''}
     </div>
@@ -2836,6 +2942,8 @@ window.addEventListener('popstate',()=>{
   if(document.getElementById('logout-sheet').classList.contains('on')){closeLogoutSheet();return;}
   if(document.getElementById('loginModal').classList.contains('on')){closeLogin();return;}
   if(document.getElementById('s11').classList.contains('on')){closeBarcodeSheet();return;}
+  if(document.getElementById('gift-msg-bk').style.display==='flex'){closeGiftMsg();return;}
+  if(document.getElementById('gift-box-page').classList.contains('on')){closeGiftBox();return;}
   if(document.getElementById('notice-page').classList.contains('on')){closeNoticePage();return;}
   if(openSheets.length>0){closeS(openSheets[openSheets.length-1]);return;}
   if(document.getElementById('notif-page').classList.contains('on')){closeNotifPage();return;}
