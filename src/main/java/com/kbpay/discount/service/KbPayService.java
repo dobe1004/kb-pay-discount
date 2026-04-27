@@ -281,6 +281,7 @@ public class KbPayService {
         DiscountCoupon gift = DiscountCoupon.builder()
             .userId(req.getToUserId()).product(original.getProduct()).couponCode(newCode)
             .discountAmount(original.getDiscountAmount()).giftFromUserId(req.getFromUserId())
+            .giftMessage(req.getMessage())
             .status(DiscountCoupon.CouponStatus.ISSUED).build();
         couponRepo.save(gift);
 
