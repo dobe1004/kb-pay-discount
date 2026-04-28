@@ -95,10 +95,10 @@ public class DataInitializer implements CommandLineRunner {
                 "https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=400&q=80",
                 "🏬 신세계백화점 5만원 상품권",
                 "• 일부 입점 브랜드 제한 있음", 5),  // ⚠️ 잔여 5개 (마감임박)
-            build("네이버플러스 멤버십 3개월","NAVER",16500,9900,40,100,"생활","new",892,4.5,76,
-                "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=400&q=80",
-                "🟢 네이버플러스 멤버십 3개월 혜택!",
-                "• 기존 멤버십 사용자 이용 불가", 100),
+            build("요기요 1만원 할인쿠폰","YOGIYO",10000,5000,50,200,"음식","hot",3214,4.6,245,
+                "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&q=80",
+                "🍜 요기요에서 1만원 즉시 할인!",
+                "• 요기요 앱 전용 · 최소 주문금액 1만5천원 이상", 200),
             build("배달의민족 1.5만원 할인쿠폰","BAEMIN",15000,7500,50,150,"음식","hot",4231,4.7,318,
                 "https://images.unsplash.com/photo-1526367790999-0150786686a2?w=400&q=80",
                 "🛵 배민에서 1만5천원 즉시 할인!",
@@ -121,4 +121,3 @@ public class DataInitializer implements CommandLineRunner {
             .build();
     }
 }
-
