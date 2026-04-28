@@ -641,8 +641,10 @@ select.admin-form-input{cursor:pointer}
   <div class="detail-hd">
     <button class="detail-back" onclick="closeDetail()">←</button>
     <span class="detail-hd-title" id="detail-hd-title">상품 상세</span>
-    <button class="hd-ico" onclick="openGiftSend()" style="font-size:18px" id="detail-gift-btn" title="선물하기">🎁</button>
-    <button class="hd-ico" id="detail-heart-hd" onclick="toggleHeartDetail()" style="font-size:18px">🤍</button>
+    <button onclick="openGiftSend()" id="detail-gift-btn" style="background:var(--y-lt);border:1.5px solid var(--y-md,#f5c842);border-radius:20px;cursor:pointer;display:flex;align-items:center;gap:4px;padding:5px 10px;font-family:inherit;margin-right:4px" title="선물하기">
+      <span style="font-size:20px;line-height:1">🎁</span>
+      <span style="font-size:12px;font-weight:800;color:#a07000">선물하기</span>
+    </button>
   </div>
   <img class="detail-img" id="detail-img" src="" alt=""/>
   <div class="detail-body">
@@ -748,8 +750,8 @@ select.admin-form-input{cursor:pointer}
   <div class="done-circle"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M6 14l6 6 10-10" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
   <div class="done-amt" id="damt">0<span>원</span></div><div class="done-sub" id="dsub"></div>
   <div class="done-info" id="dinfo"></div>
-  <button class="btn-main" onclick="closeS(3);goTab(3)">📋 이용내역 확인</button>
-  <button class="btn-line" onclick="closeS(3)">홈으로</button>
+  <button class="btn-main" onclick="[1,2,3,11,12].forEach(n=>closeS(n));closeDetail();setTimeout(()=>goTab(3),150)">📋 이용내역 확인</button>
+  <button class="btn-line" onclick="[1,2,3,11,12].forEach(n=>closeS(n));closeDetail();setTimeout(()=>goTab(0),150)">홈으로</button>
 </div>
 <!-- 시트4: 취소 확인 -->
 <div class="bk" id="bk4" onclick="closeS(4)"></div>
@@ -968,7 +970,7 @@ select.admin-form-input{cursor:pointer}
 </div>
 
 <!-- ══ 바코드 시트 ══ -->
-<div class="bk" id="bk11" onclick="closeBarcodeS()"></div>
+<div class="bk" id="bk11" onclick="closeBarcodeSheet()"></div>
 <div class="bs" id="s11">
   <div class="bs-bar"></div>
   <div class="bs-title" id="bc-title">쿠폰 사용하기</div>
