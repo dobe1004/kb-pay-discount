@@ -117,12 +117,18 @@ public class KbPayService {
         long totalSaved = txRepo.findByUserIdOrderByPaidAtDesc(userId).stream()
             .filter(t -> t.getStatus() == Transaction.TxStatus.PAID)
             .mapToLong(Transaction::getSavedAmount).sum();
+        // 일반 쿠폰 (선물 제외), 선물 쿠폰 분리
+        List<DiscountCoupon> normalCoupons = coupons.stream()
+            .filter(c -> c.getGiftFromUserId() == null).collect(Collectors.toList());
+        List<DiscountCoupon> giftCoupons = coupons.stream()
+            .filter(c -> c.getGiftFromUserId() != null).collect(Collectors.toList());
         return ApiResponse.ok(MyPageResponse.builder()
             .userId(userId).grade(user.getGrade()).pointBalance(user.getPointBalance())
             .isAdmin(user.getIsAdmin())
-            .totalCoupons(coupons.size())
-            .availCoupons((int) coupons.stream().filter(c -> c.getStatus() == DiscountCoupon.CouponStatus.ISSUED).count())
-            .usedCoupons((int) coupons.stream().filter(c -> c.getStatus() == DiscountCoupon.CouponStatus.USED).count())
+            .totalCoupons(normalCoupons.size())
+            .availCoupons((int) normalCoupons.stream().filter(c -> c.getStatus() == DiscountCoupon.CouponStatus.ISSUED).count())
+            .usedCoupons((int) normalCoupons.stream().filter(c -> c.getStatus() == DiscountCoupon.CouponStatus.USED).count())
+            .giftCount((int) giftCoupons.stream().filter(c -> c.getStatus() == DiscountCoupon.CouponStatus.ISSUED).count())
             .totalSaved(totalSaved).wishCount((int) wishRepo.findByUserIdOrderByCreatedAtDesc(userId).size())
             .coupons(list).build());
     }
