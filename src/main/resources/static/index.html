@@ -751,7 +751,7 @@ select.admin-form-input{cursor:pointer}
   <div class="done-amt" id="damt">0<span>원</span></div><div class="done-sub" id="dsub"></div>
   <div class="done-info" id="dinfo"></div>
   <button class="btn-main" onclick="[1,2,3,11,12].forEach(n=>closeS(n));closeDetail();setTimeout(()=>goTab(3),150)">📋 이용내역 확인</button>
-  <button class="btn-line" onclick="[1,2,3,11,12].forEach(n=>closeS(n));closeDetail();">닫기</button>
+  <button class="btn-line" onclick="[1,2,3,11,12].forEach(n=>closeS(n));">닫기</button>
 </div>
 <!-- 시트4: 취소 확인 -->
 <div class="bk" id="bk4" onclick="closeS(4)"></div>
@@ -771,7 +771,7 @@ select.admin-form-input{cursor:pointer}
   <div class="done-amt" style="color:var(--t3)" id="camt2">0<span>원</span></div>
   <div class="done-sub">결제가 취소되었습니다</div>
   <div class="done-info cancel" id="cinfo"></div>
-  <button class="btn-main" onclick="closeS(5);goTab(2)">🎫 쿠폰 다시 사용하기</button>
+  <button class="btn-main" onclick="closeS(5);goTab(2)">🎫 쿠폰함 바로가기</button>
   <button class="btn-line" onclick="closeS(5)">닫기</button>
 </div>
 <!-- 시트6: 선물하기 -->
@@ -2472,9 +2472,11 @@ function renderCpnList(mine, idx) {
         : daysLeft <= 7
           ? `<span class="cc-exp-badge soon">⏰ D-${daysLeft}</span>`
           : `<span class="cc-exp-badge ok">~${exp}</span>`;
-    const cpnData={productName:c.productName,brandName:c.brandName,imageUrl:c.imageUrl,discountAmount:c.discountAmount,discountedPrice:c.discountedPrice,originalPrice:c.originalPrice,couponCode:c.couponCode};
+    const cpnData={productName:c.productName,brandName:c.brandName,imageUrl:c.imageUrl,discountAmount:c.discountAmount,discountedPrice:c.discountedPrice,originalPrice:c.originalPrice,couponCode:c.couponCode,productId:c.productId};
+    const online = isOnlineBrand(c.brandName);
+    const typeBadge = `<span style="font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px;${online?'background:#E8F0FE;color:#1a73e8':'background:#FFEBEE;color:#C62828'}">${online?'📱 온라인':'🏪 오프라인'}</span>`;
     return `<div class="cc">
-      <div class="cc-top"><img class="cc-img" src="${c.imageUrl||''}" onerror="this.style.background='#eee';this.removeAttribute('src')"/><div style="flex:1;min-width:0"><div class="cc-brand">${c.brandName}</div><div class="cc-name">${c.productName}</div>${eb}</div></div>
+      <div class="cc-top"><img class="cc-img" src="${c.imageUrl||''}" onerror="this.style.background='#eee';this.removeAttribute('src')"/><div style="flex:1;min-width:0"><div class="cc-brand" style="display:flex;align-items:center;gap:4px">${typeBadge}<span>${c.brandName}</span></div><div class="cc-name">${c.productName}</div>${eb}</div></div>
       <div class="cc-bot"><div class="cc-code">${c.couponCode}</div><div class="cc-amt">${c.discountAmount.toLocaleString()}원</div>
       ${c.status==='ISSUED'?`<button class="cc-use-btn" onclick="useCouponFromList('${c.couponCode}',${JSON.stringify(cpnData).replace(/"/g,"'")})">사용</button><button class="cc-gift-btn" onclick="openGift('${c.couponCode}','${c.productName}')">선물</button>`:`<span class="cc-st done">사용완료</span>`}
       </div></div>`;
@@ -2561,14 +2563,17 @@ async function openNotifPage() {
     const icoMap={y:'🎫',r:'⚠️',g:'✅',b:'💳'};
     const bgMap={y:'var(--y-lt)',r:'var(--red-lt)',g:'var(--grn-lt)',b:'var(--blu-lt)'};
     // 알림 타입별 이동: y=쿠폰(쿠폰함), g=결제(내역), b=결제(내역), r=홈, gift=선물함
-    const tabMap={y:2, g:3, b:3, r:0};
+    const tabMap={y:2, g:3, b:3, r:0, c:3}; // c=취소완료 → 내역
     document.getElementById('notif-list').innerHTML = list.length===0
       ? `<div class="empty"><div class="emo">🔔</div><p>알림이 없습니다</p></div>`
       : list.map(n=>{
         const isGift = n.title && n.title.includes('선물');
+        const isCancel = n.title && (n.title.includes('취소') || n.description && n.description.includes('취소'));
         const onclick = isGift
           ? `closeNotifPage();openGiftBox()`
-          : `closeNotifPage();goTab(${tabMap[n.type]||0})`;
+          : isCancel
+            ? `closeNotifPage();goTab(3)`
+            : `closeNotifPage();goTab(${tabMap[n.type]||0})`;
         return `<div style="background:#fff;border-bottom:1px solid var(--bd2);padding:13px 16px;display:flex;gap:10px;cursor:pointer" onclick="${onclick}">
           <div style="width:36px;height:36px;border-radius:50%;background:${bgMap[n.type]||'var(--bg)'};display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${icoMap[n.type]||'📢'}</div>
           <div style="flex:1;min-width:0">
