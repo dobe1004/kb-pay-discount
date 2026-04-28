@@ -635,7 +635,7 @@ select.admin-form-input{cursor:pointer}
   <div class="detail-hd">
     <button class="detail-back" onclick="closeDetail()">←</button>
     <span class="detail-hd-title" id="detail-hd-title">상품 상세</span>
-    <button class="hd-ico" onclick="openS(7)" style="font-size:18px">🔗</button>
+    <button class="hd-ico" onclick="openGiftSend()" style="font-size:18px" id="detail-gift-btn" title="선물하기">🎁</button>
     <button class="hd-ico" id="detail-heart-hd" onclick="toggleHeartDetail()" style="font-size:18px">🤍</button>
   </div>
   <img class="detail-img" id="detail-img" src="" alt=""/>
@@ -657,13 +657,6 @@ select.admin-form-input{cursor:pointer}
     <table class="detail-info-table" id="detail-table"></table>
     <div class="detail-notice" id="detail-notice"></div>
   </div>
-  <div class="review-sec" id="review-sec">
-    <div class="sec-hd"><span class="sec-title">⭐ 구매후기</span></div>
-    <div class="review-summary" id="review-summary"></div>
-    <div id="review-list"></div>
-    <button class="write-review-btn" id="write-review-btn" onclick="openWriteReview()">✏️ 후기 작성하기</button>
-  </div>
-
   <!-- 근처 매장 찾기 -->
   <div class="review-sec" id="store-sec">
     <div class="sec-hd"><span class="sec-title">📍 근처 매장 찾기</span></div>
@@ -684,6 +677,13 @@ select.admin-form-input{cursor:pointer}
       </div>
       <div id="store-list"></div>
     </div>
+  </div>
+
+  <div class="review-sec" id="review-sec">
+    <div class="sec-hd"><span class="sec-title">⭐ 구매후기</span></div>
+    <div class="review-summary" id="review-summary"></div>
+    <div id="review-list"></div>
+    <button class="write-review-btn" id="write-review-btn" onclick="openWriteReview()">✏️ 후기 작성하기</button>
   </div>
 
   <div class="detail-cta">
@@ -834,6 +834,24 @@ select.admin-form-input{cursor:pointer}
   <button class="btn-line" onclick="closeS(9)">취소</button>
 </div>
 
+<!-- ══ 선물하기 시트 ══ -->
+<div class="bk" id="bk-gift-send" onclick="closeGiftSend()" style="z-index:600"></div>
+<div class="bs" id="s-gift-send" style="z-index:601">
+  <div class="bs-bar"></div>
+  <div class="bs-title">🎁 선물하기</div>
+  <div class="bs-sub" id="gift-send-pname"></div>
+  <div style="margin-bottom:12px">
+    <label style="font-size:12px;font-weight:700;color:var(--t3);display:block;margin-bottom:6px">받는 사람 아이디</label>
+    <input id="gift-to-id" type="text" placeholder="받는 사람 아이디 입력" style="width:100%;padding:12px;border:1.5px solid var(--bd);border-radius:var(--rs);font-family:inherit;font-size:14px;box-sizing:border-box;outline:none" onfocus="this.style.borderColor='var(--y)'" onblur="this.style.borderColor='var(--bd)'"/>
+  </div>
+  <div style="margin-bottom:16px">
+    <label style="font-size:12px;font-weight:700;color:var(--t3);display:block;margin-bottom:6px">선물 메시지 <span style="font-weight:400">(선택)</span></label>
+    <textarea id="gift-message" placeholder="따뜻한 메시지를 남겨보세요 💌" style="width:100%;padding:12px;border:1.5px solid var(--bd);border-radius:var(--rs);font-family:inherit;font-size:14px;box-sizing:border-box;resize:none;height:80px;outline:none" onfocus="this.style.borderColor='var(--y)'" onblur="this.style.borderColor='var(--bd)'"></textarea>
+  </div>
+  <button class="btn-main" onclick="sendGiftNow()">🎁 선물 보내기</button>
+  <button class="btn-line" onclick="closeGiftSend()">취소</button>
+</div>
+
 <!-- ══ 선물 메시지 팝업 ══ -->
 <div id="gift-msg-bk" style="display:none;position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.5);align-items:center;justify-content:center;padding:24px" onclick="closeGiftMsg()">
   <div onclick="event.stopPropagation()" style="background:#fff;border-radius:20px;padding:28px 24px;width:100%;max-width:340px;text-align:center">
@@ -953,10 +971,10 @@ select.admin-form-input{cursor:pointer}
     <div id="bc-price" style="font-size:12px;color:var(--t3);margin-top:2px"></div>
   </div>
 
-  <button class="btn-main" id="bc-confirm-btn" onclick="confirmBarcodeUse()" style="background:var(--grn);box-shadow:none">
+  <button class="btn-main" id="bc-confirm-btn" onclick="confirmBarcodeUse()">
     ✅ 매장 확인 완료 — 결제하기
   </button>
-  <button class="btn-line" onclick="closeBarcodeS()">취소 (나중에 사용)</button>
+  <button class="btn-line" onclick="closeBarcodeSheet()">취소 (나중에 사용)</button>
 </div>
 
 <!-- ══ 로그아웃 확인 시트 ══ -->
@@ -992,6 +1010,9 @@ select.admin-form-input{cursor:pointer}
     <button class="btn-line" onclick="closeLogin()">취소</button>
   </div>
 </div>
+
+<!-- ══ 맨위로 버튼 ══ -->
+<button id="scroll-top-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" style="display:none;position:fixed;bottom:80px;right:16px;z-index:190;width:40px;height:40px;border-radius:50%;background:var(--y);border:none;box-shadow:0 2px 8px rgba(0,0,0,.2);cursor:pointer;font-size:16px;align-items:center;justify-content:center">↑</button>
 
 <!-- ══ 하단 네비 (5탭) ══ -->
 <nav class="bnav">
@@ -1555,7 +1576,7 @@ async function checkIssuedStatus() {
 
 // 발급된 쿠폰으로 바코드 시트 열기
 // 온라인 전용 브랜드
-const ONLINE_BRANDS = ['COUPANG EATS', 'BAEMIN', 'NAVER', 'MUSINSA'];
+const ONLINE_BRANDS = ['COUPANG EATS', 'BAEMIN', 'YOGIYO', 'MUSINSA'];
 const isOnlineBrand = (brand) => ONLINE_BRANDS.includes(brand);
 
 // 발급된 쿠폰으로 사용 (온라인/오프라인 분기)
@@ -1589,7 +1610,7 @@ async function openPayFromIssued(pid) {
 const HOW_TO_USE = {
   'COUPANG EATS': '① 코드 복사 → ② 쿠팡이츠 앱 실행 → ③ 주문 결제 화면에서 쿠폰 코드 입력',
   'BAEMIN': '① 코드 복사 → ② 배달의민족 앱 실행 → ③ 결제 시 쿠폰/포인트에서 코드 입력',
-  'NAVER': '① 코드 복사 → ② 네이버 앱 실행 → ③ 네이버플러스 멤버십에서 코드 등록',
+  'YOGIYO': '① 코드 복사 → ② 요기요 앱 실행 → ③ 주문 결제 화면에서 쿠폰 코드 입력',
   'MUSINSA': '① 코드 복사 → ② 무신사 앱/웹 실행 → ③ 장바구니 쿠폰 적용에서 코드 입력',
 };
 
@@ -1611,13 +1632,13 @@ const DEEP_LINKS = {
     store_ios: 'https://apps.apple.com/kr/app/id378084485',
     web: 'https://www.baemin.com',
   },
-  'NAVER': {
-    label: '🟢 네이버',
-    scheme_aos: 'https://play.google.com/store/apps/details?id=com.nhn.android.search',
-    scheme_ios: 'naversearchapp://',
-    store_aos: 'https://play.google.com/store/apps/details?id=com.nhn.android.search',
-    store_ios: 'https://apps.apple.com/kr/app/id393499958',
-    web: 'https://www.naver.com',
+  'YOGIYO': {
+    label: '🍜 요기요',
+    scheme_aos: 'yogiyo://',
+    scheme_ios: 'yogiyo://',
+    store_aos: 'https://play.google.com/store/apps/details?id=com.fineapp.yogiyo',
+    store_ios: 'https://apps.apple.com/kr/app/id543831532',
+    web: 'https://www.yogiyo.co.kr',
   },
   'MUSINSA': {
     label: '👗 무신사',
@@ -1899,15 +1920,6 @@ function render() {
               ${!out?`<div style="margin-top:4px"><span class="pc-timer" id="pt-${p.id}">--:--:--</span></div>`:''}
             </div>
           </div>
-        </div>
-        <div class="pc-btn-wrap">
-          ${out
-            ? `<button class="btn-apply" disabled>선착순 마감</button>`
-            : used
-              ? `<button class="btn-apply" disabled style="background:var(--bg);color:var(--t4)">✓ 쿠폰 사용 완료</button>`
-              : issued
-                ? `<button class="btn-apply" onclick="openPayFromIssued(${p.id})">🎫 쿠폰 사용하기</button>`
-                : `<button class="btn-apply" id="btn${p.id}" onclick="apply(${p.id})">바로 할인 받기</button>`}
         </div>
       </div>`;
     }).join('');
@@ -2505,6 +2517,49 @@ function openGift(code, name) {
   cur = { couponCode:code, name }; document.getElementById('s6sub').textContent=name;
   document.getElementById('gift-to').value=''; document.getElementById('gift-msg').value=''; openS(6);
 }
+/* ══ 맨위로 버튼 ══ */
+window.addEventListener('scroll', () => {
+  const btn = document.getElementById('scroll-top-btn');
+  if (!btn) return;
+  btn.style.display = window.scrollY > 300 ? 'flex' : 'none';
+});
+
+/* ══ 선물하기 시트 ══ */
+function openGiftSend() {
+  if (!uid) { requireLogin('선물하기', '로그인이 필요합니다', openGiftSend); return; }
+  const p = PRODS.find(x => Number(x.id) === Number(curPid));
+  if (!p) { toast('상품 정보를 찾을 수 없습니다.', 'err'); return; }
+  document.getElementById('gift-send-pname').textContent = p.name;
+  document.getElementById('gift-to-id').value = '';
+  document.getElementById('gift-message').value = '';
+  document.getElementById('bk-gift-send').style.display = 'block';
+  document.getElementById('s-gift-send').classList.add('on');
+  history.pushState({giftSend:true}, '');
+}
+function closeGiftSend() {
+  document.getElementById('bk-gift-send').style.display = 'none';
+  document.getElementById('s-gift-send').classList.remove('on');
+}
+async function sendGiftNow() {
+  const toId = document.getElementById('gift-to-id').value.trim();
+  const msg = document.getElementById('gift-message').value.trim();
+  if (!toId) { toast('받는 사람 아이디를 입력해주세요.', 'err'); return; }
+  if (toId === uid) { toast('자신에게는 선물할 수 없습니다.', 'err'); return; }
+  const applyRes = await POST('/api/coupons/apply', { userId: uid, productId: Number(curPid) });
+  if (!applyRes.success) { toast(applyRes.message || '쿠폰 발급 실패', 'err'); return; }
+  const giftRes = await POST('/api/gift', {
+    fromUserId: uid, toUserId: toId,
+    couponCode: applyRes.data.couponCode, message: msg
+  });
+  if (giftRes.success) {
+    closeGiftSend();
+    toast(`🎁 ${toId}님께 선물을 보냈습니다!`, 'ok');
+    setTimeout(() => loadList(), 300);
+  } else {
+    toast(giftRes.message || '선물 전송 실패', 'err');
+  }
+}
+
 async function sendGift() {
   const to=document.getElementById('gift-to').value.trim(), msg=document.getElementById('gift-msg').value.trim();
   if(!to){toast('받는 사람 아이디를 입력해주세요.','err');return;}
@@ -2960,6 +3015,7 @@ window.addEventListener('popstate',()=>{
   if(document.getElementById('logout-sheet').classList.contains('on')){closeLogoutSheet();return;}
   if(document.getElementById('loginModal').classList.contains('on')){closeLogin();return;}
   if(document.getElementById('s11').classList.contains('on')){closeBarcodeSheet();return;}
+  if(document.getElementById('s-gift-send')?.classList.contains('on')){closeGiftSend();return;}
   if(document.getElementById('gift-msg-bk').style.display==='flex'){closeGiftMsg();return;}
   if(document.getElementById('gift-box-page').classList.contains('on')){closeGiftBox();return;}
   if(document.getElementById('notice-page').classList.contains('on')){closeNoticePage();return;}
