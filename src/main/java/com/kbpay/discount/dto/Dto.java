@@ -169,6 +169,7 @@ public class Dto {
         private String userId; private String grade; private Integer pointBalance;
         private Boolean isAdmin; private int totalCoupons; private int availCoupons;
         private int usedCoupons; private long totalSaved; private int wishCount;
+        private int giftCount;
         private List<CouponResponse> coupons;
     }
 }
