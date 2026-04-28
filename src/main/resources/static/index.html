@@ -897,8 +897,8 @@ select.admin-form-input{cursor:pointer}
 </div>
 
 <!-- ══ 공지사항 페이지 ══ -->
-<div class="detail-page" id="notice-page">
-  <div class="detail-hd">
+<div id="notice-page" style="display:none;position:fixed;inset:0;z-index:400;background:#ffffff;overflow-y:auto">
+  <div class="detail-hd" style="position:sticky;top:0;background:#fff;z-index:1">
     <span class="detail-hd-title" style="margin-left:16px">📢 공지사항</span>
     <button onclick="closeNoticePage()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--t3);padding:8px;line-height:1">✕</button>
   </div>
@@ -1394,7 +1394,8 @@ function openNoticePage(targetId) {
     </div>`;
   }).join('');
 
-  document.getElementById('notice-page').classList.add('on');
+  document.getElementById('notice-page').style.display = 'block';
+  document.getElementById('notice-page').scrollTop = 0;
   history.pushState({notice:true}, '');
 
   // 특정 공지로 이동 + 자동 펼침
@@ -1431,7 +1432,7 @@ function toggleNotice(id) {
 }
 
 function closeNoticePage() {
-  document.getElementById('notice-page').classList.remove('on');
+  document.getElementById('notice-page').style.display = 'none';
 }
 /* ══ 배너 슬라이드 ══ */
 (function(){
@@ -1648,7 +1649,7 @@ async function checkIssuedStatus() {
 
 // 발급된 쿠폰으로 바코드 시트 열기
 // 온라인 전용 브랜드
-const ONLINE_BRANDS = ['COUPANG EATS', 'BAEMIN', 'YANOLJA', 'MUSINSA'];
+const ONLINE_BRANDS = ['COUPANG EATS', 'BAEMIN', 'COUPANG', 'MUSINSA'];
 const isOnlineBrand = (brand) => ONLINE_BRANDS.includes(brand);
 
 // 발급된 쿠폰으로 사용 (온라인/오프라인 분기)
@@ -1682,7 +1683,7 @@ async function openPayFromIssued(pid) {
 const HOW_TO_USE = {
   'COUPANG EATS': '① 코드 복사 → ② 쿠팡이츠 앱 실행 → ③ 주문 결제 화면에서 쿠폰 코드 입력',
   'BAEMIN': '① 코드 복사 → ② 배달의민족 앱 실행 → ③ 결제 시 쿠폰/포인트에서 코드 입력',
-  'YANOLJA': '① 코드 복사 → ② NOL(야놀자) 앱 실행 → ③ MY NOL > 프로모션 코드 등록에서 코드 입력',
+  'COUPANG': '① 코드 복사 → ② 쿠팡 앱 실행 → ③ 마이쿠팡 > 쿠폰함에서 코드 입력',
   'MUSINSA': '① 코드 복사 → ② 무신사 앱/웹 실행 → ③ 장바구니 쿠폰 적용에서 코드 입력',
 };
 
@@ -1704,13 +1705,13 @@ const DEEP_LINKS = {
     store_ios: 'https://apps.apple.com/kr/app/id378084485',
     web: 'https://www.baemin.com',
   },
-  'YANOLJA': {
-    label: '🏨 야놀자',
-    scheme_aos: 'intent://#Intent;package=com.cultsotry.yanolja.nativeapp;S.browser_fallback_url=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dcom.cultsotry.yanolja.nativeapp;end',
-    scheme_ios: 'https://apps.apple.com/kr/app/id436731843',
-    store_aos: 'https://play.google.com/store/apps/details?id=com.cultsotry.yanolja.nativeapp',
-    store_ios: 'https://apps.apple.com/kr/app/id436731843',
-    web: 'https://nol.yanolja.com',
+  'COUPANG': {
+    label: '🛒 쿠팡',
+    scheme_aos: 'intent://home#Intent;package=com.coupang.mobile;S.browser_fallback_url=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dcom.coupang.mobile;end',
+    scheme_ios: 'coupang://',
+    store_aos: 'https://play.google.com/store/apps/details?id=com.coupang.mobile',
+    store_ios: 'https://apps.apple.com/kr/app/id454434967',
+    web: 'https://www.coupang.com',
   },
   'MUSINSA': {
     label: '👗 무신사',
@@ -3136,7 +3137,7 @@ window.addEventListener('popstate',()=>{
   if(document.getElementById('s-gift-send')?.classList.contains('on')){closeGiftSend();return;}
   if(document.getElementById('gift-msg-bk').style.display==='flex'){closeGiftMsg();return;}
   if(document.getElementById('gift-box-page').classList.contains('on')){closeGiftBox();return;}
-  if(document.getElementById('notice-page').classList.contains('on')){closeNoticePage();return;}
+  if(document.getElementById('notice-page').style.display==='block'){closeNoticePage();return;}
   if(openSheets.length>0){closeS(openSheets[openSheets.length-1]);return;}
   if(document.getElementById('notif-page').classList.contains('on')){closeNotifPage();return;}
   if(document.getElementById('detail-page').classList.contains('on')){closeDetail();return;}
