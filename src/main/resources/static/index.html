@@ -2238,13 +2238,24 @@ async function apply(pid) {
   });
 }
 
-function useCouponFromList(code, couponData) {
-  // couponData가 문자열로 넘어오는 경우 파싱
-  if (typeof couponData === 'string') {
-    try { couponData = JSON.parse(couponData.replace(/'/g, '"')); } catch(e) {}
+function useCouponFromList(code, cpnData) {
+  if (typeof cpnData === 'string') {
+    try { cpnData = JSON.parse(cpnData.replace(/'/g, '"')); } catch(e) {}
   }
-  cur = { ...couponData, code, couponCode: code };
-  openPayS();
+  cur = { ...cpnData, code, couponCode: code,
+    pid: cpnData.productId || cpnData.pid,
+    name: cpnData.productName, brand: cpnData.brandName,
+    img: cpnData.imageUrl, amt: cpnData.discountAmount,
+    dis: cpnData.discountedPrice, ori: cpnData.originalPrice,
+    exp: cpnData.expiredAt, code
+  };
+  curPid = cur.pid;
+  const online = isOnlineBrand(cpnData.brandName);
+  if (online) {
+    openOnlineCouponSheet(cur);
+  } else {
+    openBarcodeSheet(cur);
+  }
 }
 
 // 상품 카드에서 이미 발급된 쿠폰으로 결제 열기 → openPayFromIssued 로 통합
@@ -2451,7 +2462,7 @@ function renderCpnList(mine, idx) {
     return `<div class="cc">
       <div class="cc-top"><img class="cc-img" src="${c.imageUrl||''}" onerror="this.style.background='#eee';this.removeAttribute('src')"/><div style="flex:1;min-width:0"><div class="cc-brand">${c.brandName}</div><div class="cc-name">${c.productName}</div>${eb}</div></div>
       <div class="cc-bot"><div class="cc-code">${c.couponCode}</div><div class="cc-amt">${c.discountAmount.toLocaleString()}원</div>
-      ${c.status==='ISSUED'?`<button class="cc-use-btn" onclick="useCouponFromList('${c.couponCode}',${JSON.stringify(cpnData).replace(/"/g,"'")})">결제</button><button class="cc-gift-btn" onclick="openGift('${c.couponCode}','${c.productName}')">선물</button>`:`<span class="cc-st done">사용완료</span>`}
+      ${c.status==='ISSUED'?`<button class="cc-use-btn" onclick="useCouponFromList('${c.couponCode}',${JSON.stringify(cpnData).replace(/"/g,"'")})">사용</button><button class="cc-gift-btn" onclick="openGift('${c.couponCode}','${c.productName}')">선물</button>`:`<span class="cc-st done">사용완료</span>`}
       </div></div>`;
   }).join('');
 }
