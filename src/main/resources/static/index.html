@@ -949,7 +949,7 @@ select.admin-form-input{cursor:pointer}
   <!-- 로그인 안내 -->
   <div style="background:#FFF8E1;border-radius:var(--rs);padding:10px 12px;margin-bottom:12px;display:flex;gap:8px;align-items:flex-start">
     <span style="font-size:14px;flex-shrink:0">⚠️</span>
-    <div style="font-size:12px;color:#7A5000;line-height:1.6;word-break:keep-all">앱 로그인 후 쿠폰 등록 화면에서 위 코드를 입력하세요. 코드를 먼저 복사해두면 편리합니다.</div>
+    <div style="font-size:12px;color:#7A5000;line-height:1.6;word-break:keep-all">앱 로그인 후 쿠폰을 등록하세요.<br/>코드를 먼저 복사해두면 편리합니다.</div>
   </div>
 
   <!-- 앱 열기 버튼 (앱 없으면 메뉴 펼침) -->
@@ -960,8 +960,8 @@ select.admin-form-input{cursor:pointer}
     <div style="background:var(--bg);border-radius:var(--rs);padding:12px;margin-bottom:8px">
       <div style="font-size:12px;color:var(--t3);text-align:center;margin-bottom:10px">앱이 설치되어 있지 않으신가요?</div>
       <div style="display:flex;gap:8px">
-        <button id="oc-store-btn" style="flex:1;padding:12px 8px;border:1.5px solid var(--y);border-radius:var(--rs);background:#fff;font-family:inherit;font-size:12px;font-weight:700;color:#7A5000;cursor:pointer;text-align:center;line-height:1.5"></button>
-        <button id="oc-web-btn" style="flex:1;padding:12px 8px;border:1.5px solid var(--bd);border-radius:var(--rs);background:#fff;font-family:inherit;font-size:12px;font-weight:700;color:var(--t2);cursor:pointer;text-align:center;line-height:1.5"></button>
+        <button id="oc-store-btn" style="flex:1;padding:12px 8px;border:1.5px solid var(--y);border-radius:var(--rs);background:#fff;font-family:inherit;font-size:12px;font-weight:700;color:#7A5000;cursor:pointer;text-align:center;line-height:1.5;white-space:pre-line"></button>
+        <button id="oc-web-btn" style="flex:1;padding:12px 8px;border:1.5px solid var(--bd);border-radius:var(--rs);background:#fff;font-family:inherit;font-size:12px;font-weight:700;color:var(--t2);cursor:pointer;text-align:center;line-height:1.5;white-space:pre-line"></button>
       </div>
     </div>
   </div>
@@ -1753,7 +1753,7 @@ function openOnlineCouponSheet(coupon) {
     const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent);
     const scheme = isIos ? dl.scheme_ios : dl.scheme_aos;
     const storeUrl = isIos ? dl.store_ios : dl.store_aos;
-    const storeLabel = isIos ? `🍎 앱스토어에서 설치` : `▶ 플레이스토어에서 설치`;
+    const storeLabel = isIos ? `🍎 앱스토어에서\n설치` : `▶ 플레이스토어에서\n설치`;
 
     dlBtn.style.display = 'block';
     dlBtn.textContent = `${dl.label} 앱 실행하기`;
@@ -2276,6 +2276,9 @@ function showR(ok, r) {
     }
   } else {
     btnpay.style.display = 'none';
+    // 실패 시(이미 발급 또는 마감)에도 쿠폰함 확인 버튼 노출
+    document.getElementById('btnmypage').style.display = 'block';
+    document.getElementById('btnmypage').textContent = '🎫 내 쿠폰함 확인하기';
   }
   openS(1);
 }
