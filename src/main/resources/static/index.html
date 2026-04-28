@@ -2250,9 +2250,10 @@ function useCouponFromList(code, couponData) {
 // 상품 카드에서 이미 발급된 쿠폰으로 결제 열기 → openPayFromIssued 로 통합
 
 function showR(ok, r) {
-  document.getElementById('s1i').textContent = ok?'🎉':'😢';
-  document.getElementById('s1t').textContent = ok?'쿠폰 발급 완료!':'선착순 마감!';
-  document.getElementById('s1s').textContent = r.message;
+  const isAlreadyIssued = !ok && r.message && r.message.includes('이미 발급');
+  document.getElementById('s1i').textContent = ok ? '🎉' : isAlreadyIssued ? '😊' : '😢';
+  document.getElementById('s1t').textContent = ok ? '쿠폰 발급 완료!' : isAlreadyIssued ? '이미 발급 받은 쿠폰입니다.' : '선착순 마감!';
+  document.getElementById('s1s').textContent = ok ? r.message : isAlreadyIssued ? '' : r.message;
   document.getElementById('cpnbox').style.display = ok?'block':'none';
   const btnmy = document.getElementById('btnmypage');
   if (ok) {
@@ -3177,7 +3178,13 @@ window.addEventListener('popstate',()=>{
 });
 
 /* ══ 토스트/유틸 ══ */
-function toast(msg,type='inf'){const el=document.createElement('div');el.className=`toast ${type}`;el.textContent=msg;document.getElementById('tw').appendChild(el);setTimeout(()=>{el.style.opacity='0';el.style.transition='.3s';setTimeout(()=>el.remove(),300);},3200);}
+function toast(msg,type='inf'){
+  const tw=document.getElementById('tw');
+  // 동일 메시지 이미 표시 중이면 무시
+  if([...tw.children].some(el=>el.textContent===msg)) return;
+  const el=document.createElement('div');el.className=`toast ${type}`;el.textContent=msg;
+  tw.appendChild(el);setTimeout(()=>{el.style.opacity='0';el.style.transition='.3s';setTimeout(()=>el.remove(),300);},3200);
+}
 const delay=ms=>new Promise(r=>setTimeout(r,ms));
 const r8=()=>Math.random().toString(36).substring(2,10).toUpperCase();
 
