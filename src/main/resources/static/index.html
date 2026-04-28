@@ -708,7 +708,7 @@ select.admin-form-input{cursor:pointer}
   <div class="bs-title" id="s1t">쿠폰 발급 완료!</div><div class="bs-sub" id="s1s"></div>
   <div class="cpn" id="cpnbox" style="display:none"><div class="cpn-lbl">COUPON CODE</div><div class="cpn-code" id="ccode">-</div><div class="cpn-amt" id="camt">0<small>원 할인</small></div><div class="cpn-exp" id="cexp"></div></div>
   <button class="btn-main" id="btntopay" style="display:none" onclick="openPayS()">💳 지금 바로 결제하기</button>
-  <button class="btn-dark" id="btnmypage" style="display:none" onclick="closeS(1);goTab(2)">🎫 쿠폰함에 보관하기</button>
+  <button class="btn-dark" id="btnmypage" style="display:none">🎫 쿠폰함에 보관하기</button>
   <button class="btn-line" onclick="closeS(1)">닫기</button>
 </div>
 <!-- 시트2: 결제 -->
@@ -2253,7 +2253,12 @@ function showR(ok, r) {
   document.getElementById('s1t').textContent = ok?'쿠폰 발급 완료!':'선착순 마감!';
   document.getElementById('s1s').textContent = r.message;
   document.getElementById('cpnbox').style.display = ok?'block':'none';
-  document.getElementById('btnmypage').style.display = ok?'block':'none';
+  const btnmy = document.getElementById('btnmypage');
+  if (ok) {
+    btnmy.style.display = 'block';
+    btnmy.textContent = '🎫 쿠폰함에 보관하기';
+    btnmy.onclick = () => { closeS(1); };
+  }
 
   const btnpay = document.getElementById('btntopay');
   if (ok) {
@@ -2276,9 +2281,28 @@ function showR(ok, r) {
     }
   } else {
     btnpay.style.display = 'none';
-    // 실패 시(이미 발급 또는 마감)에도 쿠폰함 확인 버튼 노출
-    document.getElementById('btnmypage').style.display = 'block';
-    document.getElementById('btnmypage').textContent = '🎫 내 쿠폰함 확인하기';
+    // "이미 발급받은 쿠폰"일 때 → 실제 쿠폰함에 있는지 확인 후 버튼 표시
+    const btnmy = document.getElementById('btnmypage');
+    if (r.message && r.message.includes('이미 발급') && uid) {
+      GET(`/api/my/${uid}`).then(res => {
+        const hasCoupon = res.success && (res.data.coupons||[]).some(c =>
+          !c.giftFromUserId && c.status === 'ISSUED' && Number(c.productId) === Number(curPid||0)
+        );
+        if (hasCoupon) {
+          btnmy.style.display = 'block';
+          btnmy.textContent = '🎫 내 쿠폰함 확인하기';
+          btnmy.onclick = () => {
+            [1,2,3,11,12].forEach(n=>closeS(n));
+            closeDetail();
+            setTimeout(() => goTab(2), 150);
+          };
+        } else {
+          btnmy.style.display = 'none';
+        }
+      });
+    } else {
+      btnmy.style.display = 'none';
+    }
   }
   openS(1);
 }
