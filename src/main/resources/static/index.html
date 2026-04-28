@@ -872,6 +872,24 @@ select.admin-form-input{cursor:pointer}
   <div id="gift-box-list" style="padding:8px 0"></div>
 </div>
 
+<!-- ══ 공지 편집 팝업 (admin) ══ -->
+<div id="notice-edit-bk" style="display:none;position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.5);align-items:center;justify-content:center;padding:24px" onclick="closeNoticeEdit()">
+  <div onclick="event.stopPropagation()" style="background:#fff;border-radius:20px;padding:24px;width:100%;max-width:380px">
+    <div style="font-size:16px;font-weight:800;margin-bottom:16px">📢 공지사항 편집</div>
+    <input id="ne-title" placeholder="제목" style="width:100%;padding:10px;border:1.5px solid var(--bd);border-radius:var(--rs);font-family:inherit;font-size:14px;box-sizing:border-box;margin-bottom:8px;outline:none"/>
+    <textarea id="ne-content" placeholder="내용" style="width:100%;padding:10px;border:1.5px solid var(--bd);border-radius:var(--rs);font-family:inherit;font-size:13px;box-sizing:border-box;resize:none;height:100px;margin-bottom:8px;outline:none"></textarea>
+    <select id="ne-type" style="width:100%;padding:10px;border:1.5px solid var(--bd);border-radius:var(--rs);font-family:inherit;font-size:13px;box-sizing:border-box;margin-bottom:16px;background:#fff">
+      <option value="notice">공지</option>
+      <option value="event">이벤트</option>
+      <option value="urgent">중요</option>
+    </select>
+    <div style="display:flex;gap:8px">
+      <button onclick="saveNoticeEdit()" class="btn-main" style="flex:1;margin-bottom:0">저장</button>
+      <button onclick="closeNoticeEdit()" class="btn-line" style="flex:1;margin-bottom:0">취소</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══ 공지사항 페이지 ══ -->
 <div class="detail-page" id="notice-page">
   <div class="detail-hd">
@@ -971,7 +989,7 @@ select.admin-form-input{cursor:pointer}
     <div id="bc-price" style="font-size:12px;color:var(--t3);margin-top:2px"></div>
   </div>
 
-  <button class="btn-main" id="bc-confirm-btn" onclick="confirmBarcodeUse()">
+  <button class="btn-main" id="bc-confirm-btn" onclick="confirmBarcodeUse()" style="background:var(--y);color:#111;font-weight:800">
     ✅ 매장 확인 완료 — 결제하기
   </button>
   <button class="btn-line" onclick="closeBarcodeSheet()">취소 (나중에 사용)</button>
@@ -1295,6 +1313,33 @@ function initNbarMarquee() {
   el.innerHTML = items + '&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;' + items;
 }
 
+let editingNoticeId = null;
+function editNotice(id) {
+  const n = NOTICES.find(x => x.id === id);
+  if (!n) return;
+  editingNoticeId = id;
+  document.getElementById('ne-title').value = n.title;
+  document.getElementById('ne-content').value = n.content;
+  document.getElementById('ne-type').value = n.type;
+  const bk = document.getElementById('notice-edit-bk');
+  bk.style.display = 'flex';
+}
+function closeNoticeEdit() {
+  document.getElementById('notice-edit-bk').style.display = 'none';
+  editingNoticeId = null;
+}
+function saveNoticeEdit() {
+  if (!editingNoticeId) return;
+  const n = NOTICES.find(x => x.id === editingNoticeId);
+  if (!n) return;
+  n.title = document.getElementById('ne-title').value.trim();
+  n.content = document.getElementById('ne-content').value.trim();
+  n.type = document.getElementById('ne-type').value;
+  closeNoticeEdit();
+  openNoticePage();
+  toast('공지사항이 수정되었습니다.', 'ok');
+}
+
 function openNoticePage(targetId) {
   const typeStyle = {
     urgent: { bg:'#FFF0F0', border:'#FFB3B3', dot:'#FF4444', label:'중요', lbg:'#FF4444', lc:'#fff' },
@@ -1313,6 +1358,7 @@ function openNoticePage(targetId) {
           <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;flex-wrap:wrap">
             <span style="font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px;background:${ts.lbg};color:${ts.lc};letter-spacing:.3px">${ts.label}</span>
             <span style="font-size:11px;color:var(--t4)">${n.date}</span>
+            ${isAdmin()?`<button onclick="event.stopPropagation();editNotice(${n.id})" style="font-size:10px;padding:2px 7px;border-radius:8px;background:var(--pur-lt,#f3e8ff);color:var(--pur,#7c3aed);border:none;cursor:pointer;font-family:inherit;font-weight:700">편집</button>`:''}
           </div>
           <div style="font-size:14px;font-weight:700;color:var(--t1);line-height:1.45">${n.icon} ${n.title}</div>
         </div>
@@ -1552,7 +1598,10 @@ async function loadProducts() {
     img: p.imageUrl, cat: p.category,
     buyers: p.buyers||0, rating: p.rating||4.5, reviews: p.reviewCount||0,
     desc: p.description, notice: p.notice,
-    timer: 86400, _issued: false
+    timer: p.remainingCount <= 5 ? 3600*Math.floor(Math.random()*6+1)
+         : p.badge === 'hot' ? 86400*(Math.floor(Math.random()*2+1))
+         : 86400*(Math.floor(Math.random()*5+2)),
+    _issued: false
   }));
   if (uid) await Promise.all([checkIssuedStatus(), loadWishes()]);
   renderHotRank(); renderRecent(); render();
@@ -1634,7 +1683,7 @@ const DEEP_LINKS = {
   },
   'YOGIYO': {
     label: '🍜 요기요',
-    scheme_aos: 'yogiyo://',
+    scheme_aos: 'intent://home#Intent;scheme=yogiyo;package=com.fineapp.yogiyo;S.browser_fallback_url=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dcom.fineapp.yogiyo;end',
     scheme_ios: 'yogiyo://',
     store_aos: 'https://play.google.com/store/apps/details?id=com.fineapp.yogiyo',
     store_ios: 'https://apps.apple.com/kr/app/id543831532',
@@ -1855,13 +1904,23 @@ async function confirmBarcodeUse() {
 
 /* ══ 상품 타이머 ══ */
 const ptIvs = {};
+function fmtTimer(secs) {
+  if (secs <= 0) return '마감';
+  const d = Math.floor(secs / 86400);
+  const h = Math.floor((secs % 86400) / 3600);
+  const m = Math.floor((secs % 3600) / 60);
+  const s = secs % 60;
+  if (d > 0) return `${d}일 ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
 function startProdTimer(pid, secs) {
   if (ptIvs[pid]) return;
   ptIvs[pid] = secs;
   const iv = setInterval(() => {
     ptIvs[pid]--;
     const el = document.getElementById(`pt-${pid}`);
-    if (el) { const s=ptIvs[pid]; el.textContent=`${String(Math.floor(s/3600)).padStart(2,'0')}:${String(Math.floor((s%3600)/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; }
+    if (el) el.textContent = fmtTimer(ptIvs[pid]);
     if (ptIvs[pid] <= 0) clearInterval(iv);
   }, 1000);
 }
@@ -1917,7 +1976,7 @@ function render() {
             <div>
               <div class="pc-price-row"><span class="pc-rate">${p.rate}%</span><span class="pc-now">${p.dis.toLocaleString()}<small>원</small></span><span class="pc-ori">${p.ori.toLocaleString()}원</span></div>
               <div class="pbar-row"><div class="pbar-track"><div class="pbar-fill${low||out?' crit':''}" style="width:${pct}%"></div></div><span class="pbar-rem ${out?'end':low?'low':'ok'}">${out?'마감':used?'사용완료':issued?'발급완료':`잔여 ${p.remaining}`}</span></div>
-              ${!out?`<div style="margin-top:4px"><span class="pc-timer" id="pt-${p.id}">--:--:--</span></div>`:''}
+              ${!out?`<div style="margin-top:4px;display:flex;align-items:center;gap:4px"><span style="font-size:11px;color:var(--t4)">⏰ 마감까지</span><span class="pc-timer" id="pt-${p.id}">${fmtTimer(p.timer||86400)}</span></div>`:''}
             </div>
           </div>
         </div>
@@ -2010,8 +2069,7 @@ async function openDetail(pid) {
   // 타이머
   let secs = p.timer||86400;
   const dtv = document.getElementById('detail-timer-val');
-  const f = n => String(Math.floor(n)).padStart(2,'0');
-  const dtick = () => { if(dtv) dtv.textContent=`${f(secs/3600)}:${f((secs%3600)/60)}:${f(secs%60)}`; secs--; };
+  const dtick = () => { if(dtv) dtv.textContent = fmtTimer(secs); secs--; };
   dtick(); const iv = setInterval(()=>{ if(!document.getElementById('detail-page').classList.contains('on')){clearInterval(iv);return;} dtick(); },1000);
 }
 function closeDetail() { document.getElementById('detail-page').classList.remove('on'); }
