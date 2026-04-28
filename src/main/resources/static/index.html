@@ -1055,7 +1055,15 @@ const GRADES = [
 
 /* ══ API 호출 헬퍼 ══ */
 function showLoading(show) {
-  // 전체 로딩 스피너 제거 - 버튼 자체의 .ld 클래스로 처리
+  let el = document.getElementById('global-loading');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'global-loading';
+    el.style.cssText = 'position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;pointer-events:none';
+    el.innerHTML = '<div style="width:36px;height:36px;border:3px solid rgba(0,0,0,.08);border-top-color:var(--y);border-radius:50%;animation:sp .7s linear infinite"></div>';
+    document.body.appendChild(el);
+  }
+  el.style.display = show ? 'flex' : 'none';
 }
 
 async function api(method, path, body) {
@@ -1605,7 +1613,7 @@ const DEEP_LINKS = {
   },
   'NAVER': {
     label: '🟢 네이버',
-    scheme_aos: 'naversearchapp://',
+    scheme_aos: 'https://play.google.com/store/apps/details?id=com.nhn.android.search',
     scheme_ios: 'naversearchapp://',
     store_aos: 'https://play.google.com/store/apps/details?id=com.nhn.android.search',
     store_ios: 'https://apps.apple.com/kr/app/id393499958',
@@ -2264,7 +2272,7 @@ async function loadMyCoupons() {
   if (!res.success) return;
   const d = res.data;
   if (userInfo) { userInfo.pointBalance=d.pointBalance; userInfo.grade=d.grade; sessionStorage.setItem('kbp_user',JSON.stringify(userInfo)); }
-  const mine = d.coupons||[];
+  const mine = (d.coupons||[]).filter(c=>!c.giftFromUserId); // 선물 쿠폰 제외
   const avail=mine.filter(c=>c.status==='ISSUED').length, used=mine.filter(c=>c.status==='USED').length;
   document.getElementById('my-body').innerHTML=`
     <div class="my-card">
@@ -2387,11 +2395,16 @@ async function openNotifPage() {
     const list = res.success ? res.data.notifications||[] : [];
     const icoMap={y:'🎫',r:'⚠️',g:'✅',b:'💳'};
     const bgMap={y:'var(--y-lt)',r:'var(--red-lt)',g:'var(--grn-lt)',b:'var(--blu-lt)'};
-    // 알림 타입별 이동 메뉴
+    // 알림 타입별 이동: y=쿠폰(쿠폰함), g=결제(내역), b=결제(내역), r=홈, gift=선물함
     const tabMap={y:2, g:3, b:3, r:0};
     document.getElementById('notif-list').innerHTML = list.length===0
       ? `<div class="empty"><div class="emo">🔔</div><p>알림이 없습니다</p></div>`
-      : list.map(n=>`<div style="background:#fff;border-bottom:1px solid var(--bd2);padding:13px 16px;display:flex;gap:10px;cursor:pointer" onclick="closeNotifPage();goTab(${tabMap[n.type]||0})">
+      : list.map(n=>{
+        const isGift = n.title && n.title.includes('선물');
+        const onclick = isGift
+          ? `closeNotifPage();openGiftBox()`
+          : `closeNotifPage();goTab(${tabMap[n.type]||0})`;
+        return `<div style="background:#fff;border-bottom:1px solid var(--bd2);padding:13px 16px;display:flex;gap:10px;cursor:pointer" onclick="${onclick}">
           <div style="width:36px;height:36px;border-radius:50%;background:${bgMap[n.type]||'var(--bg)'};display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${icoMap[n.type]||'📢'}</div>
           <div style="flex:1;min-width:0">
             <div style="font-size:13px;font-weight:700;margin-bottom:2px">${n.title}</div>
@@ -2399,7 +2412,8 @@ async function openNotifPage() {
             <div style="font-size:11px;color:var(--t4);margin-top:3px">${n.createdAt?n.createdAt.slice(0,16).replace('T',' '):''}</div>
           </div>
           <span style="color:var(--t5);font-size:12px;align-self:center">›</span>
-        </div>`).join('');
+        </div>`;
+      }).join('');
     updateNotifBadge();
     document.getElementById('notif-page').classList.add('on');
     history.pushState({notif:true},'');
@@ -2553,6 +2567,7 @@ async function renderMyPage() {
   const totalSpent=res.success?res.data.totalSaved*3:0;
   const prog=gIdx<3?Math.min(100,totalSpent/g.next_at*100):100;
   const couponCount=res.success?res.data.availCoupons:0;
+  const giftCount=res.success?(res.data.giftCount||0):0;
   const txRes=await GET(`/api/history/${uid}`);
   const allTx=txRes.success?txRes.data:[];
   const txCount=allTx.filter(h=>h.status==='PAID').length;
@@ -2583,7 +2598,7 @@ async function renderMyPage() {
     <div class="my-menu">
       <div class="my-menu-item" onclick="goTab(1)"><div class="my-menu-left"><div class="my-menu-ico">❤️</div><div><div class="my-menu-label">찜한 상품</div><div class="my-menu-sub">관심 상품 목록</div></div></div><div class="my-menu-right"><div class="my-menu-val">${wishCount}개</div><span style="color:var(--t5)">›</span></div></div>
       <div class="my-menu-item" onclick="goTab(2)"><div class="my-menu-left"><div class="my-menu-ico">🎫</div><div><div class="my-menu-label">쿠폰함</div><div class="my-menu-sub">발급받은 쿠폰 관리</div></div></div><div class="my-menu-right"><div class="my-menu-val">${couponCount}장</div><span style="color:var(--t5)">›</span></div></div>
-      <div class="my-menu-item" onclick="openGiftBox()"><div class="my-menu-left"><div class="my-menu-ico">🎁</div><div><div class="my-menu-label">선물함</div><div class="my-menu-sub">받은 선물 쿠폰 확인</div></div></div><div class="my-menu-right"><span style="color:var(--t5)">›</span></div></div>
+      <div class="my-menu-item" onclick="openGiftBox()"><div class="my-menu-left"><div class="my-menu-ico">🎁</div><div><div class="my-menu-label">선물함</div><div class="my-menu-sub">받은 선물 쿠폰 확인</div></div></div><div class="my-menu-right">${giftCount>0?`<div class="my-menu-val" style="color:var(--red)">${giftCount}장</div>`:''}<span style="color:var(--t5)">›</span></div></div>
       <div class="my-menu-item" onclick="goTab(3)"><div class="my-menu-left"><div class="my-menu-ico">📋</div><div><div class="my-menu-label">이용내역</div><div class="my-menu-sub">결제 및 취소 내역</div></div></div><div class="my-menu-right"><div class="my-menu-val">${txCount}건</div><span style="color:var(--t5)">›</span></div></div>
       ${isAdmin()?`<div class="my-menu-item" style="background:var(--pur-lt)" onclick="openAdminAdd()"><div class="my-menu-left"><div class="my-menu-ico">⚙️</div><div><div class="my-menu-label" style="color:var(--pur)">상품 추가</div><div class="my-menu-sub">새 핫딜 상품 등록</div></div></div><div class="my-menu-right"><span style="color:var(--pur)">›</span></div></div>`:''}
     </div>
