@@ -96,7 +96,7 @@ public class DataInitializer implements CommandLineRunner {
                 "🏬 신세계백화점 5만원 상품권",
                 "• 일부 입점 브랜드 제한 있음", 5),
             build("쿠팡 로켓배송 할인쿠폰","COUPANG",5000,3000,40,300,"쇼핑","hot",8912,4.8,524,
-                "https://images.unsplash.com/photo-1612103198005-b238154f4590?w=400&q=80",
+                "https://images.unsplash.com/photo-1457364887197-9150188c107b?w=400&q=80",
                 "🚀 쿠팡 로켓배송 5천원 즉시 할인!",
                 "• 쿠팡 앱 전용 · 로켓배송 상품 구매 시 적용\n• 최소 결제금액 3만원 이상", 213),
             build("배달의민족 1.5만원 할인쿠폰","BAEMIN",15000,7500,50,150,"음식","hot",4231,4.7,318,
