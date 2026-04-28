@@ -96,7 +96,7 @@ public class DataInitializer implements CommandLineRunner {
                 "🏬 신세계백화점 5만원 상품권",
                 "• 일부 입점 브랜드 제한 있음", 5),  // ⚠️ 잔여 5개 (마감임박)
             build("요기요 1만원 할인쿠폰","YOGIYO",10000,5000,50,200,"음식","hot",3214,4.6,245,
-                "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&q=80",
+                "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=400&q=80",
                 "🍜 요기요에서 1만원 즉시 할인!",
                 "• 요기요 앱 전용 · 최소 주문금액 1만5천원 이상", 200),
             build("배달의민족 1.5만원 할인쿠폰","BAEMIN",15000,7500,50,150,"음식","hot",4231,4.7,318,
