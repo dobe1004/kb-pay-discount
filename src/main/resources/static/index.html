@@ -1396,6 +1396,7 @@ function openNoticePage(targetId) {
 
   document.getElementById('notice-page').style.display = 'block';
   document.getElementById('notice-page').scrollTop = 0;
+  document.body.style.overflow = 'hidden';
   history.pushState({notice:true}, '');
 
   // 특정 공지로 이동 + 자동 펼침
@@ -1433,6 +1434,7 @@ function toggleNotice(id) {
 
 function closeNoticePage() {
   document.getElementById('notice-page').style.display = 'none';
+  document.body.style.overflow = '';
 }
 /* ══ 배너 슬라이드 ══ */
 (function(){
@@ -1707,7 +1709,7 @@ const DEEP_LINKS = {
   },
   'COUPANG': {
     label: '🛒 쿠팡',
-    scheme_aos: 'intent://home#Intent;package=com.coupang.mobile;S.browser_fallback_url=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dcom.coupang.mobile;end',
+    scheme_aos: 'coupang://',
     scheme_ios: 'coupang://',
     store_aos: 'https://play.google.com/store/apps/details?id=com.coupang.mobile',
     store_ios: 'https://apps.apple.com/kr/app/id454434967',
