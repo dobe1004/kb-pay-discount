@@ -751,7 +751,7 @@ select.admin-form-input{cursor:pointer}
   <div class="done-amt" id="damt">0<span>원</span></div><div class="done-sub" id="dsub"></div>
   <div class="done-info" id="dinfo"></div>
   <button class="btn-main" onclick="[1,2,3,11,12].forEach(n=>closeS(n));closeDetail();setTimeout(()=>goTab(3),150)">📋 이용내역 확인</button>
-  <button class="btn-line" onclick="[1,2,3,11,12].forEach(n=>closeS(n));closeDetail();setTimeout(()=>goTab(0),150)">홈으로</button>
+  <button class="btn-line" onclick="[1,2,3,11,12].forEach(n=>closeS(n));closeDetail();">닫기</button>
 </div>
 <!-- 시트4: 취소 확인 -->
 <div class="bk" id="bk4" onclick="closeS(4)"></div>
@@ -1729,8 +1729,9 @@ const DEEP_LINKS = {
 };
 
 function openOnlineCouponSheet(coupon) {
-  const p = PRODS.find(x => x.id === coupon.pid);
-  const brand = p?.brand || '';
+  const pid = coupon.pid || coupon.productId;
+  const p = PRODS.find(x => Number(x.id) === Number(pid));
+  const brand = p?.brand || coupon.brand || coupon.brandName || '';
   const dl = DEEP_LINKS[brand];
 
   document.getElementById('oc-title').textContent = coupon.productName || coupon.name;
@@ -2078,13 +2079,7 @@ async function openDetail(pid) {
   document.getElementById('detail-notice').innerHTML = '⚠️ 유의사항<br/>'+(p.notice||'').replace(/\n/g,'<br/>');
   document.getElementById('detail-table').innerHTML = `<tr><td>브랜드</td><td>${p.brand}</td></tr><tr><td>카테고리</td><td>${p.cat}</td></tr><tr><td>정상가</td><td>${p.ori.toLocaleString()}원</td></tr><tr><td>할인가</td><td style="color:var(--red);font-weight:700">${p.dis.toLocaleString()}원 (${p.rate}%↓)</td></tr><tr><td>유효기간</td><td>발급 후 30일</td></tr>`;
   updateDetailHeart();
-  const ab = document.getElementById('detail-apply-btn');
-  const p_issued = p._issued || false;
-  const p_used = p._used || false;
-  if (p.remaining <= 0) { ab.textContent = '선착순 마감'; ab.disabled = true; ab.style.background=''; }
-  else if (p_used) { ab.textContent = '✓ 쿠폰 사용 완료'; ab.disabled = true; ab.style.background='var(--bg)'; ab.style.color='var(--t4)'; }
-  else if (p_issued) { ab.textContent = '🎫 쿠폰 사용하기'; ab.disabled = false; ab.style.background=''; ab.style.color=''; ab.onclick = () => openPayFromIssued(p.id); }
-  else { ab.textContent = '바로 할인 받기'; ab.disabled = false; ab.style.background=''; ab.style.color=''; ab.onclick = applyFromDetail; }
+  updateDetailBtn(p);
   document.getElementById('detail-page').classList.add('on');
   document.getElementById('detail-page').scrollTop = 0;
   history.pushState({ detail: pid }, '');
@@ -2114,6 +2109,16 @@ async function openDetail(pid) {
   });
   observer.observe(document.getElementById('detail-page'), { attributes: true });
 }
+function updateDetailBtn(p) {
+  if (!p) return;
+  const ab = document.getElementById('detail-apply-btn');
+  if (!ab) return;
+  if (p.remaining <= 0) { ab.textContent = '선착순 마감'; ab.disabled = true; ab.style.background=''; ab.style.color=''; }
+  else if (p._used) { ab.textContent = '✓ 쿠폰 사용 완료'; ab.disabled = true; ab.style.background='var(--bg)'; ab.style.color='var(--t4)'; }
+  else if (p._issued) { ab.textContent = '🎫 쿠폰 사용하기'; ab.disabled = false; ab.style.background=''; ab.style.color=''; ab.onclick = () => openPayFromIssued(p.id); }
+  else { ab.textContent = '바로 할인 받기'; ab.disabled = false; ab.style.background=''; ab.style.color=''; ab.onclick = applyFromDetail; }
+}
+
 function closeDetail() { document.getElementById('detail-page').classList.remove('on'); }
 function applyFromDetail() { if(curPid) apply(curPid); }
 
@@ -2269,8 +2274,8 @@ function showR(ok, r) {
   const btnmy = document.getElementById('btnmypage');
   if (ok) {
     btnmy.style.display = 'block';
-    btnmy.textContent = '🎫 쿠폰함에 보관하기';
-    btnmy.onclick = () => { closeS(1); };
+    btnmy.textContent = '🎫 쿠폰함 바로가기';
+    btnmy.onclick = () => { closeS(1); closeDetail(); setTimeout(() => goTab(2), 150); };
   }
 
   const btnpay = document.getElementById('btntopay');
@@ -2385,7 +2390,16 @@ async function finPay() {
         <div class="di-row"><span class="l">결제 시각</span><span class="v">${new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})}</span></div>`;
       openS(3); cur=null;
     }, 230);
+    // 즉시 상태 업데이트 (화면 갱신 기다리지 않고 바로)
+    if (curPid) {
+      const pp = PRODS.find(x => Number(x.id) === Number(curPid));
+      if (pp) { pp._used = true; pp._issued = false; }
+    }
     await loadProducts();
+    if (document.getElementById('detail-page').classList.contains('on')) {
+      updateDetailBtn(PRODS.find(x => Number(x.id) === Number(curPid)));
+    }
+    if (document.getElementById('pg2').style.display === 'block') loadMyCoupons();
     updateNotifBadge();
   } else { toast(res.message,'err'); }
   btn.innerHTML='결제하기'; btn.disabled=false;
