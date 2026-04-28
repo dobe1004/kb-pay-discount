@@ -177,7 +177,7 @@ img{display:block}
 .sold-tag{background:var(--t2);color:#fff;font-size:14px;font-weight:800;padding:8px 22px;border-radius:var(--rs);letter-spacing:2px}
 
 /* ─── 상세 페이지 ─── */
-.detail-page{position:fixed;inset:0;z-index:300;background:#fff;transform:translateX(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);overflow-y:auto}
+.detail-page{position:fixed;inset:0;z-index:300;background:#ffffff !important;transform:translateX(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);overflow-y:auto}
 .detail-page.on{transform:translateX(0)}
 .detail-hd{background:#fff;height:52px;display:flex;align-items:center;gap:8px;padding:0 16px;position:sticky;top:0;z-index:10;border-bottom:1px solid var(--bd)}
 .detail-back{background:none;border:none;font-size:22px;cursor:pointer;padding:0;line-height:1}
@@ -578,9 +578,12 @@ select.admin-form-input{cursor:pointer}
   <!-- 관리자 바 -->
   <div class="admin-bar" id="admin-bar" style="display:none">
     <div class="admin-bar-label">⚙️ 관리자 모드</div>
-    <div style="display:flex;gap:6px">
-      <button class="admin-add-btn" onclick="openAdminAdd()">+ 상품 추가</button>
-      <button class="admin-add-btn" style="background:var(--pur,#7c3aed)" onclick="openNoticeEdit()">📢 공지 편집</button>
+    <div style="position:relative">
+      <button class="admin-add-btn" onclick="toggleAdminMenu()" id="admin-menu-btn">✏️ 편집 ▾</button>
+      <div id="admin-dropdown" style="display:none;position:absolute;right:0;top:36px;background:#fff;border:1px solid var(--bd);border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:999;min-width:130px;overflow:hidden">
+        <button onclick="toggleAdminMenu();openAdminAdd()" style="display:block;width:100%;padding:11px 16px;text-align:left;background:none;border:none;font-size:13px;cursor:pointer;font-family:inherit;border-bottom:1px solid var(--bd2)">📦 상품 추가</button>
+        <button onclick="toggleAdminMenu();openNoticeEdit()" style="display:block;width:100%;padding:11px 16px;text-align:left;background:none;border:none;font-size:13px;cursor:pointer;font-family:inherit">📢 공지사항 편집</button>
+      </div>
     </div>
   </div>
   <!-- 검색 -->
@@ -1316,6 +1319,19 @@ function initNbarMarquee() {
   el.innerHTML = items + '&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;' + items;
 }
 
+function toggleAdminMenu() {
+  const d = document.getElementById('admin-dropdown');
+  if (d) d.style.display = d.style.display === 'none' ? 'block' : 'none';
+}
+// 다른 곳 클릭 시 드롭다운 닫기
+document.addEventListener('click', e => {
+  const btn = document.getElementById('admin-menu-btn');
+  const dd = document.getElementById('admin-dropdown');
+  if (dd && btn && !btn.contains(e.target) && !dd.contains(e.target)) {
+    dd.style.display = 'none';
+  }
+});
+
 function openNoticeEdit() {
   openNoticePage(); // 공지사항 페이지 열기 (편집버튼 포함)
 }
@@ -1632,7 +1648,7 @@ async function checkIssuedStatus() {
 
 // 발급된 쿠폰으로 바코드 시트 열기
 // 온라인 전용 브랜드
-const ONLINE_BRANDS = ['COUPANG EATS', 'BAEMIN', 'YOGIYO', 'MUSINSA'];
+const ONLINE_BRANDS = ['COUPANG EATS', 'BAEMIN', 'YANOLJA', 'MUSINSA'];
 const isOnlineBrand = (brand) => ONLINE_BRANDS.includes(brand);
 
 // 발급된 쿠폰으로 사용 (온라인/오프라인 분기)
@@ -1666,7 +1682,7 @@ async function openPayFromIssued(pid) {
 const HOW_TO_USE = {
   'COUPANG EATS': '① 코드 복사 → ② 쿠팡이츠 앱 실행 → ③ 주문 결제 화면에서 쿠폰 코드 입력',
   'BAEMIN': '① 코드 복사 → ② 배달의민족 앱 실행 → ③ 결제 시 쿠폰/포인트에서 코드 입력',
-  'YOGIYO': '① 코드 복사 → ② 요기요 앱 실행 → ③ 주문 결제 화면에서 쿠폰 코드 입력',
+  'YANOLJA': '① 코드 복사 → ② NOL(야놀자) 앱 실행 → ③ MY NOL > 프로모션 코드 등록에서 코드 입력',
   'MUSINSA': '① 코드 복사 → ② 무신사 앱/웹 실행 → ③ 장바구니 쿠폰 적용에서 코드 입력',
 };
 
@@ -1688,13 +1704,13 @@ const DEEP_LINKS = {
     store_ios: 'https://apps.apple.com/kr/app/id378084485',
     web: 'https://www.baemin.com',
   },
-  'YOGIYO': {
-    label: '🍜 요기요',
-    scheme_aos: 'yogiyo://main',
-    scheme_ios: 'yogiyo://',
-    store_aos: 'https://play.google.com/store/apps/details?id=com.fineapp.yogiyo',
-    store_ios: 'https://apps.apple.com/kr/app/id543831532',
-    web: 'https://www.yogiyo.co.kr',
+  'YANOLJA': {
+    label: '🏨 야놀자',
+    scheme_aos: 'https://play.google.com/store/apps/details?id=com.cultsotry.yanolja.nativeapp',
+    scheme_ios: 'https://apps.apple.com/kr/app/id436731843',
+    store_aos: 'https://play.google.com/store/apps/details?id=com.cultsotry.yanolja.nativeapp',
+    store_ios: 'https://apps.apple.com/kr/app/id436731843',
+    web: 'https://nol.yanolja.com',
   },
   'MUSINSA': {
     label: '👗 무신사',
@@ -1815,7 +1831,8 @@ function openBarcodeSheet(coupon) {
   // 버튼 초기화
   const btn = document.getElementById('bc-confirm-btn');
   btn.textContent = '✅ 매장 확인 완료 — 결제하기';
-  btn.style.background = 'var(--grn)';
+  btn.style.background = 'var(--y)';
+  btn.style.color = '#111';
   btn.disabled = false;
   btn.onclick = confirmBarcodeUse;
   document.getElementById('bc-svg').style.opacity = '1';
@@ -1854,7 +1871,8 @@ function startBcTimer() {
         document.getElementById('bc-svg').style.opacity = '1';
         generateBarcode(cur.couponCode || cur.code);
         btn.textContent = '✅ 매장 확인 완료 — 결제하기';
-        btn.style.background = 'var(--grn)';
+        btn.style.background = 'var(--y)';
+        btn.style.color = '#111';
         btn.onclick = confirmBarcodeUse;
         startBcTimer();
       };
