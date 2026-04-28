@@ -1685,9 +1685,10 @@ async function openPayFromIssued(pid) {
 
 /* ══ 온라인 쿠폰 시트 ══ */
 const HOW_TO_USE = {
-  'COUPANG EATS': '① 코드 복사 → ② 쿠팡이츠 앱 실행 → ③ 주문 결제 화면에서 쿠폰 코드 입력',
-  'BAEMIN': '① 코드 복사 → ② 배달의민족 앱 실행 → ③ 결제 시 쿠폰/포인트에서 코드 입력',
-  'COUPANG': '① 코드 복사 → ② 쿠팡 앱 실행 → ③ 마이쿠팡 > 쿠폰함에서 코드 입력',
+  'COUPANG EATS': '① 코드 복사 → ② 쿠팡이츠 앱 실행 → ③ 결제 화면 쿠폰 코드 입력 (1만원 이상 주문 시 최대 5천원 할인)',
+  'BAEMIN': '① 코드 복사 → ② 배달의민족 앱 실행 → ③ 결제 시 쿠폰/포인트에서 코드 입력 (1.5만원 이상 주문 시 최대 7,500원 할인)',
+  'COUPANG': '① 코드 복사 → ② 쿠팡 앱 실행 → ③ 결제 화면에서 쿠폰 코드 입력 (3만원 이상 로켓배송 구매 시 2천원 할인)',
+  'MUSINSA': '① 코드 복사 → ② 무신사 앱/웹 실행 → ③ 장바구니 쿠폰 적용에서 코드 입력 (5만원 이상 구매 시 2만원 할인)',
   'MUSINSA': '① 코드 복사 → ② 무신사 앱/웹 실행 → ③ 장바구니 쿠폰 적용에서 코드 입력',
 };
 
@@ -2434,7 +2435,7 @@ function renderCpnList(mine, idx) {
   let list=mine;
   if(idx===1) list=mine.filter(c=>c.status==='ISSUED');
   if(idx===2) list=mine.filter(c=>c.status==='USED');
-  if(!list.length) return `<div class="empty"><div class="emo">🎫</div><p>${idx===1?'사용 가능한':'사용 완료된'} 쿠폰이 없어요</p>${idx!==2?`<button class="empty-btn" onclick="goTab(0)">🔥 핫딜 보러가기</button>`:''}</div>`;
+  if(!list.length) return `<div class="empty"><div class="emo">🎫</div><p>${idx===0?'표시할 내용이 없어요':idx===1?'사용 가능한 쿠폰이 없어요':'사용 완료된 쿠폰이 없어요'}</p>${idx!==2?`<button class="empty-btn" onclick="goTab(0)">🔥 핫딜 보러가기</button>`:''}</div>`;
   return list.map(c => {
     const exp=c.expiredAt?c.expiredAt.slice(0,10):'';
     const daysLeft = exp ? Math.ceil((new Date(exp)-new Date())/(1000*60*60*24)) : 999;
