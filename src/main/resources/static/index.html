@@ -177,7 +177,7 @@ img{display:block}
 .sold-tag{background:var(--t2);color:#fff;font-size:14px;font-weight:800;padding:8px 22px;border-radius:var(--rs);letter-spacing:2px}
 
 /* ─── 상세 페이지 ─── */
-.detail-page{position:fixed;inset:0;z-index:300;background:var(--bg);transform:translateX(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);overflow-y:auto}
+.detail-page{position:fixed;inset:0;z-index:300;background:#fff;transform:translateX(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);overflow-y:auto}
 .detail-page.on{transform:translateX(0)}
 .detail-hd{background:#fff;height:52px;display:flex;align-items:center;gap:8px;padding:0 16px;position:sticky;top:0;z-index:10;border-bottom:1px solid var(--bd)}
 .detail-back{background:none;border:none;font-size:22px;cursor:pointer;padding:0;line-height:1}
@@ -577,8 +577,11 @@ select.admin-form-input{cursor:pointer}
   </div>
   <!-- 관리자 바 -->
   <div class="admin-bar" id="admin-bar" style="display:none">
-    <div class="admin-bar-label">⚙️ 관리자 모드 — 상품을 편집할 수 있습니다</div>
-    <button class="admin-add-btn" onclick="openAdminAdd()">+ 상품 추가</button>
+    <div class="admin-bar-label">⚙️ 관리자 모드</div>
+    <div style="display:flex;gap:6px">
+      <button class="admin-add-btn" onclick="openAdminAdd()">+ 상품 추가</button>
+      <button class="admin-add-btn" style="background:var(--pur,#7c3aed)" onclick="openNoticeEdit()">📢 공지 편집</button>
+    </div>
   </div>
   <!-- 검색 -->
   <div class="search-wrap">
@@ -1030,7 +1033,7 @@ select.admin-form-input{cursor:pointer}
 </div>
 
 <!-- ══ 맨위로 버튼 ══ -->
-<button id="scroll-top-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" style="display:none;position:fixed;bottom:80px;right:16px;z-index:190;width:40px;height:40px;border-radius:50%;background:var(--y);border:none;box-shadow:0 2px 8px rgba(0,0,0,.2);cursor:pointer;font-size:16px;align-items:center;justify-content:center">↑</button>
+<button id="scroll-top-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" style="display:none;position:fixed;bottom:80px;right:16px;z-index:190;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.92);border:1.5px solid rgba(0,0,0,.10);box-shadow:0 2px 10px rgba(0,0,0,.15);cursor:pointer;font-size:20px;font-weight:900;color:#333;align-items:center;justify-content:center;line-height:1">↑</button>
 
 <!-- ══ 하단 네비 (5탭) ══ -->
 <nav class="bnav">
@@ -1235,7 +1238,7 @@ function doLogout() {
 }
 
 /* ══ 탭 ══ */
-function goTab(n) {
+function goTab(n, preserveScroll) {
   const needLogin = [1,2,3,4];
   const msgs = {
     1:['❤️ 찜','찜 목록 확인을 위해 로그인해 주세요'],
@@ -1249,8 +1252,8 @@ function goTab(n) {
     document.getElementById(`pg${i}`).style.display = i === n ? 'block' : 'none';
     document.getElementById(`bn${i}`).classList.toggle('on', i === n);
   }
-  // 탭 전환 시 스크롤 맨 위로
-  window.scrollTo(0, 0);
+  // 버튼 클릭 이동 시 맨위로, 뒤로가기(preserveScroll=true)는 유지
+  if (!preserveScroll) window.scrollTo(0, 0);
   if (n !== 0) history.pushState({ tab: n }, '');
   if (n === 1) renderWish();
   if (n === 2) loadMyCoupons();
@@ -1311,6 +1314,10 @@ function initNbarMarquee() {
     .join('&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;');
   // 끊김 방지 2회 반복
   el.innerHTML = items + '&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;' + items;
+}
+
+function openNoticeEdit() {
+  openNoticePage(); // 공지사항 페이지 열기 (편집버튼 포함)
 }
 
 let editingNoticeId = null;
@@ -1683,7 +1690,7 @@ const DEEP_LINKS = {
   },
   'YOGIYO': {
     label: '🍜 요기요',
-    scheme_aos: 'intent://home#Intent;scheme=yogiyo;package=com.fineapp.yogiyo;S.browser_fallback_url=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dcom.fineapp.yogiyo;end',
+    scheme_aos: 'yogiyo://main',
     scheme_ios: 'yogiyo://',
     store_aos: 'https://play.google.com/store/apps/details?id=com.fineapp.yogiyo',
     store_ios: 'https://apps.apple.com/kr/app/id543831532',
@@ -2055,6 +2062,7 @@ async function openDetail(pid) {
   else if (p_issued) { ab.textContent = '🎫 쿠폰 사용하기'; ab.disabled = false; ab.style.background=''; ab.style.color=''; ab.onclick = () => openPayFromIssued(p.id); }
   else { ab.textContent = '바로 할인 받기'; ab.disabled = false; ab.style.background=''; ab.style.color=''; ab.onclick = applyFromDetail; }
   document.getElementById('detail-page').classList.add('on');
+  document.getElementById('detail-page').scrollTop = 0;
   history.pushState({ detail: pid }, '');
   const sn = document.getElementById('share-prod-name'); if(sn) sn.textContent = p.name;
   // 리뷰 로드
@@ -2066,11 +2074,21 @@ async function openDetail(pid) {
   document.getElementById('store-sido').value = '';
   // 온라인 전용이면 매장 섹션 숨김
   document.getElementById('store-sec').style.display = isOnlineBrand(p.brand) ? 'none' : 'block';
-  // 타이머
-  let secs = p.timer||86400;
+  // 타이머 - ptIvs 공유로 초기화 방지
   const dtv = document.getElementById('detail-timer-val');
-  const dtick = () => { if(dtv) dtv.textContent = fmtTimer(secs); secs--; };
-  dtick(); const iv = setInterval(()=>{ if(!document.getElementById('detail-page').classList.contains('on')){clearInterval(iv);return;} dtick(); },1000);
+  if (dtv) dtv.textContent = fmtTimer(ptIvs[pid] || p.timer || 86400);
+  const dtick = () => {
+    if (!document.getElementById('detail-page').classList.contains('on')) return;
+    if (dtv) dtv.textContent = fmtTimer(ptIvs[pid] || 0);
+  };
+  const iv = setInterval(dtick, 1000);
+  // 페이지 닫히면 인터벌 정리
+  const observer = new MutationObserver(() => {
+    if (!document.getElementById('detail-page').classList.contains('on')) {
+      clearInterval(iv); observer.disconnect();
+    }
+  });
+  observer.observe(document.getElementById('detail-page'), { attributes: true });
 }
 function closeDetail() { document.getElementById('detail-page').classList.remove('on'); }
 function applyFromDetail() { if(curPid) apply(curPid); }
@@ -2575,12 +2593,36 @@ function openGift(code, name) {
   cur = { couponCode:code, name }; document.getElementById('s6sub').textContent=name;
   document.getElementById('gift-to').value=''; document.getElementById('gift-msg').value=''; openS(6);
 }
-/* ══ 맨위로 버튼 ══ */
-window.addEventListener('scroll', () => {
+/* ══ 맨위로 버튼 - 모든 화면 ══ */
+function updateScrollBtn() {
   const btn = document.getElementById('scroll-top-btn');
   if (!btn) return;
-  btn.style.display = window.scrollY > 300 ? 'flex' : 'none';
+  const mainScroll = window.scrollY > 100;
+  const detailPages = ['detail-page','notice-page','notif-page','gift-box-page'];
+  const pageScroll = detailPages.some(id => {
+    const el = document.getElementById(id);
+    return el && el.classList.contains('on') && el.scrollTop > 100;
+  });
+  btn.style.display = (mainScroll || pageScroll) ? 'flex' : 'none';
+}
+window.addEventListener('scroll', updateScrollBtn);
+['detail-page','notice-page','notif-page','gift-box-page'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('scroll', updateScrollBtn);
 });
+
+document.getElementById('scroll-top-btn').onclick = () => {
+  const detailPages = ['detail-page','notice-page','notif-page','gift-box-page'];
+  const activePage = detailPages.find(id => {
+    const el = document.getElementById(id);
+    return el && el.classList.contains('on');
+  });
+  if (activePage) {
+    document.getElementById(activePage).scrollTo({top:0, behavior:'smooth'});
+  } else {
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+};
 
 /* ══ 선물하기 시트 ══ */
 function openGiftSend() {
@@ -3080,7 +3122,7 @@ window.addEventListener('popstate',()=>{
   if(openSheets.length>0){closeS(openSheets[openSheets.length-1]);return;}
   if(document.getElementById('notif-page').classList.contains('on')){closeNotifPage();return;}
   if(document.getElementById('detail-page').classList.contains('on')){closeDetail();return;}
-  if(currentTab!==0)goTab(0);
+  if(currentTab!==0) goTab(0, true); // 뒤로가기: 스크롤 위치 유지
 });
 
 /* ══ 토스트/유틸 ══ */
