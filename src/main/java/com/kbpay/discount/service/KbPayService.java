@@ -99,6 +99,8 @@ public class KbPayService {
             DiscountCoupon coupon = DiscountCoupon.builder()
                 .userId(req.getUserId()).product(p).couponCode(code)
                 .discountAmount(p.getOriginalPrice() - p.getDiscountedPrice())
+                .expiredAt(LocalDateTime.now().plusDays(
+                    p.getValidDays() != null ? p.getValidDays() : 30))
                 .status(DiscountCoupon.CouponStatus.ISSUED).build();
             couponRepo.save(coupon);
 
