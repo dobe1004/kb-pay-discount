@@ -34,6 +34,7 @@ public class DiscountCoupon {
     public void prePersist() {
         this.issuedAt = LocalDateTime.now();
         if (this.status == null) this.status = CouponStatus.ISSUED;
+        // expiredAt은 서비스에서 product.validDays 기준으로 설정
         if (this.expiredAt == null) this.expiredAt = LocalDateTime.now().plusDays(30);
     }
 
