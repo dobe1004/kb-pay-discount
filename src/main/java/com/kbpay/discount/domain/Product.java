@@ -26,12 +26,14 @@ public class Product {
     private Double rating;
     private Integer reviewCount;
     private Boolean isActive;
+    private Integer validDays; // 쿠폰 유효기간 (일)
     private LocalDateTime createdAt;
 
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
         if (this.isActive == null) this.isActive = true;
+        if (this.validDays == null) this.validDays = 30;
         if (this.buyers == null) this.buyers = 0;
         if (this.rating == null) this.rating = 4.5;
         if (this.reviewCount == null) this.reviewCount = 0;
