@@ -813,13 +813,36 @@ select.admin-form-input{cursor:pointer}
       </div>
       <div class="share-label">텍스트 복사</div>
     </div>
+    <div class="share-item" onclick="doShare('qr')">
+      <div class="share-ico" style="background:#f5f0ff">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="5" y="5" width="3" height="3" fill="#7c3aed" stroke="none"/><rect x="16" y="5" width="3" height="3" fill="#7c3aed" stroke="none"/><rect x="5" y="16" width="3" height="3" fill="#7c3aed" stroke="none"/><line x1="14" y1="14" x2="14" y2="14" stroke-width="3"/><line x1="17" y1="14" x2="17" y2="14" stroke-width="3"/><line x1="20" y1="14" x2="20" y2="14" stroke-width="3"/><line x1="14" y1="17" x2="14" y2="17" stroke-width="3"/><line x1="17" y1="17" x2="20" y2="17" stroke-width="3"/><line x1="20" y1="20" x2="20" y2="20" stroke-width="3"/><line x1="17" y1="20" x2="17" y2="20" stroke-width="3"/><line x1="14" y1="20" x2="14" y2="20" stroke-width="3"/></svg>
+      </div>
+      <div class="share-label">QR 코드</div>
+    </div>
+    <div class="share-item" onclick="doShare('qr')">
+      <div class="share-ico" style="background:#f5f0ff">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="3" height="3"/><rect x="18" y="14" width="3" height="3"/><rect x="14" y="18" width="3" height="3"/><rect x="18" y="18" width="3" height="3"/></svg>
+      </div>
+      <div class="share-label">QR코드</div>
+    </div>
   </div>
   <div style="background:var(--y-lt);border-radius:var(--rs);padding:10px 12px;font-size:11px;color:#7A5000;line-height:1.6;margin-bottom:14px">
-    💡 <b>공유하기</b> 버튼을 누르면 폰의 공유 메뉴가 열립니다.<br/>
+    💡 <b>공유하기</b> 버튼을 누르면 공유 메뉴가 열립니다.<br/>
     공유 메뉴에서 원하시는 공유 방법을 선택하세요!
   </div>
   <button class="btn-line" onclick="closeS(7)">닫기</button>
 </div>
+<!-- ══ QR코드 팝업 ══ -->
+<div id="qr-popup-bk" style="display:none;position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.6);align-items:center;justify-content:center" onclick="closeQrPopup()">
+  <div onclick="event.stopPropagation()" style="background:#fff;border-radius:20px;padding:28px 24px;text-align:center;max-width:300px;width:90%">
+    <div style="font-size:15px;font-weight:800;margin-bottom:4px">📱 QR코드</div>
+    <div id="qr-popup-name" style="font-size:12px;color:var(--t3);margin-bottom:16px"></div>
+    <img id="qr-img" src="" style="width:200px;height:200px;border-radius:8px;border:1px solid var(--bd)" alt="QR코드"/>
+    <div style="font-size:11px;color:var(--t4);margin-top:10px;margin-bottom:16px">카메라로 스캔하면 상품 상세로 이동합니다</div>
+    <button onclick="closeQrPopup()" class="btn-main" style="margin-bottom:0">닫기</button>
+  </div>
+</div>
+
 <!-- 시트8: 리뷰 작성 -->
 <div class="bk" id="bk8" onclick="closeS(8)"></div>
 <div class="bs" id="s8">
@@ -843,6 +866,7 @@ select.admin-form-input{cursor:pointer}
     <div class="admin-form-row"><div class="admin-form-label">정가 (원) *</div><input class="admin-form-input" id="af-ori" type="number" placeholder="30000"/></div>
     <div class="admin-form-row"><div class="admin-form-label">할인가 (원) *</div><input class="admin-form-input" id="af-dis" type="number" placeholder="18000"/></div>
     <div class="admin-form-row"><div class="admin-form-label">총 수량 *</div><input class="admin-form-input" id="af-total" type="number" placeholder="100"/></div>
+    <div class="admin-form-row"><div class="admin-form-label">유효기간 (일) *</div><input class="admin-form-input" id="af-valid" type="number" placeholder="30"/></div>
     <div class="admin-form-row"><div class="admin-form-label">배지</div>
       <select class="admin-form-input" id="af-badge"><option value="hot">🔥 HOT</option><option value="new">✨ NEW</option><option value="end">⏰ 마감임박</option><option value="best">👑 BEST</option></select></div>
   </div>
@@ -891,10 +915,21 @@ select.admin-form-input{cursor:pointer}
   <div id="gift-box-list" style="padding:8px 0"></div>
 </div>
 
+<!-- ══ QR 코드 팝업 ══ -->
+<div id="qr-popup-bk" style="display:none;position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.6);align-items:center;justify-content:center" onclick="closeQrPopup()">
+  <div onclick="event.stopPropagation()" style="background:#fff;border-radius:20px;padding:28px 24px;width:280px;text-align:center">
+    <div style="font-size:15px;font-weight:800;margin-bottom:4px">QR 코드</div>
+    <div id="qr-popup-name" style="font-size:12px;color:var(--t3);margin-bottom:16px"></div>
+    <div id="qr-popup-img" style="margin:0 auto 16px;width:200px;height:200px"></div>
+    <div style="font-size:11px;color:var(--t4);margin-bottom:16px">QR코드를 스캔하면 상품 상세페이지로 이동합니다</div>
+    <button onclick="closeQrPopup()" class="btn-main" style="margin-bottom:0">닫기</button>
+  </div>
+</div>
+
 <!-- ══ 공지 편집 팝업 (admin) ══ -->
 <div id="notice-edit-bk" style="display:none;position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.5);align-items:center;justify-content:center;padding:24px" onclick="closeNoticeEdit()">
   <div onclick="event.stopPropagation()" style="background:#fff;border-radius:20px;padding:24px;width:100%;max-width:380px">
-    <div style="font-size:16px;font-weight:800;margin-bottom:16px">📢 공지사항 편집</div>
+    <div style="font-size:16px;font-weight:800;margin-bottom:16px" id="ne-popup-title">📢 공지사항 편집</div>
     <input id="ne-title" placeholder="제목" style="width:100%;padding:10px;border:1.5px solid var(--bd);border-radius:var(--rs);font-family:inherit;font-size:14px;box-sizing:border-box;margin-bottom:8px;outline:none"/>
     <textarea id="ne-content" placeholder="내용" style="width:100%;padding:10px;border:1.5px solid var(--bd);border-radius:var(--rs);font-family:inherit;font-size:13px;box-sizing:border-box;resize:none;height:100px;margin-bottom:8px;outline:none"></textarea>
     <select id="ne-type" style="width:100%;padding:10px;border:1.5px solid var(--bd);border-radius:var(--rs);font-family:inherit;font-size:13px;box-sizing:border-box;margin-bottom:16px;background:#fff">
@@ -902,10 +937,11 @@ select.admin-form-input{cursor:pointer}
       <option value="event">이벤트</option>
       <option value="urgent">중요</option>
     </select>
-    <div style="display:flex;gap:8px">
+    <div style="display:flex;gap:8px;margin-bottom:8px">
       <button onclick="saveNoticeEdit()" class="btn-main" style="flex:1;margin-bottom:0">저장</button>
       <button onclick="closeNoticeEdit()" class="btn-line" style="flex:1;margin-bottom:0">취소</button>
     </div>
+    <button id="ne-delete-btn" onclick="deleteNotice()" style="display:none;width:100%;padding:11px;border:1.5px solid var(--red);border-radius:var(--rs);background:var(--red-lt);color:var(--red);font-family:inherit;font-size:14px;font-weight:700;cursor:pointer">🗑️ 이 공지 삭제</button>
   </div>
 </div>
 
@@ -913,7 +949,10 @@ select.admin-form-input{cursor:pointer}
 <div id="notice-page" style="display:none;position:fixed;inset:0;z-index:400;background:#ffffff;overflow-y:auto">
   <div class="detail-hd" style="position:sticky;top:0;background:#fff;z-index:1">
     <span class="detail-hd-title" style="margin-left:16px">📢 공지사항</span>
-    <button onclick="closeNoticePage()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--t3);padding:8px;line-height:1">✕</button>
+    <div style="display:flex;align-items:center;gap:6px">
+      <span id="notice-add-btn" style="display:none"><button onclick="addNotice()" style="font-size:11px;padding:4px 10px;border-radius:8px;background:var(--y-lt);color:#a07000;border:1px solid var(--y-md,#f5c842);cursor:pointer;font-family:inherit;font-weight:700">+ 추가</button></span>
+      <button onclick="closeNoticePage()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--t3);padding:8px;line-height:1">✕</button>
+    </div>
   </div>
   <div id="notice-list" style="padding:8px 0"></div>
 </div>
@@ -1345,35 +1384,66 @@ document.addEventListener('click', e => {
   }
 });
 
+function closeQrPopup() {
+  document.getElementById('qr-popup-bk').style.display = 'none';
+}
+
 function openNoticeEdit() {
   openNoticePage(); // 공지사항 페이지 열기 (편집버튼 포함)
 }
 
 let editingNoticeId = null;
+function addNotice() {
+  editingNoticeId = null;
+  document.getElementById('ne-popup-title').textContent = '📢 공지사항 추가';
+  document.getElementById('ne-title').value = '';
+  document.getElementById('ne-content').value = '';
+  document.getElementById('ne-type').value = 'notice';
+  document.getElementById('ne-delete-btn').style.display = 'none';
+  document.getElementById('notice-edit-bk').style.display = 'flex';
+}
 function editNotice(id) {
   const n = NOTICES.find(x => x.id === id);
   if (!n) return;
   editingNoticeId = id;
+  document.getElementById('ne-popup-title').textContent = '📢 공지사항 편집';
   document.getElementById('ne-title').value = n.title;
   document.getElementById('ne-content').value = n.content;
   document.getElementById('ne-type').value = n.type;
-  const bk = document.getElementById('notice-edit-bk');
-  bk.style.display = 'flex';
+  document.getElementById('ne-delete-btn').style.display = 'block';
+  document.getElementById('notice-edit-bk').style.display = 'flex';
 }
 function closeNoticeEdit() {
   document.getElementById('notice-edit-bk').style.display = 'none';
   editingNoticeId = null;
 }
 function saveNoticeEdit() {
+  const title = document.getElementById('ne-title').value.trim();
+  const content = document.getElementById('ne-content').value.trim();
+  const type = document.getElementById('ne-type').value;
+  if (!title) { toast('제목을 입력해주세요.', 'err'); return; }
+  const today = new Date().toISOString().slice(0,10).replace(/-/g,'.');
+  if (editingNoticeId) {
+    const n = NOTICES.find(x => x.id === editingNoticeId);
+    if (n) { n.title = title; n.content = content; n.type = type; }
+  } else {
+    const newId = Math.max(...NOTICES.map(x=>x.id), 0) + 1;
+    NOTICES.push({ id: newId, type, icon: type==='event'?'🔥':type==='urgent'?'🚨':'📢', title, content, date: today });
+  }
+  closeNoticeEdit();
+  openNoticePage();
+  toast(editingNoticeId ? '공지사항이 수정되었습니다.' : '공지사항이 추가되었습니다.', 'ok');
+}
+function deleteNotice() {
   if (!editingNoticeId) return;
   const n = NOTICES.find(x => x.id === editingNoticeId);
   if (!n) return;
-  n.title = document.getElementById('ne-title').value.trim();
-  n.content = document.getElementById('ne-content').value.trim();
-  n.type = document.getElementById('ne-type').value;
+  if (!confirm(`"${n.title}" 공지를 삭제하시겠어요?`)) return;
+  const idx = NOTICES.findIndex(x => x.id === editingNoticeId);
+  if (idx > -1) NOTICES.splice(idx, 1);
   closeNoticeEdit();
   openNoticePage();
-  toast('공지사항이 수정되었습니다.', 'ok');
+  toast('공지사항이 삭제되었습니다.', 'ok');
 }
 
 function openNoticePage(targetId) {
@@ -1410,6 +1480,9 @@ function openNoticePage(targetId) {
   document.getElementById('notice-page').style.display = 'block';
   document.getElementById('notice-page').scrollTop = 0;
   document.body.style.overflow = 'hidden';
+  // admin이면 추가 버튼 표시
+  const noticeAddBtn = document.getElementById('notice-add-btn');
+  if (noticeAddBtn) noticeAddBtn.style.display = isAdmin() ? 'inline' : 'none';
   history.pushState({notice:true}, '');
 
   // 특정 공지로 이동 + 자동 펼침
@@ -1637,6 +1710,7 @@ async function loadProducts() {
     img: p.imageUrl, cat: p.category,
     buyers: p.buyers||0, rating: p.rating||4.5, reviews: p.reviewCount||0,
     desc: p.description, notice: p.notice,
+    validDays: p.validDays || 30,
     timer: p.remainingCount <= 5 ? 3600*Math.floor(Math.random()*6+1)
          : p.badge === 'hot' ? 86400*(Math.floor(Math.random()*2+1))
          : 86400*(Math.floor(Math.random()*5+2)),
@@ -2088,7 +2162,7 @@ async function openDetail(pid) {
   document.getElementById('detail-rem-txt').textContent = `잔여 ${p.remaining}/${p.total}매`;
   document.getElementById('detail-desc').textContent = p.desc||'';
   document.getElementById('detail-notice').innerHTML = '⚠️ 유의사항<br/>'+(p.notice||'').replace(/\n/g,'<br/>');
-  document.getElementById('detail-table').innerHTML = `<tr><td>브랜드</td><td>${p.brand}</td></tr><tr><td>카테고리</td><td>${p.cat}</td></tr><tr><td>정상가</td><td>${p.ori.toLocaleString()}원</td></tr><tr><td>할인가</td><td style="color:var(--red);font-weight:700">${p.dis.toLocaleString()}원 (${p.rate}%↓)</td></tr><tr><td>유효기간</td><td>발급 후 30일</td></tr>`;
+  document.getElementById('detail-table').innerHTML = `<tr><td>브랜드</td><td>${p.brand}</td></tr><tr><td>카테고리</td><td>${p.cat}</td></tr><tr><td>정상가</td><td>${p.ori.toLocaleString()}원</td></tr><tr><td>할인가</td><td style="color:var(--red);font-weight:700">${p.dis.toLocaleString()}원 (${p.rate}%↓)</td></tr><tr><td>유효기간</td><td>발급 후 ${p.validDays||30}일</td></tr>`;
   updateDetailHeart();
   updateDetailBtn(p);
   document.getElementById('detail-page').classList.add('on');
@@ -2185,9 +2259,26 @@ function doShare(type) {
     copyShare(url);
     toast('링크가 복사되었습니다! 🔗', 'ok');
 
-  } else if (type === 'copy') {
+  } else if (type === 'qr') {
+    closeS(7);
+    const prodName = document.getElementById('share-prod-name')?.textContent || '';
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
+    document.getElementById('qr-popup-name').textContent = prodName;
+    document.getElementById('qr-popup-img').innerHTML = `<img src="${qrUrl}" style="width:200px;height:200px;border-radius:8px" alt="QR코드"/>`;
+    const bk = document.getElementById('qr-popup-bk');
+    bk.style.display = 'flex';
+    history.pushState({qr:true},'');
     copyShare(title + '\n' + text + '\n' + url);
     toast('텍스트가 복사되었습니다! 📋', 'ok');
+
+  } else if (type === 'qr') {
+    closeS(7);
+    const p = PRODS.find(x => Number(x.id) === Number(curPid));
+    const qrUrl = encodeURIComponent(window.location.href);
+    document.getElementById('qr-popup-name').textContent = p ? p.name : '';
+    document.getElementById('qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${qrUrl}`;
+    document.getElementById('qr-popup-bk').style.display = 'flex';
+    history.pushState({qr:true}, '');
   }
 }
 function copyShare(text) { if(navigator.clipboard?.writeText) navigator.clipboard.writeText(text).catch(()=>legacyCopy(text)); else legacyCopy(text); }
@@ -2741,7 +2832,7 @@ async function sendGift() {
 /* ══ 관리자: 상품 추가/편집/삭제 (API) ══ */
 function openAdminAdd() {
   document.getElementById('s9title').textContent='상품 추가';
-  ['af-name','af-brand','af-ori','af-dis','af-total','af-img','af-desc'].forEach(id=>document.getElementById(id).value='');
+  ['af-name','af-brand','af-ori','af-dis','af-total','af-valid','af-img','af-desc'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('af-edit-id').value=''; openS(9);
 }
 function openAdminEdit(pid) {
@@ -2753,6 +2844,7 @@ function openAdminEdit(pid) {
   document.getElementById('af-ori').value=p.ori;
   document.getElementById('af-dis').value=p.dis;
   document.getElementById('af-total').value=p.total;
+  document.getElementById('af-valid').value=p.validDays||30;
   document.getElementById('af-badge').value=p.badge;
   document.getElementById('af-img').value=p.img||'';
   document.getElementById('af-desc').value=p.desc||'';
@@ -2762,9 +2854,10 @@ async function saveAdminProduct() {
   const name=document.getElementById('af-name').value.trim(), brand=document.getElementById('af-brand').value.trim();
   const ori=parseInt(document.getElementById('af-ori').value)||0, dis=parseInt(document.getElementById('af-dis').value)||0;
   const total=parseInt(document.getElementById('af-total').value)||0;
+  const validDays=parseInt(document.getElementById('af-valid').value)||30;
   if(!name||!brand||!ori||!dis||!total){toast('필수 항목을 모두 입력해주세요.','err');return;}
   if(dis>=ori){toast('할인가는 정가보다 낮아야 합니다.','err');return;}
-  const body={productName:name,brandName:brand,category:document.getElementById('af-cat').value,originalPrice:ori,discountedPrice:dis,totalCount:total,badge:document.getElementById('af-badge').value,imageUrl:document.getElementById('af-img').value.trim(),description:document.getElementById('af-desc').value.trim(),notice:'• 자세한 이용 조건은 해당 매장에서 확인해주세요.'};
+  const body={productName:name,brandName:brand,category:document.getElementById('af-cat').value,originalPrice:ori,discountedPrice:dis,totalCount:total,badge:document.getElementById('af-badge').value,imageUrl:document.getElementById('af-img').value.trim(),description:document.getElementById('af-desc').value.trim(),notice:'• 자세한 이용 조건은 해당 매장에서 확인해주세요.',validDays:parseInt(document.getElementById('af-valid').value)||30};
   const editId=document.getElementById('af-edit-id').value;
   const res=editId ? await PUT(`/api/admin/products/${editId}`,body) : await POST('/api/admin/products',body);
   if(res.success){closeS(9);await loadProducts();toast(res.message,'ok');}else toast(res.message,'err');
@@ -3182,6 +3275,7 @@ window.addEventListener('popstate',()=>{
   if(document.getElementById('logout-sheet').classList.contains('on')){closeLogoutSheet();return;}
   if(document.getElementById('loginModal').classList.contains('on')){closeLogin();return;}
   if(document.getElementById('s11').classList.contains('on')){closeBarcodeSheet();return;}
+  if(document.getElementById('qr-popup-bk').style.display==='flex'){closeQrPopup();return;}
   if(document.getElementById('s-gift-send')?.classList.contains('on')){closeGiftSend();return;}
   if(document.getElementById('gift-msg-bk').style.display==='flex'){closeGiftMsg();return;}
   if(document.getElementById('gift-box-page').classList.contains('on')){closeGiftBox();return;}
