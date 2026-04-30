@@ -112,8 +112,8 @@ img{display:block}
 .ftab.on{background:#111;border-color:#111;color:#fff;font-weight:700}
 
 /* ─── 브랜드 그리드 3열 ─── */
-.brand-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:8px 14px}
-.bc{background:#fff;border-radius:14px;border:1px solid var(--bd);padding:14px 8px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;position:relative;transition:.12s;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.brand-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:8px 14px 80px;align-items:start}
+.bc{background:#fff;border-radius:14px;border:1px solid var(--bd);padding:14px 8px 12px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;position:relative;transition:.12s;box-shadow:0 1px 4px rgba(0,0,0,.06);box-sizing:border-box}
 .bc:active{transform:scale(.97);opacity:.9}
 .bc.done{opacity:.55}
 .bc-icon-wrap{width:64px;height:64px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:28px;position:relative;border:2px solid var(--bd)}
@@ -614,7 +614,7 @@ select.admin-form-input{cursor:pointer}
         <div class="benefit-amount" id="benefit-amount">0원</div>
       </div>
     </div>
-    <div class="benefit-card-row">
+    <div class="benefit-card-row" id="benefit-card-row">
       <div class="benefit-card-info">
         <svg width="20" height="14" viewBox="0 0 20 14" fill="none"><rect width="20" height="14" rx="3" fill="#333"/><rect x="0" y="4" width="20" height="3.5" fill="#FFD700" opacity=".8"/><rect x="2" y="9" width="5" height="1.5" rx=".75" fill="#fff" opacity=".5"/></svg>
         <span id="benefit-card-name" style="font-size:11px">내 연결카드 미니넥카드 7842</span>
@@ -871,15 +871,9 @@ select.admin-form-input{cursor:pointer}
     </div>
     <div class="share-item" onclick="doShare('qr')">
       <div class="share-ico" style="background:#f5f0ff">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="5" y="5" width="3" height="3" fill="#7c3aed" stroke="none"/><rect x="16" y="5" width="3" height="3" fill="#7c3aed" stroke="none"/><rect x="5" y="16" width="3" height="3" fill="#7c3aed" stroke="none"/><line x1="14" y1="14" x2="14" y2="14" stroke-width="3"/><line x1="17" y1="14" x2="17" y2="14" stroke-width="3"/><line x1="20" y1="14" x2="20" y2="14" stroke-width="3"/><line x1="14" y1="17" x2="14" y2="17" stroke-width="3"/><line x1="17" y1="17" x2="20" y2="17" stroke-width="3"/><line x1="20" y1="20" x2="20" y2="20" stroke-width="3"/><line x1="17" y1="20" x2="17" y2="20" stroke-width="3"/><line x1="14" y1="20" x2="14" y2="20" stroke-width="3"/></svg>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="5" y="5" width="3" height="3" fill="#7c3aed" stroke="none"/><rect x="16" y="5" width="3" height="3" fill="#7c3aed" stroke="none"/><rect x="5" y="16" width="3" height="3" fill="#7c3aed" stroke="none"/><rect x="14" y="14" width="3" height="3" fill="#7c3aed" stroke="none"/><rect x="18" y="14" width="3" height="3" fill="#7c3aed" stroke="none"/><rect x="14" y="18" width="3" height="3" fill="#7c3aed" stroke="none"/><rect x="18" y="18" width="3" height="3" fill="#7c3aed" stroke="none"/></svg>
       </div>
       <div class="share-label">QR 코드</div>
-    </div>
-    <div class="share-item" onclick="doShare('qr')">
-      <div class="share-ico" style="background:#f5f0ff">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="3" height="3"/><rect x="18" y="14" width="3" height="3"/><rect x="14" y="18" width="3" height="3"/><rect x="18" y="18" width="3" height="3"/></svg>
-      </div>
-      <div class="share-label">QR코드</div>
     </div>
   </div>
   <div style="background:var(--y-lt);border-radius:var(--rs);padding:10px 12px;font-size:11px;color:#7A5000;line-height:1.6;margin-bottom:14px">
@@ -972,15 +966,6 @@ select.admin-form-input{cursor:pointer}
 </div>
 
 <!-- ══ QR 코드 팝업 ══ -->
-<div id="qr-popup-bk" style="display:none;position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.6);align-items:center;justify-content:center" onclick="closeQrPopup()">
-  <div onclick="event.stopPropagation()" style="background:#fff;border-radius:20px;padding:28px 24px;width:280px;text-align:center">
-    <div style="font-size:15px;font-weight:800;margin-bottom:4px">QR 코드</div>
-    <div id="qr-popup-name" style="font-size:12px;color:var(--t3);margin-bottom:16px"></div>
-    <div id="qr-popup-img" style="margin:0 auto 16px;width:200px;height:200px"></div>
-    <div style="font-size:11px;color:var(--t4);margin-bottom:16px">QR코드를 스캔하면 상품 상세페이지로 이동합니다</div>
-    <button onclick="closeQrPopup()" class="btn-main" style="margin-bottom:0">닫기</button>
-  </div>
-</div>
 
 <!-- ══ 공지 편집 팝업 (admin) ══ -->
 <div id="notice-edit-bk" style="display:none;position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.5);align-items:center;justify-content:center;padding:24px" onclick="closeNoticeEdit()">
@@ -1145,6 +1130,9 @@ select.admin-form-input{cursor:pointer}
 
 <!-- ══ 맨위로 버튼 ══ -->
 <button id="scroll-top-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" style="display:none;position:fixed;bottom:80px;right:16px;z-index:190;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.92);border:1.5px solid rgba(0,0,0,.10);box-shadow:0 2px 10px rgba(0,0,0,.15);cursor:pointer;font-size:20px;font-weight:900;color:#333;align-items:center;justify-content:center;line-height:1">↑</button>
+<button id="share-float-btn" onclick="openShareFloat()" style="display:none;position:fixed;bottom:130px;right:16px;z-index:190;width:44px;height:44px;border-radius:50%;background:var(--y);border:none;box-shadow:0 2px 10px rgba(0,0,0,.2);cursor:pointer;align-items:center;justify-content:center">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="18" cy="5" r="3" fill="#333"/><circle cx="6" cy="12" r="3" fill="#333"/><circle cx="18" cy="19" r="3" fill="#333"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" stroke="#333" stroke-width="2"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" stroke="#333" stroke-width="2"/></svg>
+</button>
 
 <!-- ══ 하단 네비 (5탭) ══ -->
 <nav class="bnav">
@@ -1440,6 +1428,15 @@ document.addEventListener('click', e => {
     dd.style.display = 'none';
   }
 });
+
+function openShareFloat() {
+  // 현재 상품이 열려있으면 해당 상품 공유, 아니면 서비스 URL 공유
+  if (curPid) {
+    const p = PRODS.find(x=>Number(x.id)===Number(curPid));
+    if (p) { const sn=document.getElementById('share-prod-name'); if(sn) sn.textContent=p.name; }
+  }
+  openS(7);
+}
 
 function closeQrPopup() {
   document.getElementById('qr-popup-bk').style.display = 'none';
@@ -1759,13 +1756,31 @@ function setFilterTab(tab, el) {
   render();
 }
 function updateBenefitBox() {
-  if (!uid) { document.getElementById('benefit-amount').textContent = '0원'; return; }
+  const amtEl = document.getElementById('benefit-amount');
+  const cardRow = document.getElementById('benefit-card-row');
+  const cardName = document.getElementById('benefit-card-name');
+  if (!uid) {
+    if (amtEl) amtEl.textContent = '0원';
+    if (cardRow) cardRow.innerHTML = `
+      <div class="benefit-card-info">
+        <svg width="20" height="14" viewBox="0 0 20 14" fill="none"><rect width="20" height="14" rx="3" fill="#ccc"/></svg>
+        <span style="font-size:11px;color:#a07000">카드 연결하고 혜택받기</span>
+      </div>
+      <button onclick="requireLogin('시작하기','바로할인 서비스를 이용하려면\\n로그인해 주세요')" style="font-size:11px;padding:5px 12px;border-radius:6px;background:#111;color:#fff;border:none;font-family:inherit;font-weight:700;cursor:pointer">시작하기</button>`;
+    return;
+  }
   GET(`/api/history/${uid}`).then(res => {
     if (!res.success) return;
     const three = new Date(); three.setMonth(three.getMonth()-3);
-    const total = res.data.filter(h=>h.status==='PAID'&&new Date(h.paidAt)>three)
+    const total = (res.data||[]).filter(h=>h.status==='PAID'&&new Date(h.paidAt)>three)
       .reduce((a,h)=>a+(h.savedAmount||0),0);
-    document.getElementById('benefit-amount').textContent = (total/10000).toFixed(1)+'만원';
+    if (amtEl) amtEl.textContent = total>=10000 ? (total/10000).toFixed(1)+'만원' : total.toLocaleString()+'원';
+    if (cardRow) cardRow.innerHTML = `
+      <div class="benefit-card-info">
+        <svg width="20" height="14" viewBox="0 0 20 14" fill="none"><rect width="20" height="14" rx="3" fill="#333"/><rect x="0" y="4" width="20" height="3.5" fill="#FFD700" opacity=".8"/><rect x="2" y="9" width="5" height="1.5" rx=".75" fill="#fff" opacity=".5"/></svg>
+        <span id="benefit-card-name" style="font-size:11px">미니넥카드 7842</span>
+      </div>
+      <button onclick="goTab(3)" style="font-size:11px;padding:4px 11px;border-radius:6px;background:rgba(0,0,0,.08);color:#333;border:none;font-family:inherit;font-weight:700;cursor:pointer">이용내역</button>`;
   });
 }
 
@@ -2135,7 +2150,24 @@ function render() {
   document.getElementById('rem-cnt').textContent = `전체 브랜드 ${list.length}`;
   const bmap = {hot:'🔥 HOT',new:'✨ NEW',end:'⏰ 마감임박',best:'👑 BEST'};
 
-  // 브랜드 아이콘 매핑
+  // 브랜드 로고 이미지 매핑 (공식 CDN/위키미디어 등)
+  const brandLogo = {
+    'STARBUCKS': 'https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/200px-Starbucks_Corporation_Logo_2011.svg.png',
+    'A TWOSOME PLACE': 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/A_Twosome_Place_logo.svg/200px-A_Twosome_Place_logo.svg.png',
+    'MEGA COFFEE': 'https://lgaca.com/wp-content/uploads/2022/11/mega-coffee-logo.png',
+    'LOTTE CINEMA': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Lotte_Cinema_logo.svg/200px-Lotte_Cinema_logo.svg.png',
+    'CGV': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/CJ_CGV_logo.svg/200px-CJ_CGV_logo.svg.png',
+    'bhc 치킨': 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/BHC_logo.svg/200px-BHC_logo.svg.png',
+    'MCDONALDS': 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/McDonald%27s_Golden_Arches.svg/200px-McDonald%27s_Golden_Arches.svg.png',
+    'GS25': 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/GS25_logo.svg/200px-GS25_logo.svg.png',
+    'OLIVE YOUNG': 'https://image.oliveyoung.co.kr/uploads/images/goods/400/10/0000/0016/A00000016440413ko.jpg',
+    'MUSINSA': 'https://image.musinsa.com/msmw2/images/common/logo_musinsa_black.png',
+    'GS CALTEX': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/GS_Caltex_logo.svg/200px-GS_Caltex_logo.svg.png',
+    'COUPANG EATS': 'https://logodownload.org/wp-content/uploads/2021/07/coupang-eats-logo.png',
+    'SHINSEGAE': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Shinsegae_Department_Store_ci.svg/200px-Shinsegae_Department_Store_ci.svg.png',
+    'COUPANG': 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Coupang_logo.svg/200px-Coupang_logo.svg.png',
+    'BAEMIN': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Baemin_logo.svg/200px-Baemin_logo.svg.png',
+  };
   const brandIcon = {
     'STARBUCKS':'☕','A TWOSOME PLACE':'🎂','MEGA COFFEE':'☕',
     'LOTTE CINEMA':'🎬','CGV':'🍿','bhc 치킨':'🍗','MCDONALDS':'🍔',
@@ -2156,21 +2188,25 @@ function render() {
       const out = p.remaining <= 0;
       const issued = p._issued || false;
       const used   = p._used   || false;
+      const logo = brandLogo[p.brand];
       const icon = brandIcon[p.brand] || '🏷️';
-      const bg = brandBg[p.brand] || '#888';
+      const bg = brandBg[p.brand] || '#f0f0f0';
       setTimeout(() => startProdTimer(p.id, p.timer||86400), 100);
       return `
       <div class="bc${out?' done':''}" id="pc${p.id}" onclick="openDetail(${p.id})">
-        ${isAdmin()?`<button class="admin-edit-overlay" style="position:absolute;top:0;left:0;right:0;display:flex;gap:2px;padding:4px;z-index:3" onclick="event.stopPropagation()"><button style="flex:1;font-size:9px;padding:2px;border-radius:3px;background:#7c3aed;color:#fff;border:none;cursor:pointer" onclick="event.stopPropagation();openAdminEdit(${p.id})">편집</button><button style="flex:1;font-size:9px;padding:2px;border-radius:3px;background:var(--red);color:#fff;border:none;cursor:pointer" onclick="event.stopPropagation();delProduct(${p.id})">삭제</button></button>`:''}
+        ${isAdmin()?`<div style="position:absolute;top:0;left:0;right:0;display:flex;gap:2px;padding:4px;z-index:3"><button style="flex:1;font-size:9px;padding:2px;border-radius:3px;background:#7c3aed;color:#fff;border:none;cursor:pointer" onclick="event.stopPropagation();openAdminEdit(${p.id})">편집</button><button style="flex:1;font-size:9px;padding:2px;border-radius:3px;background:var(--red);color:#fff;border:none;cursor:pointer" onclick="event.stopPropagation();delProduct(${p.id})">삭제</button></div>`:''}
         <span class="bc-badge ${p.badge}">${bmap[p.badge]||''}</span>
         <button class="bc-heart" onclick="event.stopPropagation();toggleHeart(${p.id})">${isWished?'❤️':'🤍'}</button>
-        <div class="bc-icon-wrap" style="background:${bg}">
-          <span style="font-size:28px">${icon}</span>
+        <div class="bc-icon-wrap" style="background:${logo?'#fff':bg}">
+          ${logo
+            ? `<img src="${logo}" alt="${p.brand}" style="width:46px;height:46px;object-fit:contain;border-radius:6px" onerror="this.style.display='none';this.nextSibling.style.display='flex'">`
+            : ''}
+          <span style="font-size:26px;${logo?'display:none':''}">${icon}</span>
         </div>
         <div class="bc-brand">${p.brand}</div>
         <div class="bc-rate">${out?'마감':used?'사용완료':issued?`발급완료`:`${p.rate}% 할인`}</div>
-        ${!out&&!used?`<div style="font-size:9px;color:var(--t4);text-align:center;margin-top:-4px">잔여 ${p.remaining}/${p.total}</div>`:''}
-        ${!out?`<div style="display:flex;align-items:center;gap:3px;margin-top:2px"><span style="font-size:9px;color:var(--t4)">⏰</span><span id="pt-${p.id}" style="font-size:9px;font-weight:700;color:var(--red);font-family:monospace">${fmtTimer(ptIvs[p.id]||p.timer||86400)}</span></div>`:''}
+        ${!out&&!used?`<div style="font-size:9px;color:var(--t4);text-align:center">잔여 ${p.remaining}/${p.total}</div>`:''}
+        ${!out?`<div style="display:flex;align-items:center;gap:2px;margin-top:2px"><span style="font-size:9px;color:var(--t4)">⏰</span><span id="pt-${p.id}" style="font-size:9px;font-weight:700;color:var(--red);font-family:monospace">${fmtTimer(ptIvs[p.id]||p.timer||86400)}</span></div>`:''}
         ${issued?`<div class="bc-issued"></div>`:''}
       </div>`;
     }).join('');
@@ -2337,21 +2373,14 @@ function doShare(type) {
   } else if (type === 'qr') {
     closeS(7);
     const prodName = document.getElementById('share-prod-name')?.textContent || '';
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
+    const qrData = encodeURIComponent(url);
+    const qrImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&ecc=M&data=${qrData}`;
     document.getElementById('qr-popup-name').textContent = prodName;
-    document.getElementById('qr-popup-img').innerHTML = `<img src="${qrUrl}" style="width:200px;height:200px;border-radius:8px" alt="QR코드"/>`;
-    const bk = document.getElementById('qr-popup-bk');
-    bk.style.display = 'flex';
-    history.pushState({qr:true},'');
-    copyShare(title + '\n' + text + '\n' + url);
-    toast('텍스트가 복사되었습니다! 📋', 'ok');
-
-  } else if (type === 'qr') {
-    closeS(7);
-    const p = PRODS.find(x => Number(x.id) === Number(curPid));
-    const qrUrl = encodeURIComponent(window.location.href);
-    document.getElementById('qr-popup-name').textContent = p ? p.name : '';
-    document.getElementById('qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${qrUrl}`;
+    const qrImg = document.getElementById('qr-img');
+    if (qrImg) {
+      qrImg.src = qrImgUrl;
+      qrImg.onerror = () => { qrImg.alt = 'QR 생성 오류'; };
+    }
     document.getElementById('qr-popup-bk').style.display = 'flex';
     history.pushState({qr:true}, '');
   }
@@ -2829,6 +2858,7 @@ function openGift(code, name) {
 /* ══ 맨위로 버튼 - 모든 화면 ══ */
 function updateScrollBtn() {
   const btn = document.getElementById('scroll-top-btn');
+  const shareBtn = document.getElementById('share-float-btn');
   if (!btn) return;
   const mainScroll = window.scrollY > 100;
   const detailPages = ['detail-page','notice-page','notif-page','gift-box-page'];
@@ -2836,7 +2866,9 @@ function updateScrollBtn() {
     const el = document.getElementById(id);
     return el && el.classList.contains('on') && el.scrollTop > 100;
   });
-  btn.style.display = (mainScroll || pageScroll) ? 'flex' : 'none';
+  const show = mainScroll || pageScroll;
+  btn.style.display = show ? 'flex' : 'none';
+  if (shareBtn) shareBtn.style.display = mainScroll ? 'flex' : 'none';
 }
 window.addEventListener('scroll', updateScrollBtn);
 ['detail-page','notice-page','notif-page','gift-box-page'].forEach(id => {
