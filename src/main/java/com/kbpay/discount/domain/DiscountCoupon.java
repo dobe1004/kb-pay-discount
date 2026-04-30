@@ -4,8 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 
-@Entity @Table(name = "TB_COUPON",
-    uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "product_id"}))
+@Entity @Table(name = "TB_COUPON")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class DiscountCoupon {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
