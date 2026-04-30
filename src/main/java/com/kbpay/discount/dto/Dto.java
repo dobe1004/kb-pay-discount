@@ -67,6 +67,7 @@ public class Dto {
         private Integer originalPrice; private Integer discountedPrice;
         private Integer totalCount; private String badge;
         private String imageUrl; private String description; private String notice;
+        private Integer validDays;
     }
 
     /* ── 쿠폰 ── */
