@@ -97,6 +97,45 @@ img{display:block}
 .search-box input{flex:1;background:transparent;border:none;outline:none;font-family:inherit;font-size:14px;color:var(--t1)}
 .search-box input::placeholder{color:var(--t4)}
 
+/* ─── 상단 혜택 섹션 ─── */
+.benefit-box{margin:12px 14px 0;background:linear-gradient(135deg,#FFF9E6,#FFF3B0);border-radius:14px;padding:14px 16px;border:1px solid rgba(255,200,0,.3)}
+.benefit-label{font-size:11px;color:#a07000;font-weight:600;margin-bottom:2px}
+.benefit-amount{font-size:24px;font-weight:900;color:#111;letter-spacing:-.5px}
+.benefit-card-row{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid rgba(0,0,0,.06)}
+.benefit-card-info{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--t2);font-weight:600}
+.benefit-card-badge{display:inline-block;font-size:10px;background:var(--y);color:#111;border-radius:4px;padding:2px 6px;font-weight:700}
+
+/* ─── 필터 탭 (인기순/즐겨찾기/이벤트/할인) ─── */
+.filter-tab-row{display:flex;gap:0;padding:12px 14px 4px;overflow-x:auto;scrollbar-width:none}
+.filter-tab-row::-webkit-scrollbar{display:none}
+.ftab{flex-shrink:0;padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600;border:1.5px solid var(--bd);background:#fff;color:var(--t3);cursor:pointer;font-family:inherit;margin-right:6px;transition:.12s}
+.ftab.on{background:#111;border-color:#111;color:#fff;font-weight:700}
+
+/* ─── 브랜드 그리드 3열 ─── */
+.brand-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:8px 14px}
+.bc{background:#fff;border-radius:14px;border:1px solid var(--bd);padding:14px 8px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;position:relative;transition:.12s;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.bc:active{transform:scale(.97);opacity:.9}
+.bc.done{opacity:.55}
+.bc-icon-wrap{width:64px;height:64px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:28px;position:relative;border:2px solid var(--bd)}
+.bc-brand{font-size:11px;font-weight:700;color:var(--t2);text-align:center;line-height:1.3;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 4px}
+.bc-rate{font-size:13px;font-weight:900;color:var(--red);text-align:center}
+.bc-heart{position:absolute;top:8px;right:8px;background:none;border:none;font-size:16px;cursor:pointer;padding:0;line-height:1;z-index:2}
+.bc-badge{position:absolute;top:6px;left:6px;font-size:9px;font-weight:800;padding:1px 5px;border-radius:4px}
+.bc-badge.hot{background:var(--red);color:#fff}
+.bc-badge.new{background:var(--grn);color:#fff}
+.bc-badge.end{background:#555;color:#fff}
+.bc-badge.best{background:var(--pur);color:#fff}
+.bc-sold{font-size:10px;color:var(--t4);font-weight:600}
+.bc-issued{position:absolute;bottom:6px;right:6px;width:10px;height:10px;border-radius:50%;background:var(--y);border:1.5px solid #fff}
+
+/* ─── 카테고리 sticky ─── */
+.cat-sticky{position:sticky;top:54px;z-index:100;background:#fff;border-bottom:1px solid var(--bd2)}
+
+/* ─── 브랜드 리스트 헤더 ─── */
+.brand-list-hd{display:flex;align-items:center;justify-content:space-between;padding:12px 14px 0}
+.brand-list-count{font-size:13px;font-weight:700;color:var(--t1)}
+.brand-list-sort{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--t3);cursor:pointer;font-weight:600}
+
 /* ─── 카테고리 ─── */
 .cat-row{display:flex;gap:6px;padding:10px 14px 4px;overflow-x:auto;scrollbar-width:none}
 .cat-row::-webkit-scrollbar{display:none}
@@ -501,11 +540,10 @@ select.admin-form-input{cursor:pointer}
 </header>
 
 <!-- ══════════ 홈 탭 ══════════ -->
-<div id="pg0" style="background:#fff;min-height:100vh">
+<div id="pg0" style="background:#f5f6f8;min-height:100vh">
   <!-- 슬라이드 배너 -->
   <div class="banner-slide-wrap" id="bannerWrap">
     <div class="banner-slide-track" id="bannerTrack">
-      <!-- 배너 1: KB페이 단독 특가 → 상품 목록으로 스크롤 (로그인 불필요) -->
       <div class="banner-slide" style="background:linear-gradient(135deg,#FFF3B0,#FFE040,#FFC800);cursor:pointer" onclick="bannerClick(0)">
         <div class="bn-left">
           <div class="bn-tag" style="color:rgba(0,0,0,.5)"><div class="bn-dot" style="background:#C47F00"></div>LIVE DEAL</div>
@@ -514,7 +552,6 @@ select.admin-form-input{cursor:pointer}
           <div class="bn-chips">
             <div class="bn-chip" style="background:rgba(0,0,0,.1);color:#333;font-size:11px">오늘만</div>
             <div class="bn-chip" style="background:rgba(0,0,0,.1);color:#333;font-size:11px">선착순</div>
-            <div class="bn-chip" style="background:rgba(0,0,0,.1);color:#333;font-size:11px">KB전용</div>
           </div>
         </div>
         <div class="bn-right">
@@ -522,51 +559,33 @@ select.admin-form-input{cursor:pointer}
           <div class="bn-timer" id="timer" style="color:#1A1A1A;font-size:18px">00:00:00</div>
         </div>
       </div>
-      <!-- 배너 2: 스타벅스 특가 → 카페 카테고리 (로그인 불필요) -->
       <div class="banner-slide" style="background:linear-gradient(135deg,#DBEAFE,#93C5FD,#60A5FA);cursor:pointer" onclick="bannerClick(1)">
         <div class="bn-left">
           <div class="bn-tag" style="color:rgba(0,0,0,.5)"><div class="bn-dot" style="background:#1D6FD8"></div>☕ 카페 특가</div>
           <div class="bn-title" style="color:#1A1A1A;font-size:17px">스타벅스 40% 할인<br/>아메리카노 10잔</div>
           <div class="bn-sub" style="color:rgba(0,0,0,.55)">39,000원 · 선착순 100매</div>
-          <div class="bn-chips">
-            <div class="bn-chip" style="background:#1D6FD8;color:#fff;font-size:11px">HOT</div>
-            <div class="bn-chip" style="background:rgba(0,0,0,.1);color:#333;font-size:11px">인기1위</div>
-          </div>
         </div>
         <div class="bn-right" style="font-size:40px">☕</div>
       </div>
-      <!-- 배너 3: 포인트 → MY 탭 (로그인 필요) -->
       <div class="banner-slide" style="background:linear-gradient(135deg,#FFF3B0,#FFE040,#FFC800);cursor:pointer" onclick="bannerClick(2)">
         <div class="bn-left">
           <div class="bn-tag" style="color:rgba(0,0,0,.5)"><div class="bn-dot" style="background:#C47F00"></div>💎 KB포인트</div>
           <div class="bn-title" style="color:#1A1A1A;font-size:17px">결제 금액의 1%<br/>포인트 자동 적립</div>
           <div class="bn-sub" style="color:rgba(0,0,0,.55)">등급 업그레이드 혜택까지</div>
-          <div class="bn-chips">
-            <div class="bn-chip" style="background:rgba(0,0,0,.1);color:#333;font-size:10px">일반→실버→골드→VIP</div>
-          </div>
         </div>
         <div class="bn-right" style="font-size:40px">💎</div>
       </div>
-      <!-- 배너 4: 선물하기 → 쿠폰함 (로그인 필요) -->
       <div class="banner-slide" style="background:linear-gradient(135deg,#DBEAFE,#93C5FD,#60A5FA);cursor:pointer" onclick="bannerClick(3)">
         <div class="bn-left">
           <div class="bn-tag" style="color:rgba(0,0,0,.5)"><div class="bn-dot" style="background:#1D6FD8"></div>🎁 선물하기</div>
           <div class="bn-title" style="color:#1A1A1A;font-size:17px">소중한 사람에게<br/>KB페이 쿠폰 선물</div>
           <div class="bn-sub" style="color:rgba(0,0,0,.55)">쿠폰함에서 바로 선물 가능</div>
-          <div class="bn-chips">
-            <div class="bn-chip" style="background:#1D6FD8;color:#fff;font-size:11px">NEW</div>
-            <div class="bn-chip" style="background:rgba(0,0,0,.1);color:#333;font-size:11px">쿠폰함 이용</div>
-          </div>
         </div>
         <div class="bn-right" style="font-size:40px">🎁</div>
       </div>
     </div>
-    <!-- 인디케이터 -->
     <div class="banner-dots" id="bannerDots">
-      <span class="bdot on"></span>
-      <span class="bdot"></span>
-      <span class="bdot"></span>
-      <span class="bdot"></span>
+      <span class="bdot on"></span><span class="bdot"></span><span class="bdot"></span><span class="bdot"></span>
     </div>
   </div>
   <div class="nbar">
@@ -586,30 +605,67 @@ select.admin-form-input{cursor:pointer}
       </div>
     </div>
   </div>
+
+  <!-- 최근 3개월 혜택금액 + 연결카드 -->
+  <div class="benefit-box" id="benefit-box">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div class="benefit-label">최근 3개월 혜택금액 <span onclick="showBenefitInfo()" style="font-size:11px;cursor:pointer;color:#a07000;text-decoration:underline">바로할인이란?</span></div>
+        <div class="benefit-amount" id="benefit-amount">0원</div>
+      </div>
+    </div>
+    <div class="benefit-card-row">
+      <div class="benefit-card-info">
+        <svg width="20" height="14" viewBox="0 0 20 14" fill="none"><rect width="20" height="14" rx="3" fill="#333"/><rect x="0" y="4" width="20" height="3.5" fill="#FFD700" opacity=".8"/><rect x="2" y="9" width="5" height="1.5" rx=".75" fill="#fff" opacity=".5"/></svg>
+        <span id="benefit-card-name" style="font-size:11px">내 연결카드 미니넥카드 7842</span>
+      </div>
+      <button onclick="goTab(3)" style="font-size:11px;padding:4px 11px;border-radius:6px;background:rgba(0,0,0,.08);color:#333;border:none;font-family:inherit;font-weight:700;cursor:pointer">이용내역</button>
+    </div>
+  </div>
+
+  <!-- 필터 탭 (인기순/즐겨찾기/이벤트/할인) -->
+  <div class="filter-tab-row" id="filter-tab-row">
+    <button class="ftab on" data-ftab="popular" onclick="setFilterTab('popular',this)">인기순</button>
+    <button class="ftab" data-ftab="wish" onclick="setFilterTab('wish',this)">즐겨찾기</button>
+    <button class="ftab" data-ftab="event" onclick="setFilterTab('event',this)">이벤트</button>
+    <button class="ftab" data-ftab="discount" onclick="setFilterTab('discount',this)">할인</button>
+  </div>
+
+  <!-- 인기 급상승 -->
+  <div class="sec" id="hot-rank-sec" style="background:#fff;margin-bottom:8px;border-radius:0">
+    <div class="sec-hd"><span class="sec-title">🚀 인기 급상승</span></div>
+    <div class="hot-rank" id="hot-rank"></div>
+  </div>
+  <!-- 최근 본 상품 -->
+  <div class="recent-row" id="recent-sec" style="display:none;background:#fff;margin-bottom:8px"><div class="recent-title">최근 본 상품</div><div class="recent-scroll" id="recent-scroll"></div></div>
+
+  <!-- 카테고리 탭 sticky -->
+  <div class="cat-sticky">
+    <div class="cat-row" id="catRow"></div>
+  </div>
+
   <!-- 검색 -->
-  <div class="search-wrap">
+  <div style="padding:8px 14px 4px;background:#fff">
     <div class="search-box">
       <span style="font-size:16px">🔍</span>
-      <input id="search-inp" placeholder="상품명, 브랜드 검색" oninput="doSearch(this.value)"/>
+      <input id="search-inp" placeholder="브랜드를 검색해보세요" oninput="doSearch(this.value)"/>
       <span id="search-clear" style="font-size:14px;cursor:pointer;display:none" onclick="clearSearch()">✕</span>
     </div>
   </div>
-  <!-- 인기 급상승 -->
-  <div class="sec" id="hot-rank-sec"><div class="sec-hd"><span class="sec-title">🚀 인기 급상승</span></div><div class="hot-rank" id="hot-rank"></div></div>
-  <!-- 최근 본 상품 -->
-  <div class="recent-row" id="recent-sec" style="display:none"><div class="recent-title">최근 본 상품</div><div class="recent-scroll" id="recent-scroll"></div></div>
-  <!-- 카테고리 + 정렬 -->
-  <div class="cat-row" id="catRow"></div>
-  <div class="sort-row">
-    <span class="sort-label" id="rem-cnt"></span>
-    <div class="sort-btns">
-      <button class="sort-btn on" onclick="setSort('default',this)">기본순</button>
+
+  <!-- 브랜드 리스트 헤더 -->
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px 4px;background:#fff">
+    <span class="brand-list-count" id="rem-cnt">전체 브랜드 0</span>
+    <div style="display:flex;gap:4px" id="sort-btns">
+      <button class="sort-btn on" onclick="setSort('popular',this)">인기순</button>
       <button class="sort-btn" onclick="setSort('rate',this)">할인율순</button>
       <button class="sort-btn" onclick="setSort('price',this)">가격순</button>
-      <button class="sort-btn" onclick="setSort('popular',this)">인기순</button>
+      <button class="sort-btn" onclick="setSort('rem',this)">잔여순</button>
     </div>
   </div>
-  <div class="sec" style="padding-top:6px"><div class="plist" id="plist"></div></div>
+
+  <!-- 브랜드 3열 그리드 -->
+  <div class="brand-grid" id="plist"></div>
 </div>
 
 <!-- ══════════ 찜 탭 ══════════ -->
@@ -1137,7 +1193,7 @@ let PRODS = [];
 let wishes = [];
 let recentViewed = JSON.parse(localStorage.getItem('kbp_rv') || '[]');
 let cur = null, cancelTarget = null, curPid = null;
-let curCat = '전체', curSort = 'default', searchQ = '';
+let curCat = '전체', curSort = 'popular', searchQ = '', curFilterTab = 'popular';
 let myTabIdx = 0, histTabIdx = 0, reviewStar = 5, usePoint = false;
 let openSheets = [], loginCb = null, currentTab = 0;
 
@@ -1248,6 +1304,7 @@ async function doLogin() {
   // 찜 목록 + 발급 여부 + 알림 로드
   await Promise.all([loadWishes(), checkIssuedStatus()]);
   updateNotifBadge();
+  updateBenefitBox();
   render(); // 발급 상태 반영해서 다시 렌더
 
   if (loginCb) { const cb = loginCb; loginCb = null; cb(); }
@@ -1694,7 +1751,27 @@ function renderCats() {
   ).join('');
 }
 function setCat(c) { curCat=c; renderCats(); render(); }
-function setSort(s,el) { curSort=s; document.querySelectorAll('.sort-btn').forEach(b=>b.classList.remove('on')); el.classList.add('on'); render(); }
+function setSort(s,el) { curSort=s; document.querySelectorAll('.sort-btn').forEach(b=>b.classList.remove('on')); if(el) el.classList.add('on'); render(); }
+function setFilterTab(tab, el) {
+  curFilterTab = tab;
+  document.querySelectorAll('.ftab').forEach(b=>b.classList.remove('on'));
+  if(el) el.classList.add('on');
+  render();
+}
+function updateBenefitBox() {
+  if (!uid) { document.getElementById('benefit-amount').textContent = '0원'; return; }
+  GET(`/api/history/${uid}`).then(res => {
+    if (!res.success) return;
+    const three = new Date(); three.setMonth(three.getMonth()-3);
+    const total = res.data.filter(h=>h.status==='PAID'&&new Date(h.paidAt)>three)
+      .reduce((a,h)=>a+(h.savedAmount||0),0);
+    document.getElementById('benefit-amount').textContent = (total/10000).toFixed(1)+'만원';
+  });
+}
+
+function showBenefitInfo() {
+  toast('KB페이 바로할인: 제휴 브랜드에서 즉시 할인 혜택을 받는 서비스입니다.', 'inf');
+}
 function doSearch(q) { searchQ=q; document.getElementById('search-clear').style.display=q?'inline':'none'; render(); }
 function clearSearch() { searchQ=''; document.getElementById('search-inp').value=''; document.getElementById('search-clear').style.display='none'; render(); }
 
@@ -2046,57 +2123,55 @@ function startProdTimer(pid, secs) {
 function render() {
   let list = curCat==='전체' ? [...PRODS] : PRODS.filter(p=>p.cat===curCat);
   if (searchQ) { const q=searchQ.toLowerCase(); list=list.filter(p=>p.name.toLowerCase().includes(q)||p.brand.toLowerCase().includes(q)); }
+  // 필터탭 적용
+  if (curFilterTab==='wish') list=list.filter(p=>wishes.includes(p.id));
+  else if (curFilterTab==='event') list=list.filter(p=>p.badge==='new'||p.badge==='hot');
+  else if (curFilterTab==='discount') list=list.sort((a,b)=>b.rate-a.rate);
   if (curSort==='rate')    list.sort((a,b)=>b.rate-a.rate);
   else if (curSort==='price')   list.sort((a,b)=>a.dis-b.dis);
-  else if (curSort==='popular') list.sort((a,b)=>b.buyers-a.buyers);
+  else if (curSort==='popular'||curSort==='default') list.sort((a,b)=>b.buyers-a.buyers);
+  else if (curSort==='rem') list.sort((a,b)=>b.remaining-a.remaining);
 
-  document.getElementById('rem-cnt').textContent = `${list.length}개 상품`;
+  document.getElementById('rem-cnt').textContent = `전체 브랜드 ${list.length}`;
   const bmap = {hot:'🔥 HOT',new:'✨ NEW',end:'⏰ 마감임박',best:'👑 BEST'};
 
+  // 브랜드 아이콘 매핑
+  const brandIcon = {
+    'STARBUCKS':'☕','A TWOSOME PLACE':'🎂','MEGA COFFEE':'☕',
+    'LOTTE CINEMA':'🎬','CGV':'🍿','bhc 치킨':'🍗','MCDONALDS':'🍔',
+    'GS25':'🏪','OLIVE YOUNG':'💄','MUSINSA':'👗','GS CALTEX':'⛽',
+    'COUPANG EATS':'🛵','SHINSEGAE':'🏬','COUPANG':'🚀','BAEMIN':'🛵',
+  };
+  const brandBg = {
+    'STARBUCKS':'#00704A','A TWOSOME PLACE':'#C8A96E','MEGA COFFEE':'#2D2D2D',
+    'LOTTE CINEMA':'#E50914','CGV':'#E50914','bhc 치킨':'#E31837','MCDONALDS':'#FFC72C',
+    'GS25':'#00A0E9','OLIVE YOUNG':'#02C75A','MUSINSA':'#222','GS CALTEX':'#00A650',
+    'COUPANG EATS':'#FF4F00','SHINSEGAE':'#B5913F','COUPANG':'#1ABEFF','BAEMIN':'#2AC1BC',
+  };
+
   document.getElementById('plist').innerHTML = list.length===0
-    ? `<div class="empty"><div class="emo">🔍</div><p>검색 결과가 없습니다</p></div>`
+    ? `<div class="empty" style="grid-column:1/-1"><div class="emo">🔍</div><p>검색 결과가 없습니다</p></div>`
     : list.map(p => {
       const isWished = wishes.includes(p.id);
       const out = p.remaining <= 0;
-      const issued = p._issued || false;  // 발급됨 (사용 가능)
-      const used   = p._used   || false;  // 사용 완료
-      const pct = ((p.total-p.remaining)/p.total*100).toFixed(1);
-      const low = p.remaining<=15 && !out;
+      const issued = p._issued || false;
+      const used   = p._used   || false;
+      const icon = brandIcon[p.brand] || '🏷️';
+      const bg = brandBg[p.brand] || '#888';
       setTimeout(() => startProdTimer(p.id, p.timer||86400), 100);
       return `
-      <div class="pc${out?' done':''}" id="pc${p.id}" style="position:relative">
-        ${out?'<div class="sold-ov"><div class="sold-tag">SOLD OUT</div></div>':''}
-        ${isAdmin()?`<div class="admin-edit-overlay"><button class="admin-edit-btn" onclick="event.stopPropagation();openAdminEdit(${p.id})">편집</button><button class="admin-del-btn" onclick="event.stopPropagation();delProduct(${p.id})">삭제</button></div>`:''}
-        <div class="pc-row" onclick="openDetail(${p.id})">
-          <div class="pc-thumb">
-            <img src="${p.img}" alt="${p.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/108x108/eee/aaa?text=IMG'"/>
-            <div class="pc-thumb-dim"></div>
-            <span class="pc-tag ${p.badge}">${bmap[p.badge]||''}</span>
-          </div>
-          <div class="pc-info">
-            <div>
-              <div class="pc-top">
-                <div style="flex:1;min-width:0">
-                  <!-- 배지(왼쪽) + 브랜드명(우측) -->
-                  <div style="display:flex;align-items:center;gap:5px;margin-bottom:2px">
-                    <span style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:8px;white-space:nowrap;flex-shrink:0;${isOnlineBrand(p.brand)?'background:#E8F0FE;color:#1a73e8':'background:#FFEBEE;color:#C62828'}">
-                      ${isOnlineBrand(p.brand)?'📱 온라인 전용':'🏪 오프라인 전용'}
-                    </span>
-                    <div class="pc-brand" style="margin-bottom:0;text-align:right;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.brand}</div>
-                  </div>
-                  <div class="pc-name">${p.name}</div>
-                </div>
-                <button class="heart-btn" onclick="event.stopPropagation();toggleHeart(${p.id})">${isWished?'❤️':'🤍'}</button>
-              </div>
-              <div class="pc-meta"><span class="pc-stars">⭐${p.rating}</span><span class="pc-buyers">(${p.reviews}개) · ${p.buyers.toLocaleString()}명</span></div>
-            </div>
-            <div>
-              <div class="pc-price-row"><span class="pc-rate">${p.rate}%</span><span class="pc-now">${p.dis.toLocaleString()}<small>원</small></span><span class="pc-ori">${p.ori.toLocaleString()}원</span></div>
-              <div class="pbar-row"><div class="pbar-track"><div class="pbar-fill${low||out?' crit':''}" style="width:${pct}%"></div></div><span class="pbar-rem ${out?'end':low?'low':'ok'}">${out?'마감':used?'사용완료':issued?'발급완료':`잔여 ${p.remaining}`}</span></div>
-              ${!out?`<div style="margin-top:4px;display:flex;align-items:center;gap:4px"><span style="font-size:11px;color:var(--t4)">⏰ 마감까지</span><span class="pc-timer" id="pt-${p.id}">${fmtTimer(p.timer||86400)}</span></div>`:''}
-            </div>
-          </div>
+      <div class="bc${out?' done':''}" id="pc${p.id}" onclick="openDetail(${p.id})">
+        ${isAdmin()?`<button class="admin-edit-overlay" style="position:absolute;top:0;left:0;right:0;display:flex;gap:2px;padding:4px;z-index:3" onclick="event.stopPropagation()"><button style="flex:1;font-size:9px;padding:2px;border-radius:3px;background:#7c3aed;color:#fff;border:none;cursor:pointer" onclick="event.stopPropagation();openAdminEdit(${p.id})">편집</button><button style="flex:1;font-size:9px;padding:2px;border-radius:3px;background:var(--red);color:#fff;border:none;cursor:pointer" onclick="event.stopPropagation();delProduct(${p.id})">삭제</button></button>`:''}
+        <span class="bc-badge ${p.badge}">${bmap[p.badge]||''}</span>
+        <button class="bc-heart" onclick="event.stopPropagation();toggleHeart(${p.id})">${isWished?'❤️':'🤍'}</button>
+        <div class="bc-icon-wrap" style="background:${bg}">
+          <span style="font-size:28px">${icon}</span>
         </div>
+        <div class="bc-brand">${p.brand}</div>
+        <div class="bc-rate">${out?'마감':used?'사용완료':issued?`발급완료`:`${p.rate}% 할인`}</div>
+        ${!out&&!used?`<div style="font-size:9px;color:var(--t4);text-align:center;margin-top:-4px">잔여 ${p.remaining}/${p.total}</div>`:''}
+        ${!out?`<div style="display:flex;align-items:center;gap:3px;margin-top:2px"><span style="font-size:9px;color:var(--t4)">⏰</span><span id="pt-${p.id}" style="font-size:9px;font-weight:700;color:var(--red);font-family:monospace">${fmtTimer(ptIvs[p.id]||p.timer||86400)}</span></div>`:''}
+        ${issued?`<div class="bc-issued"></div>`:''}
       </div>`;
     }).join('');
   list.forEach(p => setTimeout(() => startProdTimer(p.id, p.timer||86400), 150));
