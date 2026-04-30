@@ -616,10 +616,10 @@ select.admin-form-input{cursor:pointer}
     </div>
     <div class="benefit-card-row" id="benefit-card-row">
       <div class="benefit-card-info">
-        <svg width="20" height="14" viewBox="0 0 20 14" fill="none"><rect width="20" height="14" rx="3" fill="#333"/><rect x="0" y="4" width="20" height="3.5" fill="#FFD700" opacity=".8"/><rect x="2" y="9" width="5" height="1.5" rx=".75" fill="#fff" opacity=".5"/></svg>
-        <span id="benefit-card-name" style="font-size:11px">내 연결카드 미니넥카드 7842</span>
+        <svg width="20" height="14" viewBox="0 0 20 14" fill="none"><rect width="20" height="14" rx="3" fill="#ccc"/></svg>
+        <span style="font-size:11px;color:#a07000">카드 연결하고 혜택받기</span>
       </div>
-      <button onclick="goTab(3)" style="font-size:11px;padding:4px 11px;border-radius:6px;background:rgba(0,0,0,.08);color:#333;border:none;font-family:inherit;font-weight:700;cursor:pointer">이용내역</button>
+      <button onclick="requireLogin('시작하기','바로할인 서비스를 이용하려면 로그인해 주세요')" style="font-size:11px;padding:5px 12px;border-radius:6px;background:#111;color:#fff;border:none;font-family:inherit;font-weight:700;cursor:pointer">시작하기</button>
     </div>
   </div>
 
@@ -884,10 +884,10 @@ select.admin-form-input{cursor:pointer}
 </div>
 <!-- ══ QR코드 팝업 ══ -->
 <div id="qr-popup-bk" style="display:none;position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.6);align-items:center;justify-content:center" onclick="closeQrPopup()">
-  <div onclick="event.stopPropagation()" style="background:#fff;border-radius:20px;padding:28px 24px;text-align:center;max-width:300px;width:90%">
+  <div onclick="event.stopPropagation()" style="background:#fff;border-radius:20px;padding:28px 24px;width:90%;max-width:280px;text-align:center;margin:0 auto">
     <div style="font-size:15px;font-weight:800;margin-bottom:4px">📱 QR코드</div>
-    <div id="qr-popup-name" style="font-size:12px;color:var(--t3);margin-bottom:16px"></div>
-    <img id="qr-img" src="" style="width:200px;height:200px;border-radius:8px;border:1px solid var(--bd)" alt="QR코드"/>
+    <div id="qr-popup-name" style="font-size:12px;color:var(--t3);margin-bottom:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
+    <img id="qr-img" src="" style="width:200px;height:200px;border-radius:8px;border:1px solid var(--bd);display:block;margin:0 auto" alt="QR코드"/>
     <div style="font-size:11px;color:var(--t4);margin-top:10px;margin-bottom:16px">카메라로 스캔하면 상품 상세로 이동합니다</div>
     <button onclick="closeQrPopup()" class="btn-main" style="margin-bottom:0">닫기</button>
   </div>
@@ -2150,35 +2150,51 @@ function render() {
   document.getElementById('rem-cnt').textContent = `전체 브랜드 ${list.length}`;
   const bmap = {hot:'🔥 HOT',new:'✨ NEW',end:'⏰ 마감임박',best:'👑 BEST'};
 
-  // 브랜드 로고 이미지 매핑 (공식 CDN/위키미디어 등)
+  // 브랜드 로고 이미지 매핑 - 실제 브랜드 공식 이미지 (favicon/CDN)
   const brandLogo = {
-    'STARBUCKS': 'https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/200px-Starbucks_Corporation_Logo_2011.svg.png',
-    'A TWOSOME PLACE': 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/A_Twosome_Place_logo.svg/200px-A_Twosome_Place_logo.svg.png',
-    'MEGA COFFEE': 'https://lgaca.com/wp-content/uploads/2022/11/mega-coffee-logo.png',
-    'LOTTE CINEMA': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Lotte_Cinema_logo.svg/200px-Lotte_Cinema_logo.svg.png',
-    'CGV': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/CJ_CGV_logo.svg/200px-CJ_CGV_logo.svg.png',
-    'bhc 치킨': 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/BHC_logo.svg/200px-BHC_logo.svg.png',
-    'MCDONALDS': 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/McDonald%27s_Golden_Arches.svg/200px-McDonald%27s_Golden_Arches.svg.png',
-    'GS25': 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/GS25_logo.svg/200px-GS25_logo.svg.png',
-    'OLIVE YOUNG': 'https://image.oliveyoung.co.kr/uploads/images/goods/400/10/0000/0016/A00000016440413ko.jpg',
-    'MUSINSA': 'https://image.musinsa.com/msmw2/images/common/logo_musinsa_black.png',
-    'GS CALTEX': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/GS_Caltex_logo.svg/200px-GS_Caltex_logo.svg.png',
-    'COUPANG EATS': 'https://logodownload.org/wp-content/uploads/2021/07/coupang-eats-logo.png',
-    'SHINSEGAE': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Shinsegae_Department_Store_ci.svg/200px-Shinsegae_Department_Store_ci.svg.png',
-    'COUPANG': 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Coupang_logo.svg/200px-Coupang_logo.svg.png',
-    'BAEMIN': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Baemin_logo.svg/200px-Baemin_logo.svg.png',
+    'STARBUCKS':    'https://www.starbucks.co.kr/common/img/favicon.ico',
+    'A TWOSOME PLACE': 'https://www.twosome.co.kr/images/common/favicon.ico',
+    'MEGA COFFEE':  'https://www.megacoffee.kr/favicon.ico',
+    'LOTTE CINEMA': 'https://www.lottecinema.co.kr/NLCHS/Img/lotte-cinema-logo.png',
+    'CGV':          'https://www.cgv.co.kr/images/common/logo_cgv.png',
+    'bhc 치킨':     'https://www.bhcchicken.co.kr/favicon.ico',
+    'MCDONALDS':    'https://www.mcdelivery.co.kr/favicon.ico',
+    'GS25':         'https://www.gs25.com/favicon.ico',
+    'OLIVE YOUNG':  'https://www.oliveyoung.co.kr/favicon.ico',
+    'MUSINSA':      'https://static.musinsa.com/favicon-32x32.png',
+    'GS CALTEX':    'https://www.gscaltexmall.com/favicon.ico',
+    'COUPANG EATS': 'https://image7.coupangcdn.com/image/coupang/common/logo_coupang_app.png',
+    'SHINSEGAE':    'https://www.shinsegae.com/favicon.ico',
+    'COUPANG':      'https://image7.coupangcdn.com/image/coupang/common/logo_coupang_app.png',
+    'BAEMIN':       'https://cdn.baemin.com/static/img/baemin-app-icon.png',
+    'PARIS BAGUETTE': 'https://www.paris.co.kr/favicon.ico',
+    'LOTTERIA':     'https://www.lotteria.com/favicon.ico',
+    'GS THE FRESH': 'https://www.gsfresh.com/favicon.ico',
+    'EDIYA COFFEE': 'https://www.ediya.com/favicon.ico',
+    'KFC':          'https://www.kfckorea.com/favicon.ico',
+    'CU':           'https://cu.bgfretail.com/favicon.ico',
+    'OUTBACK':      'https://www.outback.co.kr/favicon.ico',
+    'DOMINOS':      'https://www.dominos.co.kr/favicon.ico',
+    'SEPHORA':      'https://www.sephora.kr/favicon.ico',
+    'BASKIN ROBBINS':'https://www.baskinrobbins.co.kr/favicon.ico',
   };
   const brandIcon = {
     'STARBUCKS':'☕','A TWOSOME PLACE':'🎂','MEGA COFFEE':'☕',
     'LOTTE CINEMA':'🎬','CGV':'🍿','bhc 치킨':'🍗','MCDONALDS':'🍔',
     'GS25':'🏪','OLIVE YOUNG':'💄','MUSINSA':'👗','GS CALTEX':'⛽',
     'COUPANG EATS':'🛵','SHINSEGAE':'🏬','COUPANG':'🚀','BAEMIN':'🛵',
+    'PARIS BAGUETTE':'🥐','LOTTERIA':'🍔','GS THE FRESH':'🥗',
+    'EDIYA COFFEE':'☕','KFC':'🍗','CU':'🏪','OUTBACK':'🥩',
+    'DOMINOS':'🍕','SEPHORA':'💋','BASKIN ROBBINS':'🍦',
   };
   const brandBg = {
     'STARBUCKS':'#00704A','A TWOSOME PLACE':'#C8A96E','MEGA COFFEE':'#2D2D2D',
     'LOTTE CINEMA':'#E50914','CGV':'#E50914','bhc 치킨':'#E31837','MCDONALDS':'#FFC72C',
     'GS25':'#00A0E9','OLIVE YOUNG':'#02C75A','MUSINSA':'#222','GS CALTEX':'#00A650',
     'COUPANG EATS':'#FF4F00','SHINSEGAE':'#B5913F','COUPANG':'#1ABEFF','BAEMIN':'#2AC1BC',
+    'PARIS BAGUETTE':'#C8102E','LOTTERIA':'#E63312','GS THE FRESH':'#00843D',
+    'EDIYA COFFEE':'#003087','KFC':'#F40027','CU':'#6346A3','OUTBACK':'#8B1A1A',
+    'DOMINOS':'#006491','SEPHORA':'#1a1a1a','BASKIN ROBBINS':'#FF6B9D',
   };
 
   document.getElementById('plist').innerHTML = list.length===0
@@ -2190,18 +2206,15 @@ function render() {
       const used   = p._used   || false;
       const logo = brandLogo[p.brand];
       const icon = brandIcon[p.brand] || '🏷️';
-      const bg = brandBg[p.brand] || '#f0f0f0';
+      const bg = brandBg[p.brand] || '#888';
       setTimeout(() => startProdTimer(p.id, p.timer||86400), 100);
       return `
       <div class="bc${out?' done':''}" id="pc${p.id}" onclick="openDetail(${p.id})">
         ${isAdmin()?`<div style="position:absolute;top:0;left:0;right:0;display:flex;gap:2px;padding:4px;z-index:3"><button style="flex:1;font-size:9px;padding:2px;border-radius:3px;background:#7c3aed;color:#fff;border:none;cursor:pointer" onclick="event.stopPropagation();openAdminEdit(${p.id})">편집</button><button style="flex:1;font-size:9px;padding:2px;border-radius:3px;background:var(--red);color:#fff;border:none;cursor:pointer" onclick="event.stopPropagation();delProduct(${p.id})">삭제</button></div>`:''}
         <span class="bc-badge ${p.badge}">${bmap[p.badge]||''}</span>
         <button class="bc-heart" onclick="event.stopPropagation();toggleHeart(${p.id})">${isWished?'❤️':'🤍'}</button>
-        <div class="bc-icon-wrap" style="background:${logo?'#fff':bg}">
-          ${logo
-            ? `<img src="${logo}" alt="${p.brand}" style="width:46px;height:46px;object-fit:contain;border-radius:6px" onerror="this.style.display='none';this.nextSibling.style.display='flex'">`
-            : ''}
-          <span style="font-size:26px;${logo?'display:none':''}">${icon}</span>
+        <div class="bc-icon-wrap" style="background:${brandBg[p.brand]||'#888'}">
+          <span style="font-size:28px;line-height:1">${icon}</span>
         </div>
         <div class="bc-brand">${p.brand}</div>
         <div class="bc-rate">${out?'마감':used?'사용완료':issued?`발급완료`:`${p.rate}% 할인`}</div>
@@ -3431,6 +3444,7 @@ renderCats();
 initNbarMarquee();
 // 상품 로드 완료 후 공유 링크 처리
 loadProducts().then(() => {
+  updateBenefitBox(); // 초기 로드 시 혜택박스 (미로그인: 시작하기)
   // 공유 링크로 들어온 경우 (?pid=숫자) 해당 상품 자동 열기
   const params = new URLSearchParams(window.location.search);
   const pidParam = params.get('pid');
