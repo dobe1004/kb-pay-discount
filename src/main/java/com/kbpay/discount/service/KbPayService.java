@@ -82,7 +82,8 @@ public class KbPayService {
     @Transactional
     public synchronized ApiResponse<CouponResponse> applyCoupon(ApplyRequest req) {
         try {
-            if (couponRepo.existsByUserIdAndProductId(req.getUserId(), req.getProductId()))
+            // 선물 쿠폰 제외하고 일반 발급 쿠폰만 중복 체크
+            if (couponRepo.existsByUserIdAndProductIdAndGiftFromUserIdIsNull(req.getUserId(), req.getProductId()))
                 return ApiResponse.fail("이미 발급받은 쿠폰입니다.");
 
             Product p = productRepo.findByIdWithLock(req.getProductId())
