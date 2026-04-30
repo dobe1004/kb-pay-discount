@@ -43,6 +43,7 @@ public class Dto {
         private String category; private String badge;
         private Integer buyers; private Double rating; private Integer reviewCount;
         private Boolean soldOut; private Double soldOutPercent;
+        private Integer validDays;
 
         public static ProductResponse from(Product p) {
             int total = p.getTotalCount() != null ? p.getTotalCount() : 1;
@@ -55,6 +56,7 @@ public class Dto {
                 .notice(p.getNotice()).category(p.getCategory()).badge(p.getBadge())
                 .buyers(p.getBuyers()).rating(p.getRating()).reviewCount(p.getReviewCount())
                 .soldOut(rem <= 0).soldOutPercent(Math.min(100.0,(double)(total-rem)/total*100))
+                .validDays(p.getValidDays() != null ? p.getValidDays() : 30)
                 .build();
         }
     }
