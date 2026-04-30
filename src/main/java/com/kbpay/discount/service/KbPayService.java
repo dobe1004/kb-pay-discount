@@ -65,6 +65,7 @@ public class KbPayService {
         p.setTotalCount(req.getTotalCount()); p.setBadge(req.getBadge());
         p.setImageUrl(req.getImageUrl()); p.setDescription(req.getDescription());
         p.setNotice(req.getNotice()); p.setIsActive(true);
+        if (req.getValidDays() != null) p.setValidDays(req.getValidDays());
         productRepo.save(p);
         return ApiResponse.ok(editId == null ? "상품이 추가되었습니다." : "상품이 수정되었습니다.", ProductResponse.from(p));
     }
