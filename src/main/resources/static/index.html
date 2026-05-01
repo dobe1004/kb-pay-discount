@@ -696,8 +696,12 @@ select.admin-form-input{cursor:pointer}
       <span style="font-size:12px;font-weight:800;color:#a07000">선물하기</span>
     </button>
   </div>
-  <div id="detail-img-wrap" style="height:140px;display:flex;align-items:center;justify-content:center;background:#f5f6f8">
-    <div id="detail-logo-wrap" style="width:80px;height:80px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 16px rgba(0,0,0,.15);overflow:hidden"></div>
+  <div id="detail-img-wrap" style="height:100px;display:flex;align-items:center;justify-content:center;gap:12px;background:#f8f9fa;border-bottom:1px solid var(--bd)">
+    <div id="detail-logo-wrap" style="width:64px;height:64px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.1);overflow:hidden;border:1.5px solid var(--bd);flex-shrink:0"></div>
+    <div>
+      <div id="detail-hd-brand-type" style="font-size:11px;margin-bottom:3px"></div>
+      <div style="font-size:14px;font-weight:800;color:var(--t1)" id="detail-hd-name-sub"></div>
+    </div>
   </div>
   <div class="detail-body">
     <div class="detail-brand" id="detail-brand"></div>
@@ -1835,7 +1839,7 @@ async function checkIssuedStatus() {
 
 // 발급된 쿠폰으로 바코드 시트 열기
 // 온라인 전용 브랜드
-const ONLINE_BRANDS = ['COUPANG EATS', 'BAEMIN', 'COUPANG', 'MUSINSA'];
+const ONLINE_BRANDS = ['BAEMIN', 'COUPANG', 'MUSINSA', '11ST'];
 const isOnlineBrand = (brand) => ONLINE_BRANDS.includes(brand);
 
 // 발급된 쿠폰으로 사용 (온라인/오프라인 분기)
@@ -1856,10 +1860,8 @@ async function openPayFromIssued(pid) {
     };
     const p = PRODS.find(x => x.id === pid);
     if (p && isOnlineBrand(p.brand)) {
-      // 온라인 전용 → 쿠폰 코드 복사 시트
       openOnlineCouponSheet(cur);
     } else {
-      // 오프라인 → 바코드 시트
       openBarcodeSheet(cur);
     }
   });
@@ -1867,25 +1869,16 @@ async function openPayFromIssued(pid) {
 
 /* ══ 온라인 쿠폰 시트 ══ */
 const HOW_TO_USE = {
-  'COUPANG EATS': '① 코드 복사 → ② 쿠팡이츠 앱 실행 → ③ 결제 화면 쿠폰 코드 입력 (1만원 이상 주문 시 최대 5천원 할인)',
-  'BAEMIN': '① 코드 복사 → ② 배달의민족 앱 실행 → ③ 결제 시 쿠폰/포인트에서 코드 입력 (1.5만원 이상 주문 시 최대 7,500원 할인)',
-  'COUPANG': '① 코드 복사 → ② 쿠팡 앱 실행 → ③ 결제 화면에서 쿠폰 코드 입력 (3만원 이상 로켓배송 구매 시 1만원 할인)',
-  'MUSINSA': '① 코드 복사 → ② 무신사 앱/웹 실행 → ③ 장바구니 쿠폰 적용에서 코드 입력 (5만원 이상 구매 시 2만원 할인)',
-  'MUSINSA': '① 코드 복사 → ② 무신사 앱/웹 실행 → ③ 장바구니 쿠폰 적용에서 코드 입력',
+  'BAEMIN':  '① 코드 복사 → ② 배달의민족 앱 실행 → ③ 결제 시 쿠폰/포인트 코드 입력\n(1.5만원 이상 주문 시 최대 7,500원 할인)',
+  'COUPANG': '① 코드 복사 → ② 쿠팡 앱 실행 → ③ 결제 화면 쿠폰 코드 입력\n(3만원 이상 로켓배송 구매 시 1만원 할인)',
+  'MUSINSA': '① 코드 복사 → ② 무신사 앱/웹 실행 → ③ 장바구니 쿠폰 적용 코드 입력\n(5만원 이상 구매 시 2만원 할인)',
+  '11ST':    '① 코드 복사 → ② 11번가 앱 실행 → ③ 마이페이지 > 쿠폰 등록 후 결제 적용\n(1만원 이상 구매 시 최대 1만원 할인)',
 };
 
-// 앱 딥링크 + 스토어 + 웹 링크 (실제 동작하는 URL)
+// 앱 딥링크 + 스토어 + 웹 링크 (실제 검증된 scheme만 사용)
 const DEEP_LINKS = {
-  'COUPANG EATS': {
-    label: '🛵 쿠팡이츠',
-    scheme_aos: 'coupangeats://',
-    scheme_ios: 'coupangeats://',
-    store_aos: 'https://play.google.com/store/apps/details?id=com.coupang.mobile.eats',
-    store_ios: 'https://apps.apple.com/kr/app/id1445504255',
-    web: 'https://www.coupangeats.com',
-  },
   'BAEMIN': {
-    label: '🛵 배달의민족',
+    label: '🛵 배달의민족 앱 열기',
     scheme_aos: 'baemin://',
     scheme_ios: 'baemin://',
     store_aos: 'https://play.google.com/store/apps/details?id=com.sampleapp',
@@ -1893,7 +1886,7 @@ const DEEP_LINKS = {
     web: 'https://www.baemin.com',
   },
   'COUPANG': {
-    label: '🛒 쿠팡',
+    label: '🛒 쿠팡 앱 열기',
     scheme_aos: 'coupang://home',
     scheme_ios: 'coupang://home',
     store_aos: 'https://play.google.com/store/apps/details?id=com.coupang.mobile',
@@ -1901,12 +1894,20 @@ const DEEP_LINKS = {
     web: 'https://www.coupang.com',
   },
   'MUSINSA': {
-    label: '👗 무신사',
+    label: '👗 무신사 앱 열기',
     scheme_aos: 'musinsa://',
     scheme_ios: 'musinsaapp://',
     store_aos: 'https://play.google.com/store/apps/details?id=com.musinsa.store',
     store_ios: 'https://apps.apple.com/kr/app/id1003139529',
     web: 'https://www.musinsa.com',
+  },
+  '11ST': {
+    label: '🛍️ 11번가 앱 열기',
+    scheme_aos: 'elevenst://main',
+    scheme_ios: 'elevenst://main',
+    store_aos: 'https://play.google.com/store/apps/details?id=com.sktelecom.eleven',
+    store_ios: 'https://apps.apple.com/kr/app/id406009258',
+    web: 'https://www.11st.co.kr',
   },
 };
 
@@ -2144,28 +2145,29 @@ function startProdTimer(pid, secs) {
 const brandDomain = {
   'STARBUCKS':       'starbucks.com',
   'A TWOSOME PLACE': 'twosome.co.kr',
-  'MEGA COFFEE':     'mega-cf.com',
   'LOTTE CINEMA':    'lottecinema.co.kr',
   'CGV':             'cgv.co.kr',
-  'bhc 치킨':        'bhcchicken.co.kr',
   'MCDONALDS':       'mcdonalds.com',
   'GS25':            'gs25.com',
   'OLIVE YOUNG':     'oliveyoung.co.kr',
   'MUSINSA':         'musinsa.com',
   'GS CALTEX':       'gscaltex.com',
-  'COUPANG EATS':    'coupangeats.com',
-  'SHINSEGAE':       'shinsegae.com',
   'COUPANG':         'coupang.com',
   'BAEMIN':          'baemin.com',
+  'MUSINSA':         'musinsa.com',
+  '11ST':            'eleven.co.kr',
+  'SHINSEGAE':       'shinsegae.com',
   'PARIS BAGUETTE':  'paris.co.kr',
-  'LOTTERIA':        'lotteria.co.kr',
-  'GS THE FRESH':    'gsthefresh.com',
-  'EDIYA COFFEE':    'ediyacoffee.com',
   'KFC':             'kfc.com',
   'CU':              'cu.bgfretail.com',
-  'OUTBACK':         'outback.co.kr',
   'DOMINOS':         'dominos.com',
-  'SEPHORA':         'sephora.com',
+  'BURGER KING':     'burgerking.com',
+  'PIZZA HUT':       'pizzahut.com',
+  'SUBWAY':          'subway.com',
+  'HOMEPLUS':        'homeplus.co.kr',
+  'HOLLYS':          'hollys.co.kr',
+  'VIPS':            'vips.co.kr',
+  'INNISFREE':       'innisfree.com',
   'BASKIN ROBBINS':  'baskinrobbins.com',
 };
 // 대소문자/공백 무시하는 도메인 조회
@@ -2177,22 +2179,23 @@ function getFavicon(brand, sz=64) {
   return d ? `https://www.google.com/s2/favicons?domain=${d}&sz=${sz}` : null;
 }
 const brandIcon = {
-  'STARBUCKS':'☕','A TWOSOME PLACE':'🎂','MEGA COFFEE':'☕',
-  'LOTTE CINEMA':'🎬','CGV':'🍿','bhc 치킨':'🍗','MCDONALDS':'🍔',
-  'GS25':'🏪','OLIVE YOUNG':'💄','MUSINSA':'👗','GS CALTEX':'⛽',
-  'COUPANG EATS':'🛵','SHINSEGAE':'🏬','COUPANG':'🚀','BAEMIN':'🛵',
-  'PARIS BAGUETTE':'🥐','LOTTERIA':'🍔','GS THE FRESH':'🥗',
-  'EDIYA COFFEE':'☕','KFC':'🍗','CU':'🏪','OUTBACK':'🥩',
-  'DOMINOS':'🍕','SEPHORA':'💋','BASKIN ROBBINS':'🍦',
+  'STARBUCKS':'☕','A TWOSOME PLACE':'🎂','LOTTE CINEMA':'🎬','CGV':'🍿',
+  'MCDONALDS':'🍔','GS25':'🏪','OLIVE YOUNG':'💄','MUSINSA':'👗',
+  'GS CALTEX':'⛽','SHINSEGAE':'🏬','COUPANG':'🚀','BAEMIN':'🛵',
+  'PARIS BAGUETTE':'🥐','KFC':'🍗','CU':'🏪','DOMINOS':'🍕',
+  'BASKIN ROBBINS':'🍦','BURGER KING':'🍔','PIZZA HUT':'🍕',
+  '11ST':'🛍️','SUBWAY':'🥪','HOMEPLUS':'🛒','HOLLYS':'☕',
+  'VIPS':'🥩','INNISFREE':'🌿',
 };
 const brandBg = {
-  'STARBUCKS':'#00704A','A TWOSOME PLACE':'#C8A96E','MEGA COFFEE':'#2D2D2D',
-  'LOTTE CINEMA':'#E50914','CGV':'#E50914','bhc 치킨':'#E31837','MCDONALDS':'#FFC72C',
-  'GS25':'#00A0E9','OLIVE YOUNG':'#02C75A','MUSINSA':'#222','GS CALTEX':'#00A650',
-  'COUPANG EATS':'#FF4F00','SHINSEGAE':'#B5913F','COUPANG':'#1ABEFF','BAEMIN':'#2AC1BC',
-  'PARIS BAGUETTE':'#C8102E','LOTTERIA':'#E63312','GS THE FRESH':'#00843D',
-  'EDIYA COFFEE':'#003087','KFC':'#F40027','CU':'#6346A3','OUTBACK':'#8B1A1A',
-  'DOMINOS':'#006491','SEPHORA':'#1a1a1a','BASKIN ROBBINS':'#FF6B9D',
+  'STARBUCKS':'#00704A','A TWOSOME PLACE':'#C8A96E','LOTTE CINEMA':'#E50914',
+  'CGV':'#E50914','MCDONALDS':'#FFC72C','GS25':'#00A0E9','OLIVE YOUNG':'#02C75A',
+  'MUSINSA':'#222','GS CALTEX':'#00A650','SHINSEGAE':'#B5913F',
+  'COUPANG':'#1ABEFF','BAEMIN':'#2AC1BC','PARIS BAGUETTE':'#C8102E',
+  'KFC':'#F40027','CU':'#6346A3','DOMINOS':'#006491','BASKIN ROBBINS':'#FF6B9D',
+  'BURGER KING':'#D62300','PIZZA HUT':'#EE3124','11ST':'#FF0000',
+  'SUBWAY':'#00843D','HOMEPLUS':'#004B97','HOLLYS':'#6B3A2A',
+  'VIPS':'#8B1A1A','INNISFREE':'#2E8B57',
 };
 
 function render() {
@@ -2219,21 +2222,24 @@ function render() {
       const used   = p._used   || false;
       const logo = getFavicon(p.brand, 64);
       const icon = brandIcon[p.brand] || '🏷️';
-      const bg = brandBg[p.brand] || '#888';
+      const isOnline = isOnlineBrand(p.brand);
+      const timerSecs = ptIvs[p.id]||p.timer||86400;
+      const timerRed = timerSecs < 86400; // 1일 이하만 빨간색
       setTimeout(() => startProdTimer(p.id, p.timer||86400), 100);
       return `
       <div class="bc${out?' done':''}" id="pc${p.id}" onclick="openDetail(${p.id})">
         ${isAdmin()?`<div style="position:absolute;top:0;left:0;right:0;display:flex;gap:2px;padding:4px;z-index:3"><button style="flex:1;font-size:9px;padding:2px;border-radius:3px;background:#7c3aed;color:#fff;border:none;cursor:pointer" onclick="event.stopPropagation();openAdminEdit(${p.id})">편집</button><button style="flex:1;font-size:9px;padding:2px;border-radius:3px;background:var(--red);color:#fff;border:none;cursor:pointer" onclick="event.stopPropagation();delProduct(${p.id})">삭제</button></div>`:''}
         <span class="bc-badge ${p.badge}">${bmap[p.badge]||''}</span>
         <button class="bc-heart" onclick="event.stopPropagation();toggleHeart(${p.id})">${isWished?'❤️':'🤍'}</button>
-        <div class="bc-icon-wrap" style="background:${bg}">
-          ${logo ? `<img src="${logo}" width="40" height="40" style="object-fit:contain;border-radius:4px" onerror="this.style.display='none';this.nextSibling.style.display='block'"><span style="font-size:24px;display:none">${icon}</span>`
-                 : `<span style="font-size:24px">${icon}</span>`}
+        <div class="bc-icon-wrap" style="background:#f5f5f5">
+          ${logo ? `<img src="${logo}" width="38" height="38" style="object-fit:contain" onerror="this.style.display='none';this.nextSibling.style.display='block'"><span style="font-size:22px;display:none">${icon}</span>`
+                 : `<span style="font-size:22px">${icon}</span>`}
         </div>
         <div class="bc-brand">${p.brand}</div>
         <div class="bc-rate">${out?'마감':used?'사용완료':issued?'발급완료':`${p.rate}% 할인`}</div>
+        <div style="font-size:9px;text-align:center;width:100%;overflow:hidden;white-space:nowrap;padding:0 2px;${isOnline?'color:#1a73e8':'color:#C62828'}">${isOnline?'📱':'🏪'}</div>
         ${!out&&!used?`<div style="font-size:9px;color:var(--t4);text-align:center;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">잔여 ${p.remaining}/${p.total}</div>`:''}
-        ${!out?`<div style="display:flex;align-items:center;justify-content:center;gap:2px;width:100%;overflow:hidden"><span style="font-size:9px;color:var(--t4);flex-shrink:0">⏰</span><span id="pt-${p.id}" style="font-size:9px;font-weight:700;color:var(--red);font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${fmtTimer(ptIvs[p.id]||p.timer||86400)}</span></div>`:''}
+        ${!out?`<div style="display:flex;align-items:center;justify-content:center;gap:2px;width:100%;overflow:hidden"><span id="pt-${p.id}" style="font-size:9px;font-weight:700;font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:${timerRed?'var(--red)':'var(--t4)'}">${fmtTimer(timerSecs)}</span></div>`:''}
         ${issued?`<div class="bc-issued"></div>`:''}
       </div>`;
     }).join('');
@@ -2285,15 +2291,14 @@ async function openDetail(pid) {
   const p = PRODS.find(x=>x.id===pid); if(!p) return;
   curPid = pid; addRecent(pid);
   document.getElementById('detail-hd-title').textContent = p.name;
-  const _bg = brandBg[p.brand]||'#f0f0f0';
   const _lurl = getFavicon(p.brand, 128);
   const _icon = brandIcon[p.brand]||'🏷️';
-  const _wrap = document.getElementById('detail-img-wrap');
   const _logo = document.getElementById('detail-logo-wrap');
-  if (_wrap) _wrap.style.background = _bg;
   if (_logo) _logo.innerHTML = _lurl
-    ? `<img src="${_lurl}" width="56" height="56" style="object-fit:contain;border-radius:4px" onerror="this.style.display='none';this.nextSibling.style.display='block'"><span style="font-size:32px;display:none">${_icon}</span>`
-    : `<span style="font-size:36px">${_icon}</span>`;
+    ? `<img src="${_lurl}" width="42" height="42" style="object-fit:contain" onerror="this.style.display='none';this.nextSibling.style.display='block'"><span style="font-size:28px;display:none">${_icon}</span>`
+    : `<span style="font-size:28px">${_icon}</span>`;
+  const _hdType = document.getElementById('detail-hd-brand-type');
+  if (_hdType) _hdType.innerHTML = `<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;${isOnlineBrand(p.brand)?'background:#E8F0FE;color:#1a73e8':'background:#FFEBEE;color:#C62828'}">${isOnlineBrand(p.brand)?'📱 온라인':'🏪 오프라인'}</span> <span style="font-size:11px;color:var(--t3);font-weight:600">${p.brand}</span>`;
   document.getElementById('detail-brand').innerHTML =
     `<span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;margin-right:6px;${isOnlineBrand(p.brand)?'background:#E8F0FE;color:#1a73e8':'background:#FFEBEE;color:#C62828'}">${isOnlineBrand(p.brand)?'📱 온라인 전용':'🏪 오프라인 전용'}</span>${p.brand}`;
   document.getElementById('detail-name').textContent = p.name;
@@ -3079,21 +3084,17 @@ const STORE_DATA = {
       ],
       '영등포구': [
         {name:'스타벅스 여의도IFC점', addr:'서울 영등포구 국제금융로 10', lat:37.5254, lng:126.9264},
-        {name:'스타벅스 영등포역점', addr:'서울 영등포구 경인로 지하 846', lat:37.5157, lng:126.9072},
       ],
       '송파구': [
         {name:'스타벅스 잠실롯데월드점', addr:'서울 송파구 올림픽로 240', lat:37.5113, lng:127.0983},
-        {name:'스타벅스 가락시장역점', addr:'서울 송파구 위례성대로 2', lat:37.4963, lng:127.1229},
       ],
     },
     '경기': {
       '수원시': [
         {name:'스타벅스 수원AK플라자점', addr:'경기 수원시 팔달구 덕영대로 924', lat:37.2656, lng:127.0005},
-        {name:'스타벅스 수원역점', addr:'경기 수원시 권선구 수원로 29', lat:37.2652, lng:127.0001},
       ],
       '성남시': [
         {name:'스타벅스 판교알파돔점', addr:'경기 성남시 분당구 판교역로 146', lat:37.3944, lng:127.1112},
-        {name:'스타벅스 분당서현점', addr:'경기 성남시 분당구 서현로 180', lat:37.3839, lng:127.1219},
       ],
     },
     '부산': {
@@ -3125,29 +3126,6 @@ const STORE_DATA = {
       ],
       '수원시': [
         {name:'투썸플레이스 수원역사점', addr:'경기 수원시 팔달구 매산로 1가', lat:37.2657, lng:127.0002},
-      ],
-    },
-  },
-  'MEGA COFFEE': {
-    '서울': {
-      '강남구': [
-        {name:'메가커피 강남역4번출구점', addr:'서울 강남구 강남대로 382', lat:37.4965, lng:127.0278},
-        {name:'메가커피 역삼역점', addr:'서울 강남구 테헤란로 124', lat:37.5005, lng:127.0362},
-      ],
-      '관악구': [
-        {name:'메가커피 서울대입구역점', addr:'서울 관악구 남부순환로 1824', lat:37.4814, lng:126.9526},
-        {name:'메가커피 신림역점', addr:'서울 관악구 신림로 29', lat:37.4843, lng:126.9294},
-      ],
-      '노원구': [
-        {name:'메가커피 노원역점', addr:'서울 노원구 노해로 480', lat:37.6553, lng:127.0564},
-      ],
-    },
-    '경기': {
-      '부천시': [
-        {name:'메가커피 부천역점', addr:'경기 부천시 길주로 1', lat:37.5038, lng:126.7660},
-      ],
-      '안산시': [
-        {name:'메가커피 안산중앙역점', addr:'경기 안산시 단원구 광덕서로 60', lat:37.3217, lng:126.8308},
       ],
     },
   },
@@ -3206,11 +3184,9 @@ const STORE_DATA = {
       '강남구': [
         {name:'GS25 강남역점', addr:'서울 강남구 강남대로 396', lat:37.4975, lng:127.0276},
         {name:'GS25 역삼역점', addr:'서울 강남구 테헤란로 145', lat:37.5006, lng:127.0370},
-        {name:'GS25 삼성역점', addr:'서울 강남구 테헤란로 521', lat:37.5089, lng:127.0626},
       ],
       '마포구': [
         {name:'GS25 홍대입구역점', addr:'서울 마포구 양화로 190', lat:37.5571, lng:127.0237},
-        {name:'GS25 상수역점', addr:'서울 마포구 와우산로 94', lat:37.5479, lng:126.9218},
       ],
       '관악구': [
         {name:'GS25 서울대입구점', addr:'서울 관악구 관악로 152', lat:37.4816, lng:126.9521},
@@ -3219,9 +3195,6 @@ const STORE_DATA = {
     '경기': {
       '수원시': [
         {name:'GS25 수원역점', addr:'경기 수원시 권선구 수원로 23', lat:37.2651, lng:127.0003},
-      ],
-      '성남시': [
-        {name:'GS25 판교역점', addr:'경기 성남시 분당구 판교역로 148', lat:37.3947, lng:127.1115},
       ],
     },
   },
@@ -3285,7 +3258,7 @@ const STORE_DATA = {
       ],
     },
     '부산': {
-      '부산진구': [
+      '해운대구': [
         {name:'신세계백화점 센텀시티점', addr:'부산 해운대구 센텀남대로 35', lat:35.1691, lng:129.1315},
       ],
     },
@@ -3309,21 +3282,275 @@ const STORE_DATA = {
       ],
     },
   },
-  'bhc 치킨': {
+  'BURGER KING': {
     '서울': {
       '강남구': [
-        {name:'bhc치킨 강남역점', addr:'서울 강남구 강남대로 382', lat:37.4965, lng:127.0278},
+        {name:'버거킹 강남역점', addr:'서울 강남구 강남대로 432', lat:37.4992, lng:127.0268},
+        {name:'버거킹 선릉역점', addr:'서울 강남구 테헤란로 221', lat:37.5040, lng:127.0490},
       ],
       '마포구': [
-        {name:'bhc치킨 홍대점', addr:'서울 마포구 어울마당로 42', lat:37.5547, lng:126.9221},
+        {name:'버거킹 홍대점', addr:'서울 마포구 양화로 177', lat:37.5562, lng:126.9228},
+      ],
+      '중구': [
+        {name:'버거킹 명동점', addr:'서울 중구 명동길 26', lat:37.5630, lng:126.9842},
       ],
       '송파구': [
-        {name:'bhc치킨 잠실역점', addr:'서울 송파구 올림픽로 269', lat:37.5131, lng:127.1001},
+        {name:'버거킹 잠실역점', addr:'서울 송파구 올림픽로 265', lat:37.5132, lng:127.1000},
       ],
     },
     '경기': {
       '수원시': [
-        {name:'bhc치킨 수원역점', addr:'경기 수원시 권선구 수원로 32', lat:37.2653, lng:127.0007},
+        {name:'버거킹 수원역점', addr:'경기 수원시 팔달구 덕영대로 920', lat:37.2655, lng:127.0003},
+      ],
+      '성남시': [
+        {name:'버거킹 판교점', addr:'경기 성남시 분당구 판교역로 146', lat:37.3948, lng:127.1109},
+      ],
+    },
+    '부산': {
+      '부산진구': [
+        {name:'버거킹 서면점', addr:'부산 부산진구 서면문화로 15', lat:35.1559, lng:129.0600},
+      ],
+    },
+  },
+  'PIZZA HUT': {
+    '서울': {
+      '강남구': [
+        {name:'피자헛 강남점', addr:'서울 강남구 강남대로 422', lat:37.4988, lng:127.0271},
+        {name:'피자헛 역삼점', addr:'서울 강남구 테헤란로 130', lat:37.5003, lng:127.0364},
+      ],
+      '마포구': [
+        {name:'피자헛 홍대점', addr:'서울 마포구 양화로 165', lat:37.5561, lng:126.9230},
+      ],
+      '노원구': [
+        {name:'피자헛 노원점', addr:'서울 노원구 동일로 1438', lat:37.6540, lng:127.0598},
+      ],
+    },
+    '경기': {
+      '수원시': [
+        {name:'피자헛 수원인계점', addr:'경기 수원시 팔달구 인계로 190', lat:37.2679, lng:127.0290},
+      ],
+      '고양시': [
+        {name:'피자헛 일산점', addr:'경기 고양시 일산동구 정발산로 24', lat:37.6598, lng:126.7709},
+      ],
+    },
+  },
+  'KFC': {
+    '서울': {
+      '강남구': [
+        {name:'KFC 강남역점', addr:'서울 강남구 강남대로 416', lat:37.4986, lng:127.0273},
+        {name:'KFC 선릉역점', addr:'서울 강남구 테헤란로 211', lat:37.5041, lng:127.0488},
+      ],
+      '마포구': [
+        {name:'KFC 홍대점', addr:'서울 마포구 양화로 175', lat:37.5560, lng:126.9229},
+      ],
+      '중구': [
+        {name:'KFC 명동점', addr:'서울 중구 명동길 10', lat:37.5634, lng:126.9837},
+      ],
+    },
+    '경기': {
+      '수원시': [
+        {name:'KFC 수원역점', addr:'경기 수원시 팔달구 덕영대로 924', lat:37.2658, lng:127.0006},
+      ],
+    },
+    '부산': {
+      '부산진구': [
+        {name:'KFC 서면점', addr:'부산 부산진구 서면문화로 22', lat:35.1560, lng:129.0601},
+      ],
+    },
+  },
+  'CU': {
+    '서울': {
+      '강남구': [
+        {name:'CU 강남역점', addr:'서울 강남구 강남대로 398', lat:37.4976, lng:127.0276},
+        {name:'CU 역삼역점', addr:'서울 강남구 테헤란로 140', lat:37.5004, lng:127.0367},
+      ],
+      '마포구': [
+        {name:'CU 홍대입구역점', addr:'서울 마포구 양화로 192', lat:37.5572, lng:126.9239},
+      ],
+      '관악구': [
+        {name:'CU 서울대입구점', addr:'서울 관악구 관악로 154', lat:37.4815, lng:126.9523},
+      ],
+    },
+    '경기': {
+      '수원시': [
+        {name:'CU 수원역점', addr:'경기 수원시 팔달구 덕영대로 921', lat:37.2653, lng:127.0002},
+      ],
+    },
+  },
+  'DOMINOS': {
+    '서울': {
+      '강남구': [
+        {name:'도미노피자 강남역점', addr:'서울 강남구 강남대로 430', lat:37.4991, lng:127.0269},
+        {name:'도미노피자 논현점', addr:'서울 강남구 강남대로 568', lat:37.5052, lng:127.0245},
+      ],
+      '마포구': [
+        {name:'도미노피자 홍대점', addr:'서울 마포구 양화로 171', lat:37.5562, lng:126.9231},
+      ],
+      '송파구': [
+        {name:'도미노피자 잠실점', addr:'서울 송파구 올림픽로 270', lat:37.5134, lng:127.0999},
+      ],
+    },
+    '경기': {
+      '수원시': [
+        {name:'도미노피자 수원역점', addr:'경기 수원시 팔달구 덕영대로 928', lat:37.2657, lng:127.0006},
+      ],
+      '성남시': [
+        {name:'도미노피자 판교점', addr:'경기 성남시 분당구 판교역로 148', lat:37.3949, lng:127.1112},
+      ],
+    },
+  },
+  'PARIS BAGUETTE': {
+    '서울': {
+      '강남구': [
+        {name:'파리바게뜨 강남역점', addr:'서울 강남구 강남대로 400', lat:37.4978, lng:127.0275},
+        {name:'파리바게뜨 압구정점', addr:'서울 강남구 압구정로 165', lat:37.5270, lng:127.0280},
+      ],
+      '마포구': [
+        {name:'파리바게뜨 홍대점', addr:'서울 마포구 양화로 178', lat:37.5558, lng:126.9227},
+      ],
+      '중구': [
+        {name:'파리바게뜨 명동점', addr:'서울 중구 명동길 29', lat:37.5625, lng:126.9843},
+      ],
+    },
+    '경기': {
+      '수원시': [
+        {name:'파리바게뜨 수원역점', addr:'경기 수원시 팔달구 덕영대로 922', lat:37.2654, lng:127.0004},
+      ],
+    },
+    '부산': {
+      '해운대구': [
+        {name:'파리바게뜨 해운대점', addr:'부산 해운대구 해운대해변로 268', lat:35.1589, lng:129.1606},
+      ],
+    },
+  },
+  'SUBWAY': {
+    '서울': {
+      '강남구': [
+        {name:'써브웨이 강남역점', addr:'서울 강남구 강남대로 424', lat:37.4990, lng:127.0270},
+        {name:'써브웨이 선릉역점', addr:'서울 강남구 테헤란로 225', lat:37.5043, lng:127.0491},
+      ],
+      '마포구': [
+        {name:'써브웨이 홍대점', addr:'서울 마포구 어울마당로 43', lat:37.5548, lng:126.9219},
+      ],
+      '종로구': [
+        {name:'써브웨이 종각점', addr:'서울 종로구 종로 67', lat:37.5701, lng:126.9823},
+      ],
+    },
+    '경기': {
+      '수원시': [
+        {name:'써브웨이 수원AK점', addr:'경기 수원시 팔달구 덕영대로 924', lat:37.2656, lng:127.0003},
+      ],
+    },
+  },
+  'HOMEPLUS': {
+    '서울': {
+      '강서구': [
+        {name:'홈플러스 강서점', addr:'서울 강서구 공항대로 591', lat:37.5615, lng:126.8299},
+      ],
+      '성동구': [
+        {name:'홈플러스 성수점', addr:'서울 성동구 뚝섬로 249', lat:37.5495, lng:127.0577},
+      ],
+    },
+    '경기': {
+      '수원시': [
+        {name:'홈플러스 수원점', addr:'경기 수원시 팔달구 덕영대로 924', lat:37.2658, lng:127.0007},
+      ],
+      '부천시': [
+        {name:'홈플러스 중동점', addr:'경기 부천시 길주로 180', lat:37.5036, lng:126.7658},
+      ],
+      '안산시': [
+        {name:'홈플러스 안산고잔점', addr:'경기 안산시 단원구 광덕서로 60', lat:37.3221, lng:126.8310},
+      ],
+    },
+    '부산': {
+      '해운대구': [
+        {name:'홈플러스 해운대점', addr:'부산 해운대구 센텀북대로 60', lat:35.1702, lng:129.1319},
+      ],
+    },
+  },
+  'HOLLYS': {
+    '서울': {
+      '강남구': [
+        {name:'할리스 강남역점', addr:'서울 강남구 강남대로 390', lat:37.4956, lng:127.0282},
+        {name:'할리스 역삼역점', addr:'서울 강남구 테헤란로 128', lat:37.5002, lng:127.0363},
+      ],
+      '마포구': [
+        {name:'할리스 홍대점', addr:'서울 마포구 양화로 173', lat:37.5563, lng:126.9232},
+      ],
+      '종로구': [
+        {name:'할리스 광화문점', addr:'서울 종로구 세종대로 178', lat:37.5713, lng:126.9771},
+      ],
+    },
+    '경기': {
+      '성남시': [
+        {name:'할리스 판교점', addr:'경기 성남시 분당구 판교역로 146', lat:37.3943, lng:127.1107},
+      ],
+    },
+  },
+  'VIPS': {
+    '서울': {
+      '강남구': [
+        {name:'빕스 강남점', addr:'서울 강남구 강남대로 428', lat:37.4992, lng:127.0268},
+      ],
+      '용산구': [
+        {name:'빕스 이태원점', addr:'서울 용산구 이태원로 211', lat:37.5347, lng:126.9944},
+      ],
+      '마포구': [
+        {name:'빕스 월드컵경기장점', addr:'서울 마포구 성산로 301', lat:37.5682, lng:126.8975},
+      ],
+    },
+    '경기': {
+      '수원시': [
+        {name:'빕스 수원점', addr:'경기 수원시 팔달구 덕영대로 924', lat:37.2659, lng:127.0009},
+      ],
+      '성남시': [
+        {name:'빕스 판교점', addr:'경기 성남시 분당구 판교역로 146', lat:37.3945, lng:127.1108},
+      ],
+    },
+    '부산': {
+      '해운대구': [
+        {name:'빕스 해운대점', addr:'부산 해운대구 해운대해변로 298', lat:35.1590, lng:129.1608},
+      ],
+    },
+  },
+  'INNISFREE': {
+    '서울': {
+      '중구': [
+        {name:'이니스프리 명동점', addr:'서울 중구 명동길 55', lat:37.5626, lng:126.9836},
+        {name:'이니스프리 명동눈썹점', addr:'서울 중구 명동8나길 19', lat:37.5611, lng:126.9855},
+      ],
+      '강남구': [
+        {name:'이니스프리 강남역점', addr:'서울 강남구 강남대로 394', lat:37.4974, lng:127.0277},
+      ],
+      '마포구': [
+        {name:'이니스프리 홍대점', addr:'서울 마포구 와우산로 94', lat:37.5549, lng:126.9221},
+      ],
+    },
+    '경기': {
+      '수원시': [
+        {name:'이니스프리 수원역점', addr:'경기 수원시 팔달구 덕영대로 924', lat:37.2657, lng:127.0005},
+      ],
+    },
+  },
+  'BASKIN ROBBINS': {
+    '서울': {
+      '강남구': [
+        {name:'배스킨라빈스 강남역점', addr:'서울 강남구 강남대로 392', lat:37.4957, lng:127.0281},
+        {name:'배스킨라빈스 역삼역점', addr:'서울 강남구 테헤란로 126', lat:37.5001, lng:127.0362},
+      ],
+      '마포구': [
+        {name:'배스킨라빈스 홍대점', addr:'서울 마포구 양화로 180', lat:37.5559, lng:126.9227},
+      ],
+      '중구': [
+        {name:'배스킨라빈스 명동점', addr:'서울 중구 명동길 33', lat:37.5624, lng:126.9844},
+      ],
+    },
+    '경기': {
+      '수원시': [
+        {name:'배스킨라빈스 수원역점', addr:'경기 수원시 팔달구 덕영대로 923', lat:37.2655, lng:127.0005},
+      ],
+      '성남시': [
+        {name:'배스킨라빈스 판교점', addr:'경기 성남시 분당구 판교역로 146', lat:37.3944, lng:127.1109},
       ],
     },
   },
