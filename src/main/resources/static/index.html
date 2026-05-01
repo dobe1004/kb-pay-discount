@@ -1127,14 +1127,14 @@ select.admin-form-input{cursor:pointer}
 </div>
 
 <!-- ══ FAB 메뉴 ══ -->
-<div id="fab-overlay" onclick="closeFab()" ontouchstart="closeFab()" style="display:none;position:fixed;inset:0;z-index:280;background:rgba(0,0,0,.35)"></div>
+<div id="fab-overlay" onclick="event.stopPropagation();event.preventDefault();closeFab()" ontouchstart="event.stopPropagation();closeFab()" style="display:none;position:fixed;inset:0;z-index:280;background:rgba(0,0,0,.35)"></div>
 <div id="fab-menu" style="display:none;position:fixed;bottom:84px;right:16px;z-index:290;flex-direction:column;align-items:flex-end;gap:10px;pointer-events:none">
-  <div class="fab-item" onclick="closeFab();goTab(0)" style="--d:.20s"><span class="fab-lbl">홈</span><button class="fab-btn">🏠</button></div>
-  <div class="fab-item" onclick="closeFab();goTab(1)" style="--d:.16s"><span class="fab-lbl">찜</span><button class="fab-btn">❤️</button></div>
-  <div class="fab-item" onclick="closeFab();goTab(2)" style="--d:.12s"><span class="fab-lbl">쿠폰함</span><button class="fab-btn">🎫</button></div>
-  <div class="fab-item" onclick="closeFab();goTab(3)" style="--d:.08s"><span class="fab-lbl">이용내역</span><button class="fab-btn">📋</button></div>
-  <div class="fab-item" onclick="closeFab();goTab(4)" style="--d:.04s"><span class="fab-lbl">MY</span><button class="fab-btn">👤</button></div>
-  <div class="fab-item" onclick="closeFab();goTab(0);setTimeout(()=>openS(7),200)" style="--d:.00s"><span class="fab-lbl">공유하기</span><button class="fab-btn">📤</button></div>
+  <div class="fab-item" onclick="event.stopPropagation();closeFab();goTab(0)" style="--d:.20s"><span class="fab-lbl">홈</span><button class="fab-btn">🏠</button></div>
+  <div class="fab-item" onclick="event.stopPropagation();closeFab();goTab(1)" style="--d:.16s"><span class="fab-lbl">찜</span><button class="fab-btn">❤️</button></div>
+  <div class="fab-item" onclick="event.stopPropagation();closeFab();goTab(2)" style="--d:.12s"><span class="fab-lbl">쿠폰함</span><button class="fab-btn">🎫</button></div>
+  <div class="fab-item" onclick="event.stopPropagation();closeFab();goTab(3)" style="--d:.08s"><span class="fab-lbl">이용내역</span><button class="fab-btn">📋</button></div>
+  <div class="fab-item" onclick="event.stopPropagation();closeFab();goTab(4)" style="--d:.04s"><span class="fab-lbl">MY</span><button class="fab-btn">👤</button></div>
+  <div class="fab-item" onclick="event.stopPropagation();closeFab();openS(7)" style="--d:.00s"><span class="fab-lbl">공유하기</span><button class="fab-btn">📤</button></div>
 </div>
 <button id="fab-main" onclick="toggleFab()" style="position:fixed;bottom:24px;right:16px;z-index:291;width:54px;height:54px;border-radius:50%;background:rgba(255,255,255,0.82);border:1.5px solid rgba(0,0,0,.12);box-shadow:0 4px 16px rgba(0,0,0,.18);cursor:pointer;font-size:26px;display:flex;align-items:center;justify-content:center;transition:transform .2s;backdrop-filter:blur(6px)">＋</button>
 
@@ -2316,7 +2316,29 @@ async function renderWish() {
   document.getElementById('wish-count').textContent = `${wp.length}개`;
   document.getElementById('wish-grid').innerHTML = wp.length===0
     ? `<div class="empty" style="grid-column:1/-1"><div class="emo">❤️</div><p>찜한 상품이 없어요</p><button class="empty-btn" onclick="goTab(0)">🛒 쇼핑하러 가기</button></div>`
-    : wp.map(p=>`<div class="wish-card" onclick="openDetail(${p.id})"><img class="wish-card-img" src="${p.img}" onerror="this.style.background='#eee'"/><button class="wish-del" onclick="event.stopPropagation();toggleHeart(${p.id})">✕</button><div class="wish-card-body"><div class="wish-card-brand">${p.brand}</div><div class="wish-card-name">${p.name}</div><div style="font-size:11px;color:var(--red);font-weight:700">↓${p.rate}%</div><div style="font-size:14px;font-weight:800">${p.dis.toLocaleString()}원</div></div></div>`).join('');
+    : wp.map(p => {
+      const logo = getFavicon(p.brand, 64);
+      const icon = brandIcon[p.brand]||'🏷️';
+      const bg = brandBg[p.brand]||'#888';
+      const isOnline = isOnlineBrand(p.brand);
+      return `<div class="wish-card" onclick="openDetail(${p.id})">
+        <div style="padding:16px 12px 8px;display:flex;align-items:center;gap:10px">
+          <div style="width:50px;height:50px;border-radius:50%;background:${bg};display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0">
+            ${logo?`<img src="${logo}" width="32" height="32" style="object-fit:contain" onerror="this.style.display='none';this.nextSibling.style.display='block'"><span style="font-size:20px;display:none">${icon}</span>`:`<span style="font-size:22px">${icon}</span>`}
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:10px;color:${isOnline?'#1a73e8':'#e53935'};font-weight:700;margin-bottom:1px">${isOnline?'📱 온라인 전용':'🏪 오프라인 전용'}</div>
+            <div class="wish-card-brand">${p.brand}</div>
+          </div>
+          <button class="wish-del" onclick="event.stopPropagation();toggleHeart(${p.id})">✕</button>
+        </div>
+        <div class="wish-card-body" style="padding-top:0">
+          <div class="wish-card-name">${p.name}</div>
+          <div style="font-size:11px;color:var(--red);font-weight:700">↓${p.rate}%</div>
+          <div style="font-size:14px;font-weight:800">${p.dis.toLocaleString()}원</div>
+        </div>
+      </div>`;
+    }).join('');
 }
 
 /* ══ 상세 페이지 ══ */
