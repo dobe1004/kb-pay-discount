@@ -34,7 +34,12 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{background:#fff !important;overflow-x:clip;width:100%}
-body{font-family:'Noto Sans KR',sans-serif;background:#fff;color:var(--t1);min-height:100vh;padding-bottom:62px;-webkit-font-smoothing:antialiased}
+body{font-family:'Noto Sans KR',sans-serif;background:#fff;color:var(--t1);min-height:100vh;padding-bottom:24px;-webkit-font-smoothing:antialiased}
+/* ─── FAB ─── */
+.fab-item{display:flex;align-items:center;gap:10px;pointer-events:auto;opacity:0;transform:translateY(20px) scale(.85);transition:opacity .18s var(--d) ease,transform .18s var(--d) ease}
+.fab-item.open{opacity:1;transform:translateY(0) scale(1)}
+.fab-btn{width:46px;height:46px;border-radius:50%;background:#fff;border:none;box-shadow:0 2px 10px rgba(0,0,0,.18);cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.fab-lbl{background:rgba(0,0,0,.72);color:#fff;font-size:12px;font-weight:700;padding:4px 10px;border-radius:8px;white-space:nowrap;font-family:inherit}
 img{display:block}
 
 /* ─── 헤더 ─── */
@@ -112,7 +117,7 @@ img{display:block}
 .ftab.on{background:#111;border-color:#111;color:#fff;font-weight:700}
 
 /* ─── 브랜드 그리드 3열 ─── */
-.brand-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:8px 12px 80px;width:100%;box-sizing:border-box}
+.brand-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:8px 12px 90px;width:100%;box-sizing:border-box}
 .bc{background:#fff;border-radius:12px;border:1px solid var(--bd);padding:12px 4px 10px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;position:relative;transition:.12s;box-shadow:0 1px 3px rgba(0,0,0,.06);box-sizing:border-box;min-height:148px;overflow:hidden;width:100%}
 .bc:active{transform:scale(.97)}
 .bc.done{opacity:.5}
@@ -491,7 +496,7 @@ select.admin-form-input{cursor:pointer}
 
 /* ─── PC/태블릿 반응형 ─── */
 @media(min-width:600px){
-  body{max-width:480px;margin:0 auto;padding-bottom:68px;box-shadow:0 0 30px rgba(0,0,0,.12)}
+  body{max-width:480px;margin:0 auto;padding-bottom:24px;box-shadow:0 0 30px rgba(0,0,0,.12)}
   .hd{max-width:480px;left:50%;transform:translateX(-50%)}
   .bnav{max-width:480px;left:50%;transform:translateX(-50%)}
   .detail-page{max-width:480px;left:50%;transform:translateX(-50%) translateX(100%)}
@@ -1122,21 +1127,21 @@ select.admin-form-input{cursor:pointer}
 </div>
 
 <!-- ══ 맨위로 버튼 ══ -->
-<button id="scroll-top-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" style="display:none;position:fixed;bottom:80px;right:16px;z-index:190;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.92);border:1.5px solid rgba(0,0,0,.10);box-shadow:0 2px 10px rgba(0,0,0,.15);cursor:pointer;font-size:20px;font-weight:900;color:#333;align-items:center;justify-content:center;line-height:1">↑</button>
-<button id="share-float-btn" onclick="openShareFloat()" style="display:none;position:fixed;bottom:130px;right:16px;z-index:190;width:44px;height:44px;border-radius:50%;background:var(--y);border:none;box-shadow:0 2px 10px rgba(0,0,0,.2);cursor:pointer;align-items:center;justify-content:center">
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="18" cy="5" r="3" fill="#333"/><circle cx="6" cy="12" r="3" fill="#333"/><circle cx="18" cy="19" r="3" fill="#333"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" stroke="#333" stroke-width="2"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" stroke="#333" stroke-width="2"/></svg>
-</button>
+<!-- ══ FAB 메뉴 ══ -->
+<div id="fab-overlay" onclick="closeFab()" style="display:none;position:fixed;inset:0;z-index:280;background:rgba(0,0,0,.35)"></div>
+<div id="fab-menu" style="display:none;position:fixed;bottom:84px;right:16px;z-index:290;display:flex;flex-direction:column;align-items:flex-end;gap:10px;pointer-events:none">
+  <div class="fab-item" onclick="closeFab();goTab(0)" style="--d:.24s"><span class="fab-lbl">홈</span><button class="fab-btn">🏠</button></div>
+  <div class="fab-item" onclick="closeFab();goTab(1)" style="--d:.20s"><span class="fab-lbl">찜</span><button class="fab-btn">❤️</button></div>
+  <div class="fab-item" onclick="closeFab();goTab(2)" style="--d:.16s"><span class="fab-lbl">쿠폰함</span><button class="fab-btn">🎫</button></div>
+  <div class="fab-item" onclick="closeFab();goTab(3)" style="--d:.12s"><span class="fab-lbl">이용내역</span><button class="fab-btn">📋</button></div>
+  <div class="fab-item" onclick="closeFab();goTab(4)" style="--d:.08s"><span class="fab-lbl">MY</span><button class="fab-btn">👤</button></div>
+  <div class="fab-item" onclick="closeFab();openShareFloat()" style="--d:.04s"><span class="fab-lbl">공유하기</span><button class="fab-btn">📤</button></div>
+  <div class="fab-item" onclick="closeFab();window.scrollTo({top:0,behavior:'smooth'})" style="--d:.00s"><span class="fab-lbl">맨 위로</span><button class="fab-btn">⬆️</button></div>
+</div>
+<button id="fab-main" onclick="toggleFab()" style="position:fixed;bottom:24px;right:16px;z-index:291;width:54px;height:54px;border-radius:50%;background:var(--y);border:none;box-shadow:0 4px 16px rgba(0,0,0,.25);cursor:pointer;font-size:26px;display:flex;align-items:center;justify-content:center;transition:transform .2s">＋</button>
 
 <!-- ══ 하단 네비 (5탭) ══ -->
-<nav class="bnav">
-  <div class="bnav-inner">
-  <div class="bn on" id="bn0" onclick="goTab(0)"><div class="bn-ico">🏠</div><div class="bn-lbl">홈</div></div>
-  <div class="bn"    id="bn1" onclick="goTab(1)"><div class="bn-ico">❤️</div><div class="bn-lbl">찜</div></div>
-  <div class="bn"    id="bn2" onclick="goTab(2)"><div class="bn-ico">🎫</div><div class="bn-lbl">쿠폰함</div></div>
-  <div class="bn"    id="bn3" onclick="goTab(3)"><div class="bn-ico">📋</div><div class="bn-lbl">내역</div></div>
-  <div class="bn"    id="bn4" onclick="goTab(4)"><div class="bn-ico">👤</div><div class="bn-lbl">MY</div></div>
-  </div>
-</nav>
+
 
 
 <script>
@@ -1324,11 +1329,39 @@ function doLogout() {
   currentTab = 0;
   for (let i = 0; i < 5; i++) {
     document.getElementById(`pg${i}`).style.display = i === 0 ? 'block' : 'none';
-    document.getElementById(`bn${i}`).classList.toggle('on', i === 0);
   }
   render();
   renderRecent();
   toast('로그아웃 되었습니다.', 'inf');
+}
+
+/* ══ FAB ══ */
+let fabOpen = false;
+function toggleFab() {
+  fabOpen = !fabOpen;
+  const menu = document.getElementById('fab-menu');
+  const overlay = document.getElementById('fab-overlay');
+  const main = document.getElementById('fab-main');
+  if (fabOpen) {
+    overlay.style.display = 'block';
+    menu.style.display = 'flex';
+    menu.style.pointerEvents = 'auto';
+    requestAnimationFrame(() => { menu.querySelectorAll('.fab-item').forEach(el => el.classList.add('open')); });
+    main.style.transform = 'rotate(45deg)';
+  } else {
+    closeFab();
+  }
+}
+function closeFab() {
+  fabOpen = false;
+  const menu = document.getElementById('fab-menu');
+  const overlay = document.getElementById('fab-overlay');
+  const main = document.getElementById('fab-main');
+  overlay.style.display = 'none';
+  menu.querySelectorAll('.fab-item').forEach(el => el.classList.remove('open'));
+  menu.style.pointerEvents = 'none';
+  if (main) main.style.transform = 'rotate(0deg)';
+  setTimeout(() => { if (!fabOpen) menu.style.display = 'none'; }, 200);
 }
 
 /* ══ 탭 ══ */
@@ -1344,7 +1377,6 @@ function goTab(n, preserveScroll) {
   currentTab = n;
   for (let i = 0; i < 5; i++) {
     document.getElementById(`pg${i}`).style.display = i === n ? 'block' : 'none';
-    document.getElementById(`bn${i}`).classList.toggle('on', i === n);
   }
   // 버튼 클릭 이동 시 맨위로, 뒤로가기(preserveScroll=true)는 유지
   if (!preserveScroll) window.scrollTo(0, 0);
@@ -1749,14 +1781,20 @@ function renderCats() {
     `<button class="cat-btn${c===curCat?' on':''}" onclick="setCat('${c}')">${c}</button>`
   ).join('');
 }
-function setCat(c) { curCat=c; renderCats(); render(); window.scrollTo({top:0,behavior:'instant'}); }
-function setSort(s,el) { curSort=s; document.querySelectorAll('.sort-btn').forEach(b=>b.classList.remove('on')); if(el) el.classList.add('on'); render(); window.scrollTo({top:0,behavior:'instant'}); }
+function scrollToPlist() {
+  const el = document.getElementById('plist');
+  if (!el) return;
+  const top = el.getBoundingClientRect().top + window.scrollY - 4;
+  window.scrollTo({top, behavior:'smooth'});
+}
+function setCat(c) { curCat=c; renderCats(); render(); setTimeout(scrollToPlist, 50); }
+function setSort(s,el) { curSort=s; document.querySelectorAll('.sort-btn').forEach(b=>b.classList.remove('on')); if(el) el.classList.add('on'); render(); setTimeout(scrollToPlist, 50); }
 function setFilterTab(tab, el) {
   curFilterTab = tab;
   document.querySelectorAll('.ftab').forEach(b=>b.classList.remove('on'));
   if(el) el.classList.add('on');
   render();
-  window.scrollTo({top:0,behavior:'instant'});
+  setTimeout(scrollToPlist, 50);
 }
 function updateBenefitBox() {
   const amtEl = document.getElementById('benefit-amount');
@@ -2159,8 +2197,8 @@ const brandDomain = {
   'PIZZA HUT':       'pizzahut.com',
   'SUBWAY':          'subway.com',
   'HOMEPLUS':        'homeplus.co.kr',
-  'HOLLYS':          'hollyscoffee.co.kr',
-  'VIPS':            'ourvips.com',
+  'HOLLYS':          'hollys.co.kr',
+  'VIPS':            'cjfoodville.co.kr',
   'INNISFREE':       'innisfree.com',
   'BASKIN ROBBINS':  'baskinrobbins.com',
 };
@@ -2231,7 +2269,7 @@ function render() {
         </div>
         <div class="bc-brand">${p.brand}</div>
         <div class="bc-rate">${out?'마감':used?'사용완료':issued?'발급완료':`${p.rate}% 할인`}</div>
-        <div style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;${isOnline?'background:#E8F0FE;color:#1a73e8':'background:#FFEBEE;color:#e53935'}">${isOnline?'📱 온라인':'🏪 오프라인'}</div>
+        <div style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;${isOnline?'background:#E8F0FE;color:#1a73e8':'background:#FFEBEE;color:#e53935'}">${isOnline?'📱 온라인 전용':'🏪 오프라인 전용'}</div>
         ${!out&&!used?`<div style="font-size:9px;color:var(--t4);text-align:center;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">잔여 ${p.remaining}/${p.total}</div>`:''}
         ${!out?`<div style="display:flex;align-items:center;justify-content:center;gap:2px;width:100%;overflow:hidden"><span id="pt-${p.id}" style="font-size:9px;font-weight:700;font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:${timerRed?'var(--red)':'#1a73e8'}">${fmtTimer(timerSecs)}</span></div>`:''}
         ${issued?`<div class="bc-issued"></div>`:''}
@@ -2882,39 +2920,6 @@ function openGift(code, name) {
   document.getElementById('gift-to').value=''; document.getElementById('gift-msg').value=''; openS(6);
 }
 /* ══ 맨위로 버튼 - 모든 화면 ══ */
-function updateScrollBtn() {
-  const btn = document.getElementById('scroll-top-btn');
-  const shareBtn = document.getElementById('share-float-btn');
-  if (!btn) return;
-  const mainScroll = window.scrollY > 100;
-  const detailPages = ['detail-page','notice-page','notif-page','gift-box-page'];
-  const pageScroll = detailPages.some(id => {
-    const el = document.getElementById(id);
-    return el && el.classList.contains('on') && el.scrollTop > 100;
-  });
-  const show = mainScroll || pageScroll;
-  btn.style.display = show ? 'flex' : 'none';
-  if (shareBtn) shareBtn.style.display = mainScroll ? 'flex' : 'none';
-}
-window.addEventListener('scroll', updateScrollBtn);
-['detail-page','notice-page','notif-page','gift-box-page'].forEach(id => {
-  const el = document.getElementById(id);
-  if (el) el.addEventListener('scroll', updateScrollBtn);
-});
-
-document.getElementById('scroll-top-btn').onclick = () => {
-  const detailPages = ['detail-page','notice-page','notif-page','gift-box-page'];
-  const activePage = detailPages.find(id => {
-    const el = document.getElementById(id);
-    return el && el.classList.contains('on');
-  });
-  if (activePage) {
-    document.getElementById(activePage).scrollTo({top:0, behavior:'smooth'});
-  } else {
-    window.scrollTo({top:0, behavior:'smooth'});
-  }
-};
-
 /* ══ 선물하기 시트 ══ */
 function openGiftSend() {
   if (!uid) { requireLogin('선물하기', '로그인이 필요합니다', openGiftSend); return; }
