@@ -104,7 +104,7 @@ img{display:block}
 
 /* ─── 상단 혜택 섹션 ─── */
 .benefit-box{margin:12px 14px 0;background:linear-gradient(135deg,#FFF9E6,#FFF3B0);border-radius:14px;padding:14px 16px;border:1px solid rgba(255,200,0,.3)}
-.benefit-label{font-size:11px;color:#a07000;font-weight:600;margin-bottom:2px}
+.benefit-label{font-size:11px;color:#a07000;font-weight:600;margin-bottom:2px;display:flex;align-items:center;justify-content:space-between;width:100%}
 .benefit-amount{font-size:24px;font-weight:900;color:#111;letter-spacing:-.5px}
 .benefit-card-row{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid rgba(0,0,0,.06)}
 .benefit-card-info{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--t2);font-weight:600}
@@ -609,9 +609,9 @@ select.admin-form-input{cursor:pointer}
   <div class="benefit-box" id="benefit-box">
     <div style="display:flex;align-items:center;justify-content:space-between">
       <div>
-        <div class="benefit-label" style="display:flex;align-items:center;justify-content:space-between">
+        <div class="benefit-label">
           <span>최근 3개월 혜택금액</span>
-          <span onclick="showBenefitInfo(event)" style="font-size:11px;cursor:pointer;color:#a07000;text-decoration:underline;font-weight:600">바로할인이란? ▸</span>
+          <span onclick="showBenefitInfo(event)" style="font-size:11px;cursor:pointer;color:#a07000;text-decoration:underline;font-weight:600;margin-left:auto">바로할인이란? ▸</span>
         </div>
         <div class="benefit-amount" id="benefit-amount">0원</div>
       </div>
@@ -1134,6 +1134,7 @@ select.admin-form-input{cursor:pointer}
   <div class="fab-item" onclick="closeFab();goTab(2)" style="--d:.12s"><span class="fab-lbl">쿠폰함</span><button class="fab-btn">🎫</button></div>
   <div class="fab-item" onclick="closeFab();goTab(3)" style="--d:.08s"><span class="fab-lbl">이용내역</span><button class="fab-btn">📋</button></div>
   <div class="fab-item" onclick="closeFab();goTab(4)" style="--d:.04s"><span class="fab-lbl">MY</span><button class="fab-btn">👤</button></div>
+  <div class="fab-item" onclick="closeFab();goTab(0);setTimeout(()=>openS(7),200)" style="--d:.00s"><span class="fab-lbl">공유하기</span><button class="fab-btn">📤</button></div>
 </div>
 <button id="fab-main" onclick="toggleFab()" style="position:fixed;bottom:24px;right:16px;z-index:291;width:54px;height:54px;border-radius:50%;background:rgba(255,255,255,0.82);border:1.5px solid rgba(0,0,0,.12);box-shadow:0 4px 16px rgba(0,0,0,.18);cursor:pointer;font-size:26px;display:flex;align-items:center;justify-content:center;transition:transform .2s;backdrop-filter:blur(6px)">＋</button>
 
@@ -1810,7 +1811,7 @@ function updateBenefitBox() {
     if (cardRow) cardRow.innerHTML = `
       <div class="benefit-card-info">
         <svg width="20" height="14" viewBox="0 0 20 14" fill="none"><rect width="20" height="14" rx="3" fill="#333"/><rect x="0" y="4" width="20" height="3.5" fill="#FFD700" opacity=".8"/><rect x="2" y="9" width="5" height="1.5" rx=".75" fill="#fff" opacity=".5"/></svg>
-        <span id="benefit-card-name" style="font-size:11px">KB카드 1234</span>
+        <span id="benefit-card-name" style="font-size:11px">KB카드</span>
       </div>
       <button onclick="goTab(3)" style="font-size:11px;padding:4px 11px;border-radius:6px;background:rgba(0,0,0,.08);color:#333;border:none;font-family:inherit;font-weight:700;cursor:pointer">이용내역</button>`;
   });
@@ -2197,6 +2198,7 @@ const brandDomain = {
   'SUBWAY':          'subway.com',
   'HOMEPLUS':        'homeplus.co.kr',
   'HOLLYS':          'hollys.co.kr',
+  'TOM N TOMS':      'tomntoms.com',
   'VIPS':            'cjfoodville.co.kr',
   'INNISFREE':       'innisfree.com',
   'BASKIN ROBBINS':  'baskinrobbins.com',
@@ -2215,7 +2217,7 @@ const brandIcon = {
   'GS CALTEX':'⛽','SHINSEGAE':'🏬','COUPANG':'🚀','BAEMIN':'🛵',
   'PARIS BAGUETTE':'🥐','KFC':'🍗','CU':'🏪','DOMINOS':'🍕',
   'BASKIN ROBBINS':'🍦','BURGER KING':'🍔','PIZZA HUT':'🍕',
-  'SUBWAY':'🥪','HOMEPLUS':'🛒','HOLLYS':'☕',
+  'SUBWAY':'🥪','HOMEPLUS':'🛒','HOLLYS':'☕','TOM N TOMS':'☕',
   'LOTTERIA':'🍔','INNISFREE':'🌿','MOMS TOUCH':'🍔','SHAKE SHACK':'🍔',
 };
 const brandBg = {
@@ -2225,7 +2227,7 @@ const brandBg = {
   'COUPANG':'#1ABEFF','BAEMIN':'#2AC1BC','PARIS BAGUETTE':'#C8102E',
   'KFC':'#F40027','CU':'#6346A3','DOMINOS':'#006491','BASKIN ROBBINS':'#FF6B9D',
   'BURGER KING':'#D62300','PIZZA HUT':'#EE3124',
-  'SUBWAY':'#00843D','HOMEPLUS':'#004B97','HOLLYS':'#6B3A2A',
+  'SUBWAY':'#00843D','HOMEPLUS':'#004B97','HOLLYS':'#6B3A2A','TOM N TOMS':'#003087',
   'LOTTERIA':'#E63312','INNISFREE':'#2E8B57','MOMS TOUCH':'#E63312','SHAKE SHACK':'#6DB33F',
 };
 
@@ -2267,9 +2269,9 @@ function render() {
                  : `<span style="font-size:22px">${icon}</span>`}
         </div>
         <div class="bc-brand">${p.brand}</div>
-        <div class="bc-rate" style="${out?'color:var(--t3)':used?'color:#555':issued?'color:#1a73e8':'color:var(--red)'}">${out?'마감':used?'사용완료':issued?'발급완료':`${p.rate}% 할인`}</div>
+        <div class="bc-rate" style="${out?'color:var(--t3)':used?'color:#bbb':issued?'color:#1a73e8':'color:var(--red)'}">${out?'마감':used?'사용완료':issued?'발급완료':`${p.rate}% 할인`}</div>
         <div style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;${isOnline?'background:#E8F0FE;color:#1a73e8':'background:#FFEBEE;color:#e53935'}">${isOnline?'📱 온라인 전용':'🏪 오프라인 전용'}</div>
-        ${!out&&!used?`<div style="font-size:9px;color:var(--t4);text-align:center;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">잔여 ${p.remaining}/${p.total}</div>`:''}
+        ${!out?`<div style="font-size:9px;color:var(--t4);text-align:center;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">잔여 ${p.remaining}/${p.total}</div>`:''}
         ${!out?`<div style="display:flex;align-items:center;justify-content:center;gap:2px;width:100%;overflow:hidden"><span id="pt-${p.id}" style="font-size:9px;font-weight:700;font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:${timerRed?'var(--red)':'#1a73e8'}">${fmtTimer(timerSecs)}</span></div>`:''}
         ${issued?`<div class="bc-issued"></div>`:''}
       </div>`;
@@ -3481,22 +3483,22 @@ const STORE_DATA = {
       ],
     },
   },
-  'HOLLYS': {
+  'TOM N TOMS': {
     '서울': {
       '강남구': [
-        {name:'할리스 강남역점', addr:'서울 강남구 강남대로 390', lat:37.4956, lng:127.0282},
-        {name:'할리스 역삼역점', addr:'서울 강남구 테헤란로 128', lat:37.5002, lng:127.0363},
+        {name:'탐앤탐스 강남역점', addr:'서울 강남구 강남대로 390', lat:37.4956, lng:127.0282},
+        {name:'탐앤탐스 역삼역점', addr:'서울 강남구 테헤란로 128', lat:37.5002, lng:127.0363},
       ],
       '마포구': [
-        {name:'할리스 홍대점', addr:'서울 마포구 양화로 173', lat:37.5563, lng:126.9232},
+        {name:'탐앤탐스 홍대점', addr:'서울 마포구 양화로 173', lat:37.5563, lng:126.9232},
       ],
       '종로구': [
-        {name:'할리스 광화문점', addr:'서울 종로구 세종대로 178', lat:37.5713, lng:126.9771},
+        {name:'탐앤탐스 광화문점', addr:'서울 종로구 세종대로 178', lat:37.5713, lng:126.9771},
       ],
     },
     '경기': {
       '성남시': [
-        {name:'할리스 판교점', addr:'경기 성남시 분당구 판교역로 146', lat:37.3943, lng:127.1107},
+        {name:'탐앤탐스 판교점', addr:'경기 성남시 분당구 판교역로 146', lat:37.3943, lng:127.1107},
       ],
     },
   },
