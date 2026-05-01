@@ -33,8 +33,8 @@
   --r:12px;--rs:8px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{background:#fff !important;overflow-x:hidden;width:100%}
-body{font-family:'Noto Sans KR',sans-serif;background:#fff;color:var(--t1);min-height:100vh;padding-bottom:62px;-webkit-font-smoothing:antialiased;position:relative}
+html,body{background:#fff !important;overflow-x:clip;width:100%}
+body{font-family:'Noto Sans KR',sans-serif;background:#fff;color:var(--t1);min-height:100vh;padding-bottom:62px;-webkit-font-smoothing:antialiased}
 img{display:block}
 
 /* ─── 헤더 ─── */
@@ -127,7 +127,7 @@ img{display:block}
 .bc-issued{position:absolute;bottom:5px;right:5px;width:8px;height:8px;border-radius:50%;background:var(--y);border:1.5px solid #fff}
 
 /* ─── 카테고리 sticky ─── */
-.cat-sticky{position:sticky;top:54px;z-index:100;background:#fff;border-bottom:1px solid var(--bd2)}
+.cat-sticky{position:sticky;top:52px;z-index:150;background:#fff;border-bottom:1px solid var(--bd2)}
 
 /* ─── 브랜드 리스트 헤더 ─── */
 .brand-list-hd{display:flex;align-items:center;justify-content:space-between;padding:12px 14px 0}
@@ -1742,7 +1742,15 @@ function renderRecent() {
   const el = document.getElementById('recent-scroll');
   if(el) el.innerHTML = recentViewed.map(pid => {
     const p = PRODS.find(x=>x.id===pid); if(!p) return '';
-    return `<div class="recent-item" onclick="openDetail(${p.id})"><img class="recent-img" src="${p.imageUrl}" onerror="this.style.background='#eee'"/><div class="recent-name">${p.productName}</div></div>`;
+    const bg = brandBg[p.brandName]||'#888';
+    const logo = getFavicon(p.brandName, 64);
+    const icon = brandIcon[p.brandName]||'🏷️';
+    return `<div class="recent-item" onclick="openDetail(${p.id})">
+      <div class="recent-img" style="background:${bg};display:flex;align-items:center;justify-content:center;overflow:hidden">
+        ${logo ? `<img src="${logo}" width="40" height="40" style="object-fit:contain;border-radius:3px" onerror="this.style.display='none';this.nextSibling.style.display='block'"><span style="font-size:22px;display:none">${icon}</span>` : `<span style="font-size:22px">${icon}</span>`}
+      </div>
+      <div class="recent-name">${p.productName}</div>
+    </div>`;
   }).join('');
 }
 
@@ -2140,6 +2148,42 @@ function startProdTimer(pid, secs) {
 }
 
 /* ══ 상품 렌더 ══ */
+/* ══ 브랜드 매핑 (전역) ══ */
+const brandDomain = {
+  'STARBUCKS':'starbucks.co.kr','A TWOSOME PLACE':'twosome.co.kr',
+  'MEGA COFFEE':'megacoffee.kr','LOTTE CINEMA':'lottecinema.co.kr',
+  'CGV':'cgv.co.kr','bhc 치킨':'bhcchicken.co.kr','MCDONALDS':'mcdelivery.co.kr',
+  'GS25':'gs25.com','OLIVE YOUNG':'oliveyoung.co.kr','MUSINSA':'musinsa.com',
+  'GS CALTEX':'gscaltex.com','COUPANG EATS':'coupangeats.com',
+  'SHINSEGAE':'shinsegae.com','COUPANG':'coupang.com','BAEMIN':'baemin.com',
+  'PARIS BAGUETTE':'paris.co.kr','LOTTERIA':'lotteria.com','GS THE FRESH':'gsfresh.com',
+  'EDIYA COFFEE':'ediya.com','KFC':'kfckorea.com','CU':'bgfretail.com',
+  'OUTBACK':'outback.co.kr','DOMINOS':'dominos.co.kr','SEPHORA':'sephora.kr',
+  'BASKIN ROBBINS':'baskinrobbins.co.kr',
+};
+function getFavicon(brand, sz=64) {
+  const d = brandDomain[brand];
+  return d ? `https://www.google.com/s2/favicons?domain=${d}&sz=${sz}` : null;
+}
+const brandIcon = {
+  'STARBUCKS':'☕','A TWOSOME PLACE':'🎂','MEGA COFFEE':'☕',
+  'LOTTE CINEMA':'🎬','CGV':'🍿','bhc 치킨':'🍗','MCDONALDS':'🍔',
+  'GS25':'🏪','OLIVE YOUNG':'💄','MUSINSA':'👗','GS CALTEX':'⛽',
+  'COUPANG EATS':'🛵','SHINSEGAE':'🏬','COUPANG':'🚀','BAEMIN':'🛵',
+  'PARIS BAGUETTE':'🥐','LOTTERIA':'🍔','GS THE FRESH':'🥗',
+  'EDIYA COFFEE':'☕','KFC':'🍗','CU':'🏪','OUTBACK':'🥩',
+  'DOMINOS':'🍕','SEPHORA':'💋','BASKIN ROBBINS':'🍦',
+};
+const brandBg = {
+  'STARBUCKS':'#00704A','A TWOSOME PLACE':'#C8A96E','MEGA COFFEE':'#2D2D2D',
+  'LOTTE CINEMA':'#E50914','CGV':'#E50914','bhc 치킨':'#E31837','MCDONALDS':'#FFC72C',
+  'GS25':'#00A0E9','OLIVE YOUNG':'#02C75A','MUSINSA':'#222','GS CALTEX':'#00A650',
+  'COUPANG EATS':'#FF4F00','SHINSEGAE':'#B5913F','COUPANG':'#1ABEFF','BAEMIN':'#2AC1BC',
+  'PARIS BAGUETTE':'#C8102E','LOTTERIA':'#E63312','GS THE FRESH':'#00843D',
+  'EDIYA COFFEE':'#003087','KFC':'#F40027','CU':'#6346A3','OUTBACK':'#8B1A1A',
+  'DOMINOS':'#006491','SEPHORA':'#1a1a1a','BASKIN ROBBINS':'#FF6B9D',
+};
+
 function render() {
   let list = curCat==='전체' ? [...PRODS] : PRODS.filter(p=>p.cat===curCat);
   if (searchQ) { const q=searchQ.toLowerCase(); list=list.filter(p=>p.name.toLowerCase().includes(q)||p.brand.toLowerCase().includes(q)); }
@@ -2154,43 +2198,6 @@ function render() {
 
   document.getElementById('rem-cnt').textContent = `전체 브랜드 ${list.length}`;
   const bmap = {hot:'🔥 HOT',new:'✨ NEW',end:'⏰ 마감임박',best:'👑 BEST'};
-
-  // 브랜드 로고 이미지 매핑 - 실제 브랜드 공식 이미지 (favicon/CDN)
-  // Google Favicon API로 브랜드 로고 확실하게 표시
-  const brandDomain = {
-    'STARBUCKS':'starbucks.co.kr','A TWOSOME PLACE':'twosome.co.kr',
-    'MEGA COFFEE':'megacoffee.kr','LOTTE CINEMA':'lottecinema.co.kr',
-    'CGV':'cgv.co.kr','bhc 치킨':'bhcchicken.co.kr','MCDONALDS':'mcdelivery.co.kr',
-    'GS25':'gs25.com','OLIVE YOUNG':'oliveyoung.co.kr','MUSINSA':'musinsa.com',
-    'GS CALTEX':'gscaltex.com','COUPANG EATS':'coupangeats.com',
-    'SHINSEGAE':'shinsegae.com','COUPANG':'coupang.com','BAEMIN':'baemin.com',
-    'PARIS BAGUETTE':'paris.co.kr','LOTTERIA':'lotteria.com','GS THE FRESH':'gsfresh.com',
-    'EDIYA COFFEE':'ediya.com','KFC':'kfckorea.com','CU':'bgfretail.com',
-    'OUTBACK':'outback.co.kr','DOMINOS':'dominos.co.kr','SEPHORA':'sephora.kr',
-    'BASKIN ROBBINS':'baskinrobbins.co.kr',
-  };
-  function getFavicon(brand, sz=64) {
-    const d = brandDomain[brand];
-    return d ? `https://www.google.com/s2/favicons?domain=${d}&sz=${sz}` : null;
-  }
-  const brandIcon = {
-    'STARBUCKS':'☕','A TWOSOME PLACE':'🎂','MEGA COFFEE':'☕',
-    'LOTTE CINEMA':'🎬','CGV':'🍿','bhc 치킨':'🍗','MCDONALDS':'🍔',
-    'GS25':'🏪','OLIVE YOUNG':'💄','MUSINSA':'👗','GS CALTEX':'⛽',
-    'COUPANG EATS':'🛵','SHINSEGAE':'🏬','COUPANG':'🚀','BAEMIN':'🛵',
-    'PARIS BAGUETTE':'🥐','LOTTERIA':'🍔','GS THE FRESH':'🥗',
-    'EDIYA COFFEE':'☕','KFC':'🍗','CU':'🏪','OUTBACK':'🥩',
-    'DOMINOS':'🍕','SEPHORA':'💋','BASKIN ROBBINS':'🍦',
-  };
-  const brandBg = {
-    'STARBUCKS':'#00704A','A TWOSOME PLACE':'#C8A96E','MEGA COFFEE':'#2D2D2D',
-    'LOTTE CINEMA':'#E50914','CGV':'#E50914','bhc 치킨':'#E31837','MCDONALDS':'#FFC72C',
-    'GS25':'#00A0E9','OLIVE YOUNG':'#02C75A','MUSINSA':'#222','GS CALTEX':'#00A650',
-    'COUPANG EATS':'#FF4F00','SHINSEGAE':'#B5913F','COUPANG':'#1ABEFF','BAEMIN':'#2AC1BC',
-    'PARIS BAGUETTE':'#C8102E','LOTTERIA':'#E63312','GS THE FRESH':'#00843D',
-    'EDIYA COFFEE':'#003087','KFC':'#F40027','CU':'#6346A3','OUTBACK':'#8B1A1A',
-    'DOMINOS':'#006491','SEPHORA':'#1a1a1a','BASKIN ROBBINS':'#FF6B9D',
-  };
 
   document.getElementById('plist').innerHTML = list.length===0
     ? `<div class="empty" style="grid-column:1/-1"><div class="emo">🔍</div><p>검색 결과가 없습니다</p></div>`
