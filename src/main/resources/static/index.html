@@ -607,14 +607,12 @@ select.admin-form-input{cursor:pointer}
 
   <!-- 최근 3개월 혜택금액 + 연결카드 -->
   <div class="benefit-box" id="benefit-box">
-    <div style="display:flex;align-items:center;justify-content:space-between">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between">
       <div>
-        <div class="benefit-label">
-          <span>최근 3개월 혜택금액</span>
-          <span onclick="showBenefitInfo(event)" style="font-size:11px;cursor:pointer;color:#a07000;text-decoration:underline;font-weight:600;margin-left:auto">바로할인이란? ▸</span>
-        </div>
+        <div class="benefit-label">최근 3개월 혜택금액</div>
         <div class="benefit-amount" id="benefit-amount">0원</div>
       </div>
+      <span onclick="showBenefitInfo(event)" style="font-size:11px;cursor:pointer;color:#a07000;text-decoration:underline;font-weight:600;flex-shrink:0;padding-top:2px">바로할인이란? ▸</span>
     </div>
     <div class="benefit-card-row" id="benefit-card-row">
       <div class="benefit-card-info">
