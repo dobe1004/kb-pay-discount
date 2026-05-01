@@ -33,8 +33,8 @@
   --r:12px;--rs:8px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{background:#fff !important}
-body{font-family:'Noto Sans KR',sans-serif;background:#fff;color:var(--t1);min-height:100vh;padding-bottom:62px;-webkit-font-smoothing:antialiased}
+html,body{background:#fff !important;overflow-x:hidden;width:100%}
+body{font-family:'Noto Sans KR',sans-serif;background:#fff;color:var(--t1);min-height:100vh;padding-bottom:62px;-webkit-font-smoothing:antialiased;position:relative}
 img{display:block}
 
 /* ─── 헤더 ─── */
@@ -112,21 +112,19 @@ img{display:block}
 .ftab.on{background:#111;border-color:#111;color:#fff;font-weight:700}
 
 /* ─── 브랜드 그리드 3열 ─── */
-.brand-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:8px 14px 80px;align-items:start}
-.bc{background:#fff;border-radius:14px;border:1px solid var(--bd);padding:14px 8px 12px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;position:relative;transition:.12s;box-shadow:0 1px 4px rgba(0,0,0,.06);box-sizing:border-box}
-.bc:active{transform:scale(.97);opacity:.9}
-.bc.done{opacity:.55}
-.bc-icon-wrap{width:64px;height:64px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:28px;position:relative;border:2px solid var(--bd)}
-.bc-brand{font-size:11px;font-weight:700;color:var(--t2);text-align:center;line-height:1.3;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 4px}
-.bc-rate{font-size:13px;font-weight:900;color:var(--red);text-align:center}
-.bc-heart{position:absolute;top:8px;right:8px;background:none;border:none;font-size:16px;cursor:pointer;padding:0;line-height:1;z-index:2}
-.bc-badge{position:absolute;top:6px;left:6px;font-size:9px;font-weight:800;padding:1px 5px;border-radius:4px}
+.brand-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:8px 12px 80px;width:100%;box-sizing:border-box}
+.bc{background:#fff;border-radius:12px;border:1px solid var(--bd);padding:12px 4px 10px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;position:relative;transition:.12s;box-shadow:0 1px 3px rgba(0,0,0,.06);box-sizing:border-box;min-height:148px;overflow:hidden;width:100%}
+.bc:active{transform:scale(.97)}
+.bc.done{opacity:.5}
+.bc-icon-wrap{width:52px;height:52px;min-width:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;overflow:hidden}
+.bc-brand{font-size:10px;font-weight:700;color:var(--t2);text-align:center;line-height:1.3;width:100%;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 2px;box-sizing:border-box}
+.bc-rate{font-size:12px;font-weight:900;color:var(--red);text-align:center;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bc-heart{position:absolute;top:6px;right:6px;background:none;border:none;font-size:14px;cursor:pointer;padding:0;line-height:1;z-index:2}
+.bc-badge{position:absolute;top:6px;left:6px;font-size:9px;font-weight:800;padding:1px 4px;border-radius:3px}
 .bc-badge.hot{background:var(--red);color:#fff}
-.bc-badge.new{background:var(--grn);color:#fff}
+.bc-badge.new{background:#22c55e;color:#fff}
 .bc-badge.end{background:#555;color:#fff}
-.bc-badge.best{background:var(--pur);color:#fff}
-.bc-sold{font-size:10px;color:var(--t4);font-weight:600}
-.bc-issued{position:absolute;bottom:6px;right:6px;width:10px;height:10px;border-radius:50%;background:var(--y);border:1.5px solid #fff}
+.bc-issued{position:absolute;bottom:5px;right:5px;width:8px;height:8px;border-radius:50%;background:var(--y);border:1.5px solid #fff}
 
 /* ─── 카테고리 sticky ─── */
 .cat-sticky{position:sticky;top:54px;z-index:100;background:#fff;border-bottom:1px solid var(--bd2)}
@@ -380,7 +378,7 @@ img{display:block}
 .bk{position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.45);display:none}
 .bk.on{display:block;animation:bkfi .2s ease}
 @keyframes bkfi{from{opacity:0}to{opacity:1}}
-.bs{position:fixed;bottom:0;left:0;right:0;z-index:401;background:#fff;border-radius:18px 18px 0 0;box-shadow:0 -3px 24px rgba(0,0,0,.12);padding:0 20px 48px;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);max-height:92vh;overflow-y:auto}
+.bs{position:fixed;bottom:0;left:0;right:0;z-index:401;background:#fff;border-radius:18px 18px 0 0;box-shadow:0 -3px 24px rgba(0,0,0,.12);padding:0 20px 48px;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);max-height:92vh;overflow-y:auto;overflow-x:hidden}
 .bs.on{transform:translateY(0)}
 .bs-bar{width:34px;height:4px;background:var(--bd);border-radius:2px;margin:12px auto 16px}
 .bs-ico{font-size:42px;text-align:center;margin-bottom:6px}
@@ -702,7 +700,13 @@ select.admin-form-input{cursor:pointer}
       <span style="font-size:12px;font-weight:800;color:#a07000">선물하기</span>
     </button>
   </div>
-  <img class="detail-img" id="detail-img" src="" alt=""/>
+  <div id="detail-img-wrap" style="height:200px;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative">
+    <img id="detail-img-bg" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:blur(8px) brightness(.6);"/>
+    <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:8px">
+      <div id="detail-logo-wrap" style="width:90px;height:90px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,0,0,.3);overflow:hidden"></div>
+      <div id="detail-brand-hero" style="font-size:13px;font-weight:800;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.5)"></div>
+    </div>
+  </div>
   <div class="detail-body">
     <div class="detail-brand" id="detail-brand"></div>
     <div class="detail-name"  id="detail-name"></div>
@@ -1320,20 +1324,21 @@ function doLogout() {
   uid = ''; userInfo = null; wishes = []; cur = null; curPid = null;
   sessionStorage.removeItem('kbp_uid');
   sessionStorage.removeItem('kbp_user');
-  localStorage.removeItem('kbp_auto_user'); // 자동로그인 해제
+  localStorage.removeItem('kbp_auto_user');
   document.getElementById('huid').textContent = '로그인';
   document.getElementById('hbtn').classList.remove('on');
   document.getElementById('admin-hd-badge').style.display = 'none';
   document.getElementById('admin-bar').style.display = 'none';
   closeLogoutSheet(); closeNotifPage();
   updateNotifBadge();
+  updateBenefitBox(); // 즉시 시작하기 버튼으로 초기화
   currentTab = 0;
   for (let i = 0; i < 5; i++) {
     document.getElementById(`pg${i}`).style.display = i === 0 ? 'block' : 'none';
     document.getElementById(`bn${i}`).classList.toggle('on', i === 0);
   }
   render();
-  renderRecent(); // 최근 본 상품 숨김
+  renderRecent();
   toast('로그아웃 되었습니다.', 'inf');
 }
 
@@ -2151,33 +2156,23 @@ function render() {
   const bmap = {hot:'🔥 HOT',new:'✨ NEW',end:'⏰ 마감임박',best:'👑 BEST'};
 
   // 브랜드 로고 이미지 매핑 - 실제 브랜드 공식 이미지 (favicon/CDN)
-  const brandLogo = {
-    'STARBUCKS':    'https://www.starbucks.co.kr/common/img/favicon.ico',
-    'A TWOSOME PLACE': 'https://www.twosome.co.kr/images/common/favicon.ico',
-    'MEGA COFFEE':  'https://www.megacoffee.kr/favicon.ico',
-    'LOTTE CINEMA': 'https://www.lottecinema.co.kr/NLCHS/Img/lotte-cinema-logo.png',
-    'CGV':          'https://www.cgv.co.kr/images/common/logo_cgv.png',
-    'bhc 치킨':     'https://www.bhcchicken.co.kr/favicon.ico',
-    'MCDONALDS':    'https://www.mcdelivery.co.kr/favicon.ico',
-    'GS25':         'https://www.gs25.com/favicon.ico',
-    'OLIVE YOUNG':  'https://www.oliveyoung.co.kr/favicon.ico',
-    'MUSINSA':      'https://static.musinsa.com/favicon-32x32.png',
-    'GS CALTEX':    'https://www.gscaltexmall.com/favicon.ico',
-    'COUPANG EATS': 'https://image7.coupangcdn.com/image/coupang/common/logo_coupang_app.png',
-    'SHINSEGAE':    'https://www.shinsegae.com/favicon.ico',
-    'COUPANG':      'https://image7.coupangcdn.com/image/coupang/common/logo_coupang_app.png',
-    'BAEMIN':       'https://cdn.baemin.com/static/img/baemin-app-icon.png',
-    'PARIS BAGUETTE': 'https://www.paris.co.kr/favicon.ico',
-    'LOTTERIA':     'https://www.lotteria.com/favicon.ico',
-    'GS THE FRESH': 'https://www.gsfresh.com/favicon.ico',
-    'EDIYA COFFEE': 'https://www.ediya.com/favicon.ico',
-    'KFC':          'https://www.kfckorea.com/favicon.ico',
-    'CU':           'https://cu.bgfretail.com/favicon.ico',
-    'OUTBACK':      'https://www.outback.co.kr/favicon.ico',
-    'DOMINOS':      'https://www.dominos.co.kr/favicon.ico',
-    'SEPHORA':      'https://www.sephora.kr/favicon.ico',
-    'BASKIN ROBBINS':'https://www.baskinrobbins.co.kr/favicon.ico',
+  // Google Favicon API로 브랜드 로고 확실하게 표시
+  const brandDomain = {
+    'STARBUCKS':'starbucks.co.kr','A TWOSOME PLACE':'twosome.co.kr',
+    'MEGA COFFEE':'megacoffee.kr','LOTTE CINEMA':'lottecinema.co.kr',
+    'CGV':'cgv.co.kr','bhc 치킨':'bhcchicken.co.kr','MCDONALDS':'mcdelivery.co.kr',
+    'GS25':'gs25.com','OLIVE YOUNG':'oliveyoung.co.kr','MUSINSA':'musinsa.com',
+    'GS CALTEX':'gscaltex.com','COUPANG EATS':'coupangeats.com',
+    'SHINSEGAE':'shinsegae.com','COUPANG':'coupang.com','BAEMIN':'baemin.com',
+    'PARIS BAGUETTE':'paris.co.kr','LOTTERIA':'lotteria.com','GS THE FRESH':'gsfresh.com',
+    'EDIYA COFFEE':'ediya.com','KFC':'kfckorea.com','CU':'bgfretail.com',
+    'OUTBACK':'outback.co.kr','DOMINOS':'dominos.co.kr','SEPHORA':'sephora.kr',
+    'BASKIN ROBBINS':'baskinrobbins.co.kr',
   };
+  function getFavicon(brand, sz=64) {
+    const d = brandDomain[brand];
+    return d ? `https://www.google.com/s2/favicons?domain=${d}&sz=${sz}` : null;
+  }
   const brandIcon = {
     'STARBUCKS':'☕','A TWOSOME PLACE':'🎂','MEGA COFFEE':'☕',
     'LOTTE CINEMA':'🎬','CGV':'🍿','bhc 치킨':'🍗','MCDONALDS':'🍔',
@@ -2204,7 +2199,7 @@ function render() {
       const out = p.remaining <= 0;
       const issued = p._issued || false;
       const used   = p._used   || false;
-      const logo = brandLogo[p.brand];
+      const logo = getFavicon(p.brand, 64);
       const icon = brandIcon[p.brand] || '🏷️';
       const bg = brandBg[p.brand] || '#888';
       setTimeout(() => startProdTimer(p.id, p.timer||86400), 100);
@@ -2213,13 +2208,14 @@ function render() {
         ${isAdmin()?`<div style="position:absolute;top:0;left:0;right:0;display:flex;gap:2px;padding:4px;z-index:3"><button style="flex:1;font-size:9px;padding:2px;border-radius:3px;background:#7c3aed;color:#fff;border:none;cursor:pointer" onclick="event.stopPropagation();openAdminEdit(${p.id})">편집</button><button style="flex:1;font-size:9px;padding:2px;border-radius:3px;background:var(--red);color:#fff;border:none;cursor:pointer" onclick="event.stopPropagation();delProduct(${p.id})">삭제</button></div>`:''}
         <span class="bc-badge ${p.badge}">${bmap[p.badge]||''}</span>
         <button class="bc-heart" onclick="event.stopPropagation();toggleHeart(${p.id})">${isWished?'❤️':'🤍'}</button>
-        <div class="bc-icon-wrap" style="background:${brandBg[p.brand]||'#888'}">
-          <span style="font-size:28px;line-height:1">${icon}</span>
+        <div class="bc-icon-wrap" style="background:${bg}">
+          ${logo ? `<img src="${logo}" width="40" height="40" style="object-fit:contain;border-radius:4px" onerror="this.style.display='none';this.nextSibling.style.display='block'"><span style="font-size:24px;display:none">${icon}</span>`
+                 : `<span style="font-size:24px">${icon}</span>`}
         </div>
         <div class="bc-brand">${p.brand}</div>
-        <div class="bc-rate">${out?'마감':used?'사용완료':issued?`발급완료`:`${p.rate}% 할인`}</div>
-        ${!out&&!used?`<div style="font-size:9px;color:var(--t4);text-align:center">잔여 ${p.remaining}/${p.total}</div>`:''}
-        ${!out?`<div style="display:flex;align-items:center;gap:2px;margin-top:2px"><span style="font-size:9px;color:var(--t4)">⏰</span><span id="pt-${p.id}" style="font-size:9px;font-weight:700;color:var(--red);font-family:monospace">${fmtTimer(ptIvs[p.id]||p.timer||86400)}</span></div>`:''}
+        <div class="bc-rate">${out?'마감':used?'사용완료':issued?'발급완료':`${p.rate}% 할인`}</div>
+        ${!out&&!used?`<div style="font-size:9px;color:var(--t4);text-align:center;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">잔여 ${p.remaining}/${p.total}</div>`:''}
+        ${!out?`<div style="display:flex;align-items:center;justify-content:center;gap:2px;width:100%;overflow:hidden"><span style="font-size:9px;color:var(--t4);flex-shrink:0">⏰</span><span id="pt-${p.id}" style="font-size:9px;font-weight:700;color:var(--red);font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${fmtTimer(ptIvs[p.id]||p.timer||86400)}</span></div>`:''}
         ${issued?`<div class="bc-issued"></div>`:''}
       </div>`;
     }).join('');
@@ -2271,7 +2267,19 @@ async function openDetail(pid) {
   const p = PRODS.find(x=>x.id===pid); if(!p) return;
   curPid = pid; addRecent(pid);
   document.getElementById('detail-hd-title').textContent = p.name;
-  document.getElementById('detail-img').src = p.img||'';
+  const _bg = brandBg[p.brand]||'#555';
+  const _lurl = getFavicon(p.brand, 128);
+  const _icon = brandIcon[p.brand]||'🏷️';
+  const _wrap = document.getElementById('detail-img-wrap');
+  const _bgEl = document.getElementById('detail-img-bg');
+  const _logo = document.getElementById('detail-logo-wrap');
+  const _hero = document.getElementById('detail-brand-hero');
+  if (_wrap) _wrap.style.background = _bg;
+  if (_bgEl) { _bgEl.src = p.img||''; _bgEl.style.background = _bg; }
+  if (_logo) _logo.innerHTML = _lurl
+    ? `<img src="${_lurl}" width="60" height="60" style="object-fit:contain;border-radius:4px" onerror="this.style.display='none';this.nextSibling.style.display='block'"><span style="font-size:32px;display:none">${_icon}</span>`
+    : `<span style="font-size:36px">${_icon}</span>`;
+  if (_hero) _hero.textContent = p.brand;
   document.getElementById('detail-brand').innerHTML =
     `<span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;margin-right:6px;${isOnlineBrand(p.brand)?'background:#E8F0FE;color:#1a73e8':'background:#FFEBEE;color:#C62828'}">${isOnlineBrand(p.brand)?'📱 온라인 전용':'🏪 오프라인 전용'}</span>${p.brand}`;
   document.getElementById('detail-name').textContent = p.name;
