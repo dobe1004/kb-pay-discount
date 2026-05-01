@@ -1335,6 +1335,20 @@ function doLogout() {
 
 /* ══ FAB ══ */
 let fabOpen = false;
+
+// FAB 열려있을 때 모든 클릭 차단 (캡처 단계)
+function _fabBlocker(e) {
+  const menu = document.getElementById('fab-menu');
+  const main = document.getElementById('fab-main');
+  // FAB 메뉴 내부 클릭은 통과
+  if (menu && menu.contains(e.target)) return;
+  if (main && main.contains(e.target)) return;
+  // 그 외 모든 클릭/터치 차단 후 닫기
+  e.stopPropagation();
+  e.preventDefault();
+  closeFab();
+}
+
 function toggleFab() {
   fabOpen = !fabOpen;
   const menu = document.getElementById('fab-menu');
@@ -1346,6 +1360,10 @@ function toggleFab() {
     menu.style.pointerEvents = 'auto';
     requestAnimationFrame(() => { menu.querySelectorAll('.fab-item').forEach(el => el.classList.add('open')); });
     main.style.transform = 'rotate(45deg)';
+    // 캡처 단계에서 모든 클릭/터치 차단
+    document.addEventListener('click', _fabBlocker, true);
+    document.addEventListener('touchstart', _fabBlocker, {capture:true, passive:false});
+    history.pushState({fab:true}, '');
   } else {
     closeFab();
   }
@@ -1360,6 +1378,8 @@ function closeFab() {
   menu.style.pointerEvents = 'none';
   if (main) main.style.transform = 'rotate(0deg)';
   setTimeout(() => { if (!fabOpen) menu.style.display = 'none'; }, 200);
+  document.removeEventListener('click', _fabBlocker, true);
+  document.removeEventListener('touchstart', _fabBlocker, {capture:true});
 }
 
 /* ══ 탭 ══ */
@@ -2321,22 +2341,16 @@ async function renderWish() {
       const icon = brandIcon[p.brand]||'🏷️';
       const bg = brandBg[p.brand]||'#888';
       const isOnline = isOnlineBrand(p.brand);
-      return `<div class="wish-card" onclick="openDetail(${p.id})">
-        <div style="padding:16px 12px 8px;display:flex;align-items:center;gap:10px">
-          <div style="width:50px;height:50px;border-radius:50%;background:${bg};display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0">
-            ${logo?`<img src="${logo}" width="32" height="32" style="object-fit:contain" onerror="this.style.display='none';this.nextSibling.style.display='block'"><span style="font-size:20px;display:none">${icon}</span>`:`<span style="font-size:22px">${icon}</span>`}
-          </div>
-          <div style="flex:1;min-width:0">
-            <div style="font-size:10px;color:${isOnline?'#1a73e8':'#e53935'};font-weight:700;margin-bottom:1px">${isOnline?'📱 온라인 전용':'🏪 오프라인 전용'}</div>
-            <div class="wish-card-brand">${p.brand}</div>
-          </div>
-          <button class="wish-del" onclick="event.stopPropagation();toggleHeart(${p.id})">✕</button>
+      return `<div class="wish-card" onclick="openDetail(${p.id})" style="display:flex;align-items:center;gap:12px;padding:12px;position:relative">
+        <div style="width:48px;height:48px;border-radius:50%;background:${bg};display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0">
+          ${logo?`<img src="${logo}" width="30" height="30" style="object-fit:contain" onerror="this.style.display='none';this.nextSibling.style.display='block'"><span style="font-size:18px;display:none">${icon}</span>`:`<span style="font-size:20px">${icon}</span>`}
         </div>
-        <div class="wish-card-body" style="padding-top:0">
-          <div class="wish-card-name">${p.name}</div>
-          <div style="font-size:11px;color:var(--red);font-weight:700">↓${p.rate}%</div>
-          <div style="font-size:14px;font-weight:800">${p.dis.toLocaleString()}원</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:11px;font-weight:800;color:#111;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.brand}</div>
+          <div style="font-size:11px;color:var(--t2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px">${p.name}</div>
+          <div style="font-size:12px;font-weight:900;color:var(--red);margin-top:3px">${p.rate}% · ${p.dis.toLocaleString()}원</div>
         </div>
+        <button class="wish-del" onclick="event.stopPropagation();toggleHeart(${p.id})" style="position:static;margin-left:4px">✕</button>
       </div>`;
     }).join('');
 }
@@ -2436,10 +2450,11 @@ async function submitReview() {
 
 /* ══ 공유 ══ */
 function doShare(type) {
-  const p = PRODS.find(x=>x.id===curPid); if(!p) return; closeS(7);
-  const title = `[KB Pay 바로할인] ${p.name}`;
-  const text  = `${p.rate}% 특가! ${p.dis.toLocaleString()}원 (정가 ${p.ori.toLocaleString()}원) 선착순 할인!`;
-  const url   = `${window.location.origin}${window.location.pathname}?pid=${curPid}`;
+  const p = curPid ? PRODS.find(x=>x.id===curPid) : null;
+  closeS(7);
+  const title = p ? `[KB Pay 바로할인] ${p.name}` : '[KB Pay 바로할인] 지금 최대 50% 할인!';
+  const text  = p ? `${p.rate}% 특가! ${p.dis.toLocaleString()}원 (정가 ${p.ori.toLocaleString()}원)` : 'KB Pay 바로할인 서비스 - 제휴 브랜드 즉시 할인!';
+  const url   = p ? `${window.location.origin}${window.location.pathname}?pid=${curPid}` : window.location.href;
 
   if (type === 'kakao') {
     if (navigator.share) {
@@ -3652,6 +3667,7 @@ function closeS(n){document.getElementById(`bk${n}`).classList.remove('on');docu
 
 /* ══ 뒤로가기 ══ */
 window.addEventListener('popstate',()=>{
+  if(fabOpen){closeFab();return;} // FAB 열려있으면 닫기만
   if(document.getElementById('logout-sheet').classList.contains('on')){closeLogoutSheet();return;}
   if(document.getElementById('loginModal').classList.contains('on')){closeLogin();return;}
   if(document.getElementById('s11').classList.contains('on')){closeBarcodeSheet();return;}
