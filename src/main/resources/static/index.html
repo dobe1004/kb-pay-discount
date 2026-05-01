@@ -39,7 +39,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:#fff;color:var(--t1);min-h
 .fab-item{display:flex;align-items:center;gap:10px;pointer-events:auto;opacity:0;transform:translateY(20px) scale(.85);transition:opacity .18s var(--d) ease,transform .18s var(--d) ease}
 .fab-item.open{opacity:1;transform:translateY(0) scale(1)}
 .fab-btn{width:46px;height:46px;border-radius:50%;background:#fff;border:none;box-shadow:0 2px 10px rgba(0,0,0,.18);cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.fab-lbl{background:rgba(0,0,0,.72);color:#fff;font-size:12px;font-weight:700;padding:4px 10px;border-radius:8px;white-space:nowrap;font-family:inherit}
+.fab-lbl{background:#fff;color:#111;font-size:12px;font-weight:700;padding:4px 10px;border-radius:8px;white-space:nowrap;font-family:inherit;box-shadow:0 1px 6px rgba(0,0,0,.15)}
 img{display:block}
 
 /* ─── 헤더 ─── */
@@ -609,7 +609,7 @@ select.admin-form-input{cursor:pointer}
   <div class="benefit-box" id="benefit-box">
     <div style="display:flex;align-items:center;justify-content:space-between">
       <div>
-        <div class="benefit-label">최근 3개월 혜택금액 <span onclick="showBenefitInfo()" style="font-size:11px;cursor:pointer;color:#a07000;text-decoration:underline">바로할인이란?</span></div>
+        <div class="benefit-label">최근 3개월 혜택금액 <span onclick="showBenefitInfo(event)" style="font-size:11px;cursor:pointer;color:#a07000;text-decoration:underline">바로할인이란?</span></div>
         <div class="benefit-amount" id="benefit-amount">0원</div>
       </div>
     </div>
@@ -1116,8 +1116,15 @@ select.admin-form-input{cursor:pointer}
 </div>
 
 <!-- ══ 맨위로 버튼 ══ -->
+<!-- ══ 바로할인이란 툴팁 ══ -->
+<div id="benefit-tooltip-popup" onclick="document.getElementById('benefit-tooltip-popup').style.display='none'" style="display:none;position:fixed;z-index:500;background:#fff;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.18);padding:14px 16px;max-width:260px;border:1px solid var(--bd)">
+  <div style="font-size:13px;font-weight:800;margin-bottom:6px;color:#111">💡 KB페이 바로할인이란?</div>
+  <div style="font-size:12px;color:var(--t2);line-height:1.6">KB국민카드 회원이 제휴 브랜드에서 결제 시 쿠폰 없이 <b>즉시 할인</b>을 받는 서비스입니다.<br/>발급된 쿠폰의 바코드를 매장에서 스캔하면 할인 적용!</div>
+  <div style="margin-top:8px;font-size:11px;color:var(--t4)">탭하면 닫힙니다</div>
+</div>
+
 <!-- ══ FAB 메뉴 ══ -->
-<div id="fab-overlay" onclick="closeFab()" style="display:none;position:fixed;inset:0;z-index:280;background:rgba(0,0,0,.35)"></div>
+<div id="fab-overlay" onclick="closeFab()" ontouchstart="closeFab()" style="display:none;position:fixed;inset:0;z-index:280;background:rgba(0,0,0,.35)"></div>
 <div id="fab-menu" style="display:none;position:fixed;bottom:84px;right:16px;z-index:290;flex-direction:column;align-items:flex-end;gap:10px;pointer-events:none">
   <div class="fab-item" onclick="closeFab();goTab(0)" style="--d:.20s"><span class="fab-lbl">홈</span><button class="fab-btn">🏠</button></div>
   <div class="fab-item" onclick="closeFab();goTab(1)" style="--d:.16s"><span class="fab-lbl">찜</span><button class="fab-btn">❤️</button></div>
@@ -1286,7 +1293,7 @@ async function doLogin() {
 function closeLogin() { document.getElementById('loginModal').classList.remove('on'); loginCb = null; }
 
 function setUser() {
-  if (uid) { openLogoutSheet(); return; }
+  if (uid) { goTab(4); return; }  // 로그인 상태 → MY 페이지
   requireLogin('로그인', 'KB Pay 서비스 이용을 위해<br/>로그인해 주세요', () => {});
 }
 
@@ -1800,14 +1807,29 @@ function updateBenefitBox() {
     if (cardRow) cardRow.innerHTML = `
       <div class="benefit-card-info">
         <svg width="20" height="14" viewBox="0 0 20 14" fill="none"><rect width="20" height="14" rx="3" fill="#333"/><rect x="0" y="4" width="20" height="3.5" fill="#FFD700" opacity=".8"/><rect x="2" y="9" width="5" height="1.5" rx=".75" fill="#fff" opacity=".5"/></svg>
-        <span id="benefit-card-name" style="font-size:11px">미니넥카드 7842</span>
+        <span id="benefit-card-name" style="font-size:11px">KB카드 1234</span>
       </div>
       <button onclick="goTab(3)" style="font-size:11px;padding:4px 11px;border-radius:6px;background:rgba(0,0,0,.08);color:#333;border:none;font-family:inherit;font-weight:700;cursor:pointer">이용내역</button>`;
   });
 }
 
-function showBenefitInfo() {
-  toast('KB페이 바로할인: 제휴 브랜드에서 즉시 할인 혜택을 받는 서비스입니다.', 'inf');
+function showBenefitInfo(e) {
+  e.stopPropagation();
+  const popup = document.getElementById('benefit-tooltip-popup');
+  const rect = e.target.getBoundingClientRect();
+  const pw = 260;
+  let left = rect.left;
+  if (left + pw > window.innerWidth - 8) left = window.innerWidth - pw - 8;
+  if (left < 8) left = 8;
+  // 클릭 위치 바로 위
+  popup.style.left = left + 'px';
+  popup.style.top = 'auto';
+  popup.style.bottom = (window.innerHeight - rect.top + 8) + 'px';
+  popup.style.display = 'block';
+  setTimeout(() => document.addEventListener('click', function once() {
+    popup.style.display = 'none';
+    document.removeEventListener('click', once);
+  }), 10);
 }
 function doSearch(q) { searchQ=q; document.getElementById('search-clear').style.display=q?'inline':'none'; render(); }
 function clearSearch() { searchQ=''; document.getElementById('search-inp').value=''; document.getElementById('search-clear').style.display='none'; render(); }
@@ -2167,6 +2189,7 @@ const brandDomain = {
   'BURGER KING':     'burgerking.com',
   'PIZZA HUT':       'pizzahut.com',
   'LOTTERIA':        'lotteria.co.kr',
+  'MOMS TOUCH':      'momstouch.co.kr',
   'SUBWAY':          'subway.com',
   'HOMEPLUS':        'homeplus.co.kr',
   'HOLLYS':          'hollys.co.kr',
@@ -2189,7 +2212,7 @@ const brandIcon = {
   'PARIS BAGUETTE':'🥐','KFC':'🍗','CU':'🏪','DOMINOS':'🍕',
   'BASKIN ROBBINS':'🍦','BURGER KING':'🍔','PIZZA HUT':'🍕',
   'SUBWAY':'🥪','HOMEPLUS':'🛒','HOLLYS':'☕',
-  'LOTTERIA':'🍔','INNISFREE':'🌿',
+  'LOTTERIA':'🍔','INNISFREE':'🌿','MOMS TOUCH':'🍔',
 };
 const brandBg = {
   'STARBUCKS':'#00704A','A TWOSOME PLACE':'#C8A96E','LOTTE CINEMA':'#E50914',
@@ -2199,7 +2222,7 @@ const brandBg = {
   'KFC':'#F40027','CU':'#6346A3','DOMINOS':'#006491','BASKIN ROBBINS':'#FF6B9D',
   'BURGER KING':'#D62300','PIZZA HUT':'#EE3124',
   'SUBWAY':'#00843D','HOMEPLUS':'#004B97','HOLLYS':'#6B3A2A',
-  'LOTTERIA':'#E63312','INNISFREE':'#2E8B57',
+  'LOTTERIA':'#E63312','INNISFREE':'#2E8B57','MOMS TOUCH':'#E63312',
 };
 
 function render() {
@@ -3145,21 +3168,21 @@ const STORE_DATA = {
       ],
     },
   },
-  'LOTTERIA': {
+  'MOMS TOUCH': {
     '서울': {
       '강남구': [
-        {name:'롯데리아 강남역점', addr:'서울 강남구 강남대로 420', lat:37.4988, lng:127.0272},
+        {name:'맘스터치 강남역점', addr:'서울 강남구 강남대로 420', lat:37.4988, lng:127.0272},
       ],
       '마포구': [
-        {name:'롯데리아 홍대점', addr:'서울 마포구 양화로 167', lat:37.5561, lng:126.9232},
+        {name:'맘스터치 홍대점', addr:'서울 마포구 양화로 167', lat:37.5561, lng:126.9232},
       ],
       '송파구': [
-        {name:'롯데리아 잠실역점', addr:'서울 송파구 올림픽로 265', lat:37.5132, lng:127.1000},
+        {name:'맘스터치 잠실역점', addr:'서울 송파구 올림픽로 265', lat:37.5132, lng:127.1000},
       ],
     },
     '경기': {
       '수원시': [
-        {name:'롯데리아 수원역점', addr:'경기 수원시 팔달구 덕영대로 922', lat:37.2656, lng:127.0004},
+        {name:'맘스터치 수원역점', addr:'경기 수원시 팔달구 덕영대로 922', lat:37.2656, lng:127.0004},
       ],
     },
   },
