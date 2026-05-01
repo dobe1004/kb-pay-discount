@@ -910,10 +910,12 @@ select.admin-form-input{cursor:pointer}
 <!-- 시트8: 리뷰 작성 -->
 <div class="bk" id="bk8" onclick="closeS(8)"></div>
 <div class="bs" id="s8">
-  <div class="bs-bar"></div><div class="bs-title">후기 작성하기</div><div class="bs-sub" id="s8sub"></div>
+  <div class="bs-bar"></div>
+  <div class="bs-title" id="s8-title">후기 작성하기</div>
+  <div class="bs-sub" id="s8sub"></div>
   <div class="star-input" id="star-input"><span onclick="setStar(1)">☆</span><span onclick="setStar(2)">☆</span><span onclick="setStar(3)">☆</span><span onclick="setStar(4)">☆</span><span onclick="setStar(5)">☆</span></div>
   <textarea class="review-input" id="review-text" placeholder="구매 경험을 공유해 주세요 (최소 10자)"></textarea>
-  <button class="btn-main" onclick="submitReview()">후기 등록하기</button>
+  <button class="btn-main" id="s8-submit-btn" onclick="submitReview()">후기 등록하기</button>
   <button class="btn-line" onclick="closeS(8)">취소</button>
 </div>
 <!-- 시트9: 관리자 상품 추가/편집 -->
@@ -2452,6 +2454,8 @@ function closeDetail() {
 function applyFromDetail() { if(curPid) apply(curPid); }
 
 /* ══ 리뷰 ══ */
+let editingReviewId = null; // null=작성모드, 숫자=수정모드
+
 async function loadDetailReviews(pid) {
   const res = await GET(`/api/reviews/${pid}`);
   const rv = res.success ? res.data : [];
@@ -2462,19 +2466,137 @@ async function loadDetailReviews(pid) {
     <div class="review-bars">${[5,4,3,2,1].map((s,i)=>`<div class="rbar-row"><span class="rbar-label">${s}</span><div class="rbar-track"><div class="rbar-fill" style="width:${rv.length?dist[i]/rv.length*100:0}%"></div></div></div>`).join('')}</div>`;
   document.getElementById('review-list').innerHTML = rv.length===0
     ? '<div style="text-align:center;padding:20px;color:var(--t4);font-size:13px">첫 번째 후기를 작성해보세요!</div>'
-    : rv.slice(0,5).map(r=>`<div class="review-card"><div class="rv-top"><span class="rv-user">${r.userId}</span><span class="rv-date">${r.createdAt}</span></div><div style="font-size:13px;margin-bottom:4px">${'⭐'.repeat(r.star)}</div><div class="rv-text">${r.content}</div></div>`).join('');
-  document.getElementById('write-review-btn').style.display = uid ? 'block' : 'none';
+    : rv.slice(0,5).map(r => {
+        const isMine = uid && r.userId === uid;
+        const editBtn = isMine
+          ? `<button onclick="openEditReview(${r.id},${r.star},${JSON.stringify(r.content)})"
+               style="border:none;background:none;cursor:pointer;font-size:12px;color:#1a73e8;font-weight:700;padding:2px 6px;border-radius:6px;border:1px solid #1a73e8;line-height:1.4;font-family:inherit">
+               ✏️ 수정
+             </button>`
+          : '';
+        return `<div class="review-card">
+          <div class="rv-top">
+            <div style="display:flex;align-items:center;gap:6px">
+              <span class="rv-user">${r.userId}</span>
+              ${editBtn}
+            </div>
+            <span class="rv-date">${r.createdAt}</span>
+          </div>
+          <div style="font-size:13px;margin-bottom:4px">${'⭐'.repeat(r.star)}</div>
+          <div class="rv-text">${r.content}</div>
+        </div>`;
+      }).join('');
+
+  // 후기 버튼 권한 체크
+  await updateReviewBtn(pid, rv);
 }
+
+function openEditReview(reviewId, star, content) {
+  if (!uid) return;
+  editingReviewId = reviewId;
+  const p = PRODS.find(x=>x.id===curPid);
+  document.getElementById('s8-title').textContent = '후기 수정하기';
+  document.getElementById('s8-submit-btn').textContent = '✏️ 수정 완료';
+  document.getElementById('s8sub').textContent = p ? p.name : '';
+  reviewStar = star; setStar(star);
+  document.getElementById('review-text').value = content;
+  openS(8);
+}
+
+async function updateReviewBtn(pid, existingReviews) {
+  const btn = document.getElementById('write-review-btn');
+  if (!btn) return;
+
+  // 비로그인 → 숨김
+  if (!uid) { btn.style.display = 'none'; return; }
+
+  // 해당 상품 쿠폰 발급 여부 확인
+  const myRes = await GET(`/api/my/${uid}`);
+  if (!myRes.success) { btn.style.display = 'none'; return; }
+
+  const coupons = (myRes.data.coupons || []).filter(c => Number(c.productId) === Number(pid));
+  const issuedCoupons = coupons.filter(c => !c.giftFromUserId); // 직접 발급 쿠폰만
+
+  // 발급 쿠폰 없음 → 버튼 안내 표시
+  if (issuedCoupons.length === 0) {
+    btn.style.display = 'block';
+    btn.disabled = true;
+    btn.textContent = '🔒 쿠폰 발급 후 후기 작성 가능';
+    btn.style.cssText += ';opacity:.5;cursor:not-allowed;';
+    return;
+  }
+
+  // 이미 작성한 후기 수 확인
+  const myReviews = (existingReviews || []).filter(r => r.userId === uid);
+  const writableCount = issuedCoupons.length - myReviews.length;
+
+  if (writableCount <= 0) {
+    // 모든 쿠폰에 후기 작성 완료
+    btn.style.display = 'block';
+    btn.disabled = true;
+    btn.textContent = '✅ 후기 작성 완료 (쿠폰당 1회)';
+    btn.style.cssText += ';opacity:.5;cursor:not-allowed;background:var(--bg);';
+  } else {
+    // 작성 가능
+    btn.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = `✏️ 후기 작성하기${issuedCoupons.length > 1 ? ` (${writableCount}회 가능)` : ''}`;
+    btn.style.opacity = '1';
+    btn.style.cursor = 'pointer';
+    btn.onclick = openWriteReview;
+  }
+}
+
 function openWriteReview() {
-  requireLogin('후기 작성','후기를 작성하려면 로그인해 주세요', () => {
-    const p=PRODS.find(x=>x.id===curPid); document.getElementById('s8sub').textContent=p?p.name:'';
-    reviewStar=5; setStar(5); document.getElementById('review-text').value=''; openS(8);
+  requireLogin('후기 작성','후기를 작성하려면 로그인해 주세요', async () => {
+    // 재확인: 쿠폰 발급 & 중복 체크
+    const myRes = await GET(`/api/my/${uid}`);
+    if (!myRes.success) { toast('정보를 불러올 수 없습니다.', 'err'); return; }
+    const coupons = (myRes.data.coupons || []).filter(c => Number(c.productId) === Number(curPid) && !c.giftFromUserId);
+    if (coupons.length === 0) { toast('쿠폰을 먼저 발급받아야 후기를 작성할 수 있습니다.', 'err'); return; }
+
+    const rvRes = await GET(`/api/reviews/${curPid}`);
+    const myReviews = rvRes.success ? (rvRes.data || []).filter(r => r.userId === uid) : [];
+    if (myReviews.length >= coupons.length) {
+      toast('이미 발급된 쿠폰에 대한 후기를 모두 작성했습니다.', 'err');
+      return;
+    }
+
+    const p = PRODS.find(x=>x.id===curPid);
+    editingReviewId = null; // 작성 모드
+    document.getElementById('s8-title').textContent = '후기 작성하기';
+    document.getElementById('s8-submit-btn').textContent = '후기 등록하기';
+    document.getElementById('s8sub').textContent = p ? p.name : '';
+    reviewStar = 5; setStar(5); document.getElementById('review-text').value = '';
+    openS(8);
   });
 }
 function setStar(n) { reviewStar=n; document.getElementById('star-input').querySelectorAll('span').forEach((s,i)=>s.textContent=i<n?'⭐':'☆'); }
 async function submitReview() {
   const txt = document.getElementById('review-text').value.trim();
   if (txt.length<10) { toast('후기를 10자 이상 작성해주세요.','err'); return; }
+
+  // 수정 모드
+  if (editingReviewId) {
+    const res = await api('PUT', `/api/reviews/${editingReviewId}`, { userId:uid, star:reviewStar, content:txt });
+    if (res.success) {
+      editingReviewId = null;
+      closeS(8);
+      await loadDetailReviews(curPid);
+      toast('후기가 수정되었습니다! ✏️','ok');
+    } else toast(res.message||'수정에 실패했습니다.','err');
+    return;
+  }
+
+  // 작성 모드 - 제출 전 권한 체크
+  const myRes = await GET(`/api/my/${uid}`);
+  if (!myRes.success) { toast('오류가 발생했습니다.', 'err'); return; }
+  const coupons = (myRes.data.coupons || []).filter(c => Number(c.productId) === Number(curPid) && !c.giftFromUserId);
+  if (coupons.length === 0) { toast('쿠폰을 발급받은 상품에만 후기를 작성할 수 있습니다.', 'err'); closeS(8); return; }
+  const rvRes = await GET(`/api/reviews/${curPid}`);
+  const myReviews = rvRes.success ? (rvRes.data || []).filter(r => r.userId === uid) : [];
+  if (myReviews.length >= coupons.length) { toast('이미 모든 쿠폰에 대한 후기를 작성했습니다.', 'err'); closeS(8); return; }
+
   const res = await POST('/api/reviews', { userId:uid, productId:curPid, star:reviewStar, content:txt });
   if (res.success) { closeS(8); await loadDetailReviews(curPid); toast('후기가 등록되었습니다! ⭐','ok'); }
   else toast(res.message,'err');
@@ -3840,7 +3962,7 @@ function initSidoOptions() {
   });
 }
 function openS(n){document.getElementById(`bk${n}`).classList.add('on');document.getElementById(`s${n}`).classList.add('on');openSheets.push(n);history.pushState({sheet:n},'');}
-function closeS(n){document.getElementById(`bk${n}`).classList.remove('on');document.getElementById(`s${n}`).classList.remove('on');openSheets=openSheets.filter(x=>x!==n);}
+function closeS(n){document.getElementById(`bk${n}`).classList.remove('on');document.getElementById(`s${n}`).classList.remove('on');openSheets=openSheets.filter(x=>x!==n);if(n===8){editingReviewId=null;}}
 
 /* ══ 뒤로가기 ══ */
 window.addEventListener('popstate',()=>{
