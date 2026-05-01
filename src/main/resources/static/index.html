@@ -803,6 +803,13 @@ select.admin-form-input{cursor:pointer}
       <button onclick="setPointMax()" style="padding:7px 10px;border-radius:8px;border:1px solid var(--bd);background:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;color:var(--t2)">최대</button>
     </div>
     <div id="pt-use-preview" style="font-size:12px;font-weight:700;color:var(--grn);margin-top:6px;text-align:right"></div>
+    <!-- 포인트 적용 확인 버튼 -->
+    <button id="pt-apply-btn" onclick="applyPoint()" style="display:none;width:100%;margin-top:8px;padding:9px;border-radius:8px;background:#1a73e8;color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">포인트 적용하기</button>
+    <!-- 적용 완료 상태 표시 -->
+    <div id="pt-applied-state" style="display:none;margin-top:8px;padding:7px 10px;background:#e8f5e9;border-radius:8px;display:none;align-items:center;justify-content:space-between">
+      <span style="font-size:12px;font-weight:700;color:#2e7d32" id="pt-applied-txt">✅ 포인트 적용됨</span>
+      <button onclick="cancelPointApply()" style="font-size:11px;color:var(--t4);background:none;border:none;cursor:pointer;font-family:inherit;padding:0">취소</button>
+    </div>
   </div>
   <div class="pay-box" id="paybox"></div>
   <button class="btn-main" id="btnfin" onclick="finPay()">결제하기</button>
@@ -2671,18 +2678,62 @@ function openPayS() {
 }
 
 let _ptMode = 'all'; // 'all' | 'custom'
+let _ptApplied = false; // 포인트 적용 확정 여부
+
+function _showPtApplyBtn(show) {
+  const btn = document.getElementById('pt-apply-btn');
+  const state = document.getElementById('pt-applied-state');
+  if (btn) btn.style.display = (show && !_ptApplied) ? 'block' : 'none';
+  if (state) state.style.display = _ptApplied ? 'flex' : 'none';
+}
+
+function applyPoint() {
+  if (!usePoint) return;
+  _ptApplied = true;
+  const bal = userInfo ? (userInfo.pointBalance||0) : 0;
+  const dis = cur ? (cur.discountedPrice || cur.dis || 0) : 0;
+  const pa = typeof usePoint === 'number' ? Math.min(usePoint, bal, dis) : Math.min(bal, dis);
+  usePoint = pa;
+  const applied = document.getElementById('pt-applied-txt');
+  if (applied) applied.textContent = `✅ -${pa.toLocaleString()}P 적용됨`;
+  // 입력 UI 숨기고 적용 상태 표시
+  const btnRow = document.getElementById('pt-all-btn');
+  if (btnRow && btnRow.parentElement) btnRow.parentElement.style.display = 'none';
+  const customRow = document.getElementById('pt-custom-row');
+  if (customRow) customRow.style.display = 'none';
+  const preview = document.getElementById('pt-use-preview');
+  if (preview) preview.style.display = 'none';
+  _showPtApplyBtn(false);
+  updatePayBox();
+}
+
+function cancelPointApply() {
+  _ptApplied = false;
+  usePoint = false;
+  const btnRow = document.getElementById('pt-all-btn');
+  if (btnRow && btnRow.parentElement) btnRow.parentElement.style.display = 'flex';
+  const preview = document.getElementById('pt-use-preview');
+  if (preview) { preview.style.display = 'block'; preview.textContent = ''; }
+  const state = document.getElementById('pt-applied-state');
+  if (state) state.style.display = 'none';
+  document.getElementById('pt-toggle').classList.remove('on');
+  document.getElementById('pt-input-area').style.display = 'none';
+  updatePayBox();
+}
 
 function togglePointUse() {
   const bal = userInfo ? (userInfo.pointBalance||0) : 0;
   if (bal < 100) return;
-  usePoint = !usePoint;
-  document.getElementById('pt-toggle').classList.toggle('on', usePoint);
+  const isOn = !document.getElementById('pt-toggle').classList.contains('on');
+  document.getElementById('pt-toggle').classList.toggle('on', isOn);
   const ptArea = document.getElementById('pt-input-area');
-  ptArea.style.display = usePoint ? 'block' : 'none';
-  if (usePoint) {
+  ptArea.style.display = isOn ? 'block' : 'none';
+  if (isOn) {
+    _ptApplied = false;
     _ptMode = 'all';
     setPointMode('all');
   } else {
+    _ptApplied = false;
     usePoint = false;
     updatePayBox();
   }
@@ -2690,25 +2741,28 @@ function togglePointUse() {
 
 function setPointMode(mode) {
   _ptMode = mode;
+  _ptApplied = false;
   const bal = userInfo ? (userInfo.pointBalance||0) : 0;
   const dis = cur ? (cur.discountedPrice || cur.dis || 0) : 0;
   const allBtn = document.getElementById('pt-all-btn');
   const customBtn = document.getElementById('pt-custom-btn');
   const customRow = document.getElementById('pt-custom-row');
   const preview = document.getElementById('pt-use-preview');
-  const activeStyle = 'background:var(--y);border-color:var(--y);color:#111;font-weight:800';
-  const inactiveStyle = 'background:#fff;border-color:var(--bd);color:var(--t2);font-weight:700';
+  const btnRow = allBtn ? allBtn.parentElement : null;
+  if (btnRow) btnRow.style.display = 'flex';
+  if (preview) preview.style.display = 'block';
+  const yA = `flex:1;padding:7px;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;background:var(--y);border:1.5px solid var(--y);color:#111;font-weight:800`;
+  const nA = `flex:1;padding:7px;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;background:#fff;border:1.5px solid var(--bd);color:var(--t2);font-weight:700`;
+  allBtn.style.cssText = mode === 'all' ? yA : nA;
+  customBtn.style.cssText = mode === 'custom' ? yA : nA;
   if (mode === 'all') {
-    allBtn.style.cssText += ';' + activeStyle;
-    customBtn.style.cssText += ';' + inactiveStyle;
     customRow.style.display = 'none';
     const pa = Math.min(bal, dis);
     usePoint = pa > 0 ? pa : false;
-    preview.textContent = pa > 0 ? `-${pa.toLocaleString()}P 사용` : '사용 가능한 포인트 없음';
+    preview.textContent = pa > 0 ? `-${pa.toLocaleString()}P 사용 예정` : '사용 가능한 포인트 없음';
     preview.style.color = pa > 0 ? 'var(--grn)' : 'var(--t4)';
+    _showPtApplyBtn(pa > 0);
   } else {
-    allBtn.style.cssText += ';' + inactiveStyle;
-    customBtn.style.cssText += ';' + activeStyle;
     customRow.style.display = 'flex';
     const input = document.getElementById('pt-custom-input');
     input.value = '';
@@ -2717,6 +2771,7 @@ function setPointMode(mode) {
     usePoint = false;
     preview.textContent = '사용할 포인트를 입력하세요';
     preview.style.color = 'var(--t4)';
+    _showPtApplyBtn(false);
   }
   updatePayBox();
 }
@@ -2730,17 +2785,17 @@ function onPointInput(el) {
   if (v > maxUse) { v = maxUse; el.value = v; }
   usePoint = v > 0 ? v : false;
   const preview = document.getElementById('pt-use-preview');
-  preview.textContent = v > 0 ? `-${v.toLocaleString()}P 사용` : '0 이상 입력하세요';
+  preview.textContent = v > 0 ? `-${v.toLocaleString()}P 사용 예정` : '0 이상 입력하세요';
   preview.style.color = v > 0 ? 'var(--grn)' : 'var(--t4)';
+  _showPtApplyBtn(v > 0);
   updatePayBox();
 }
 
 function setPointMax() {
   const bal = userInfo ? (userInfo.pointBalance||0) : 0;
   const dis = cur ? (cur.discountedPrice || cur.dis || 0) : 0;
-  const maxUse = Math.min(bal, dis);
   const input = document.getElementById('pt-custom-input');
-  input.value = maxUse;
+  input.value = Math.min(bal, dis);
   onPointInput(input);
 }
 function updatePayBox() {
@@ -2806,18 +2861,30 @@ async function doCancel() {
   if (!cancelTarget) return;
   const btn=document.getElementById('btncancel');
   btn.innerHTML='<span class="sp"></span>&nbsp;처리 중...'; btn.disabled=true;
-  // @RequestParam 이므로 URL에 userId 붙이기
   const res = await api('POST', `/api/pay/${cancelTarget}/cancel?userId=${encodeURIComponent(uid)}`);
   if (res.success) {
     vibrate(VT);
-    if (userInfo) { userInfo.pointBalance = (userInfo.pointBalance||0) - (res.data.pointEarned||0) + (res.data.pointUsed||0); sessionStorage.setItem('kbp_user', JSON.stringify(userInfo)); }
+    const d = res.data;
+    if (userInfo) {
+      userInfo.pointBalance = (userInfo.pointBalance||0) - (d.pointEarned||0) + (d.pointUsed||0);
+      sessionStorage.setItem('kbp_user', JSON.stringify(userInfo));
+    }
     closeS(4);
     setTimeout(() => {
-      document.getElementById('camt2').innerHTML=`${res.data.paidAmount.toLocaleString()}<span>원</span>`;
-      document.getElementById('cinfo').innerHTML=`<div class="di-row"><span class="l">취소 금액</span><span class="v">${res.data.paidAmount.toLocaleString()}원 환불</span></div><div class="di-row"><span class="l">쿠폰 상태</span><span class="v" style="color:var(--grn)">복원 완료 ✓</span></div>`;
+      document.getElementById('camt2').innerHTML=`${(d.paidAmount||0).toLocaleString()}<span>원</span>`;
+      const ptRow = d.pointUsed
+        ? `<div class="di-row"><span class="l">포인트 복구</span><span class="v" style="color:#1a73e8">+${d.pointUsed.toLocaleString()}P 반환 ✓</span></div>`
+        : '';
+      const ptDeduct = d.pointEarned
+        ? `<div class="di-row"><span class="l">적립 포인트 회수</span><span class="v" style="color:var(--red)">-${d.pointEarned.toLocaleString()}P</span></div>`
+        : '';
+      document.getElementById('cinfo').innerHTML=`
+        <div class="di-row"><span class="l">취소 금액</span><span class="v">${(d.paidAmount||0).toLocaleString()}원 환불</span></div>
+        ${ptRow}${ptDeduct}
+        <div class="di-row"><span class="l">쿠폰 상태</span><span class="v" style="color:var(--grn)">복원 완료 ✓</span></div>`;
       openS(5); cancelTarget=null;
     }, 220);
-    await loadHistory(); updateNotifBadge(); updateBenefitBox(); // 취소 후 즉시 혜택금액 갱신
+    await loadHistory(); updateNotifBadge(); updateBenefitBox();
   } else toast(res.message,'err');
   btn.innerHTML='결제 취소하기'; btn.disabled=false;
 }
@@ -2928,6 +2995,8 @@ function openHistDetail(hid) {
         <div class="pr"><span class="l">결제 수단</span><span class="v">KB국민카드</span></div>
         <div class="pr"><span class="l">거래 일시</span><span class="v" style="font-size:12px">${h.paidAt?h.paidAt.slice(0,16).replace('T',' '):''}</span></div>
         ${h.pointEarned&&h.status==='PAID'?`<div class="pr"><span class="l">포인트 적립</span><span class="v" style="color:var(--grn)">+${h.pointEarned.toLocaleString()}P</span></div>`:''}
+        ${h.status==='CANCELLED'&&h.pointUsed?`<div class="pr"><span class="l">포인트 복구</span><span class="v" style="color:#1a73e8">+${h.pointUsed.toLocaleString()}P 반환</span></div>`:''}
+        ${h.status==='CANCELLED'&&h.pointEarned?`<div class="pr"><span class="l">적립 포인트 회수</span><span class="v" style="color:var(--red)">-${h.pointEarned.toLocaleString()}P</span></div>`:''}
         <div class="pr"><span class="l">쿠폰 코드</span><span class="v" style="font-size:11px;font-family:monospace;color:var(--t3)">${h.couponCode||'-'}</span></div>
       </div>
       ${h.status==='PAID'?`<button class="btn-red" onclick="closeS(10);askCancel(${h.id})">결제 취소하기</button>`:'<div style="background:var(--bg);border-radius:var(--rs);padding:12px;text-align:center;font-size:13px;color:var(--t3);margin-bottom:14px">취소 처리가 완료된 내역입니다</div>'}
