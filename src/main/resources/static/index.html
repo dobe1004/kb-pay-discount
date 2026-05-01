@@ -782,8 +782,28 @@ select.admin-form-input{cursor:pointer}
       </div>
     </div>
   </div>
-  <div class="pt-use-row"><div><div style="font-size:13px;color:var(--t3)">KB포인트 사용</div><div style="font-size:11px;color:var(--grn);font-weight:600" id="avail-pt-txt">보유 0P</div></div>
-  <div style="display:flex;align-items:center;gap:8px"><span id="pt-use-amt" style="font-size:12px;font-weight:700;color:var(--grn);display:none"></span><div class="toggle" id="pt-toggle" onclick="togglePointUse()"></div></div></div>
+  <!-- KB포인트 사용 -->
+  <div class="pt-use-row">
+    <div>
+      <div style="font-size:13px;color:var(--t3);font-weight:600">KB포인트 사용</div>
+      <div style="font-size:11px;color:var(--grn);font-weight:600" id="avail-pt-txt">보유 0P</div>
+    </div>
+    <div class="toggle" id="pt-toggle" onclick="togglePointUse()"></div>
+  </div>
+  <!-- 포인트 입력 영역 (토글 ON 시 표시) -->
+  <div id="pt-input-area" style="display:none;margin-bottom:10px;border:1px solid var(--bd);border-radius:10px;padding:10px 12px;background:#f9fafb">
+    <div style="display:flex;gap:6px;margin-bottom:8px">
+      <button id="pt-all-btn" onclick="setPointMode('all')" style="flex:1;padding:7px;border-radius:8px;border:1.5px solid var(--y);background:var(--y);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">전체 사용</button>
+      <button id="pt-custom-btn" onclick="setPointMode('custom')" style="flex:1;padding:7px;border-radius:8px;border:1.5px solid var(--bd);background:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;color:var(--t2)">직접 입력</button>
+    </div>
+    <div id="pt-custom-row" style="display:none;align-items:center;gap:6px">
+      <input id="pt-custom-input" type="number" placeholder="사용할 포인트 입력"
+        style="flex:1;border:1px solid var(--bd);border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;outline:none;min-width:0"
+        oninput="onPointInput(this)" onkeydown="if(event.key==='Enter')this.blur()"/>
+      <button onclick="setPointMax()" style="padding:7px 10px;border-radius:8px;border:1px solid var(--bd);background:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;color:var(--t2)">최대</button>
+    </div>
+    <div id="pt-use-preview" style="font-size:12px;font-weight:700;color:var(--grn);margin-top:6px;text-align:right"></div>
+  </div>
   <div class="pay-box" id="paybox"></div>
   <button class="btn-main" id="btnfin" onclick="finPay()">결제하기</button>
   <button class="btn-line" onclick="closeS(2)">취소</button>
@@ -2618,31 +2638,111 @@ function selectCard(el, name, num) {
 function openPayS() {
   if (!cur) return; closeS(1);
   usePoint = false;
-  document.getElementById('pt-toggle').classList.remove('on');
-  document.getElementById('pt-use-amt').style.display = 'none';
+  const ptToggle = document.getElementById('pt-toggle');
+  const ptArea = document.getElementById('pt-input-area');
+  const ptPreview = document.getElementById('pt-use-preview');
+  const ptCustomRow = document.getElementById('pt-custom-row');
+  ptToggle.classList.remove('on');
+  if (ptArea) ptArea.style.display = 'none';
+  if (ptPreview) ptPreview.textContent = '';
+  if (ptCustomRow) ptCustomRow.style.display = 'none';
   const bal = userInfo ? (userInfo.pointBalance||0) : 0;
   document.getElementById('avail-pt-txt').textContent = `보유 ${bal.toLocaleString()}P`;
+  // 포인트 없으면 토글 비활성화
+  if (bal < 100) {
+    ptToggle.style.opacity = '0.35';
+    ptToggle.style.pointerEvents = 'none';
+    document.getElementById('avail-pt-txt').style.color = 'var(--t4)';
+  } else {
+    ptToggle.style.opacity = '';
+    ptToggle.style.pointerEvents = '';
+    document.getElementById('avail-pt-txt').style.color = 'var(--grn)';
+  }
   const name = cur.productName || cur.name || '';
   setTimeout(() => { document.getElementById('s2pname').textContent = name; updatePayBox(); openS(2); }, 260);
 }
+
+let _ptMode = 'all'; // 'all' | 'custom'
+
 function togglePointUse() {
   const bal = userInfo ? (userInfo.pointBalance||0) : 0;
-  if (bal < 100) { toast('포인트가 부족합니다 (최소 100P)','err'); return; }
+  if (bal < 100) return;
   usePoint = !usePoint;
   document.getElementById('pt-toggle').classList.toggle('on', usePoint);
-  const dis = cur.discountedPrice || cur.dis || 0;
-  const ua = Math.min(bal, dis);
-  document.getElementById('pt-use-amt').style.display = usePoint?'inline':'none';
-  document.getElementById('pt-use-amt').textContent = `-${ua.toLocaleString()}P`;
+  const ptArea = document.getElementById('pt-input-area');
+  ptArea.style.display = usePoint ? 'block' : 'none';
+  if (usePoint) {
+    _ptMode = 'all';
+    setPointMode('all');
+  } else {
+    usePoint = false;
+    updatePayBox();
+  }
+}
+
+function setPointMode(mode) {
+  _ptMode = mode;
+  const bal = userInfo ? (userInfo.pointBalance||0) : 0;
+  const dis = cur ? (cur.discountedPrice || cur.dis || 0) : 0;
+  const allBtn = document.getElementById('pt-all-btn');
+  const customBtn = document.getElementById('pt-custom-btn');
+  const customRow = document.getElementById('pt-custom-row');
+  const preview = document.getElementById('pt-use-preview');
+  const activeStyle = 'background:var(--y);border-color:var(--y);color:#111;font-weight:800';
+  const inactiveStyle = 'background:#fff;border-color:var(--bd);color:var(--t2);font-weight:700';
+  if (mode === 'all') {
+    allBtn.style.cssText += ';' + activeStyle;
+    customBtn.style.cssText += ';' + inactiveStyle;
+    customRow.style.display = 'none';
+    const pa = Math.min(bal, dis);
+    usePoint = pa > 0 ? pa : false;
+    preview.textContent = pa > 0 ? `-${pa.toLocaleString()}P 사용` : '사용 가능한 포인트 없음';
+    preview.style.color = pa > 0 ? 'var(--grn)' : 'var(--t4)';
+  } else {
+    allBtn.style.cssText += ';' + inactiveStyle;
+    customBtn.style.cssText += ';' + activeStyle;
+    customRow.style.display = 'flex';
+    const input = document.getElementById('pt-custom-input');
+    input.value = '';
+    input.max = Math.min(bal, dis);
+    input.focus();
+    usePoint = false;
+    preview.textContent = '사용할 포인트를 입력하세요';
+    preview.style.color = 'var(--t4)';
+  }
   updatePayBox();
+}
+
+function onPointInput(el) {
+  const bal = userInfo ? (userInfo.pointBalance||0) : 0;
+  const dis = cur ? (cur.discountedPrice || cur.dis || 0) : 0;
+  let v = parseInt(el.value) || 0;
+  const maxUse = Math.min(bal, dis);
+  if (v < 0) v = 0;
+  if (v > maxUse) { v = maxUse; el.value = v; }
+  usePoint = v > 0 ? v : false;
+  const preview = document.getElementById('pt-use-preview');
+  preview.textContent = v > 0 ? `-${v.toLocaleString()}P 사용` : '0 이상 입력하세요';
+  preview.style.color = v > 0 ? 'var(--grn)' : 'var(--t4)';
+  updatePayBox();
+}
+
+function setPointMax() {
+  const bal = userInfo ? (userInfo.pointBalance||0) : 0;
+  const dis = cur ? (cur.discountedPrice || cur.dis || 0) : 0;
+  const maxUse = Math.min(bal, dis);
+  const input = document.getElementById('pt-custom-input');
+  input.value = maxUse;
+  onPointInput(input);
 }
 function updatePayBox() {
   const dis = cur.discountedPrice || cur.dis || 0;
   const ori = cur.originalPrice  || cur.ori || 0;
   const amt = cur.discountAmount  || cur.amt || 0;
   const bal = userInfo ? (userInfo.pointBalance||0) : 0;
-  const pa = usePoint ? Math.min(bal, dis) : 0;
-  const fa = dis - pa;
+  // usePoint: false | number(직접지정) | true(전체) → 숫자로 정규화
+  const pa = usePoint ? (typeof usePoint === 'number' ? Math.min(usePoint, bal, dis) : Math.min(bal, dis)) : 0;
+  const fa = Math.max(0, dis - pa);
   document.getElementById('paybox').innerHTML = `
     <div class="pr"><span class="l">정가</span><span class="v">${ori.toLocaleString()}원</span></div>
     <div class="pr"><span class="l">KB페이 할인</span><span class="v" style="color:var(--red)">-${amt.toLocaleString()}원</span></div>
@@ -2654,7 +2754,10 @@ async function finPay() {
   const btn=document.getElementById('btnfin');
   btn.innerHTML='<span class="sp"></span>&nbsp;처리 중...'; btn.disabled=true;
   vibrate(VT);
-  const res = await POST('/api/pay', { userId:uid, couponCode: cur.couponCode||cur.code, usePoint });
+  const bal = userInfo ? (userInfo.pointBalance||0) : 0;
+  const dis = cur.discountedPrice || cur.dis || 0;
+  const _pa = usePoint ? (typeof usePoint === 'number' ? Math.min(usePoint, bal, dis) : Math.min(bal, dis)) : 0;
+  const res = await POST('/api/pay', { userId:uid, couponCode: cur.couponCode||cur.code, usePoint: _pa > 0, pointAmount: _pa });
   if (res.success) {
     vibrate(VP);
     if (userInfo) { userInfo.pointBalance = (userInfo.pointBalance||0) - (res.data.pointUsed||0) + (res.data.pointEarned||0); sessionStorage.setItem('kbp_user', JSON.stringify(userInfo)); }
