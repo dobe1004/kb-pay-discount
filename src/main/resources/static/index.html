@@ -1594,6 +1594,7 @@ function openNoticePage(targetId) {
 
   document.getElementById('notice-page').style.display = 'block';
   document.getElementById('notice-page').scrollTop = 0;
+  document.documentElement.style.overflow = 'hidden';
   document.body.style.overflow = 'hidden';
   // admin이면 추가 버튼 표시
   const noticeAddBtn = document.getElementById('notice-add-btn');
@@ -1635,6 +1636,7 @@ function toggleNotice(id) {
 
 function closeNoticePage() {
   document.getElementById('notice-page').style.display = 'none';
+  document.documentElement.style.overflow = '';
   document.body.style.overflow = '';
 }
 /* ══ 배너 슬라이드 ══ */
@@ -2395,6 +2397,8 @@ async function openDetail(pid) {
   updateDetailHeart();
   updateDetailBtn(p);
   document.getElementById('detail-page').classList.add('on');
+  document.documentElement.style.overflow = 'hidden';
+  document.body.style.overflow = 'hidden';
   document.getElementById('detail-page').scrollTop = 0;
   history.pushState({ detail: pid }, '');
   const sn = document.getElementById('share-prod-name'); if(sn) sn.textContent = p.name;
@@ -2433,7 +2437,11 @@ function updateDetailBtn(p) {
   else { ab.textContent = '바로 할인 받기'; ab.disabled = false; ab.style.background=''; ab.style.color=''; ab.onclick = applyFromDetail; }
 }
 
-function closeDetail() { document.getElementById('detail-page').classList.remove('on'); }
+function closeDetail() {
+  document.getElementById('detail-page').classList.remove('on');
+  document.documentElement.style.overflow = '';
+  document.body.style.overflow = '';
+}
 function applyFromDetail() { if(curPid) apply(curPid); }
 
 /* ══ 리뷰 ══ */
