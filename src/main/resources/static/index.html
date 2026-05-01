@@ -127,7 +127,7 @@ img{display:block}
 .bc-issued{position:absolute;bottom:5px;right:5px;width:8px;height:8px;border-radius:50%;background:var(--y);border:1.5px solid #fff}
 
 /* ─── 카테고리 sticky ─── */
-.cat-sticky{position:sticky;top:52px;z-index:150;background:#fff;border-bottom:1px solid var(--bd2)}
+.cat-sticky{position:sticky;top:52px;z-index:150;background:#fff;border-bottom:1px solid var(--bd2);will-change:transform}
 
 /* ─── 브랜드 리스트 헤더 ─── */
 .brand-list-hd{display:flex;align-items:center;justify-content:space-between;padding:12px 14px 0}
@@ -695,13 +695,6 @@ select.admin-form-input{cursor:pointer}
       <span style="font-size:20px;line-height:1">🎁</span>
       <span style="font-size:12px;font-weight:800;color:#a07000">선물하기</span>
     </button>
-  </div>
-  <div id="detail-img-wrap" style="height:100px;display:flex;align-items:center;justify-content:center;gap:12px;background:#f8f9fa;border-bottom:1px solid var(--bd)">
-    <div id="detail-logo-wrap" style="width:64px;height:64px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.1);overflow:hidden;border:1.5px solid var(--bd);flex-shrink:0"></div>
-    <div>
-      <div id="detail-hd-brand-type" style="font-size:11px;margin-bottom:3px"></div>
-      <div style="font-size:14px;font-weight:800;color:var(--t1)" id="detail-hd-name-sub"></div>
-    </div>
   </div>
   <div class="detail-body">
     <div class="detail-brand" id="detail-brand"></div>
@@ -1742,7 +1735,7 @@ function renderRecent() {
     const logo = getFavicon(p.brandName, 64);
     const icon = brandIcon[p.brandName]||'🏷️';
     return `<div class="recent-item" onclick="openDetail(${p.id})">
-      <div class="recent-img" style="background:${bg};display:flex;align-items:center;justify-content:center;overflow:hidden">
+      <div class="recent-img" style="background:#f5f5f5;border:1.5px solid var(--bd);display:flex;align-items:center;justify-content:center;overflow:hidden">
         ${logo ? `<img src="${logo}" width="40" height="40" style="object-fit:contain;border-radius:3px" onerror="this.style.display='none';this.nextSibling.style.display='block'"><span style="font-size:22px;display:none">${icon}</span>` : `<span style="font-size:22px">${icon}</span>`}
       </div>
       <div class="recent-name">${p.productName}</div>
@@ -1756,13 +1749,14 @@ function renderCats() {
     `<button class="cat-btn${c===curCat?' on':''}" onclick="setCat('${c}')">${c}</button>`
   ).join('');
 }
-function setCat(c) { curCat=c; renderCats(); render(); }
-function setSort(s,el) { curSort=s; document.querySelectorAll('.sort-btn').forEach(b=>b.classList.remove('on')); if(el) el.classList.add('on'); render(); }
+function setCat(c) { curCat=c; renderCats(); render(); window.scrollTo({top:0,behavior:'instant'}); }
+function setSort(s,el) { curSort=s; document.querySelectorAll('.sort-btn').forEach(b=>b.classList.remove('on')); if(el) el.classList.add('on'); render(); window.scrollTo({top:0,behavior:'instant'}); }
 function setFilterTab(tab, el) {
   curFilterTab = tab;
   document.querySelectorAll('.ftab').forEach(b=>b.classList.remove('on'));
   if(el) el.classList.add('on');
   render();
+  window.scrollTo({top:0,behavior:'instant'});
 }
 function updateBenefitBox() {
   const amtEl = document.getElementById('benefit-amount');
@@ -2165,8 +2159,8 @@ const brandDomain = {
   'PIZZA HUT':       'pizzahut.com',
   'SUBWAY':          'subway.com',
   'HOMEPLUS':        'homeplus.co.kr',
-  'HOLLYS':          'hollys.co.kr',
-  'VIPS':            'vips.co.kr',
+  'HOLLYS':          'hollyscoffee.co.kr',
+  'VIPS':            'ourvips.com',
   'INNISFREE':       'innisfree.com',
   'BASKIN ROBBINS':  'baskinrobbins.com',
 };
@@ -2227,7 +2221,7 @@ function render() {
       const timerRed = timerSecs < 86400; // 1일 이하만 빨간색
       setTimeout(() => startProdTimer(p.id, p.timer||86400), 100);
       return `
-      <div class="bc${out?' done':''}" id="pc${p.id}" onclick="openDetail(${p.id})">
+      <div class="bc${out?' done':''}" id="pc${p.id}" onclick="openDetail(${p.id})" style="border-top:3px solid ${isOnline?'#1a73e8':'#e53935'}">
         ${isAdmin()?`<div style="position:absolute;top:0;left:0;right:0;display:flex;gap:2px;padding:4px;z-index:3"><button style="flex:1;font-size:9px;padding:2px;border-radius:3px;background:#7c3aed;color:#fff;border:none;cursor:pointer" onclick="event.stopPropagation();openAdminEdit(${p.id})">편집</button><button style="flex:1;font-size:9px;padding:2px;border-radius:3px;background:var(--red);color:#fff;border:none;cursor:pointer" onclick="event.stopPropagation();delProduct(${p.id})">삭제</button></div>`:''}
         <span class="bc-badge ${p.badge}">${bmap[p.badge]||''}</span>
         <button class="bc-heart" onclick="event.stopPropagation();toggleHeart(${p.id})">${isWished?'❤️':'🤍'}</button>
@@ -2237,9 +2231,9 @@ function render() {
         </div>
         <div class="bc-brand">${p.brand}</div>
         <div class="bc-rate">${out?'마감':used?'사용완료':issued?'발급완료':`${p.rate}% 할인`}</div>
-        <div style="font-size:9px;text-align:center;width:100%;overflow:hidden;white-space:nowrap;padding:0 2px;${isOnline?'color:#1a73e8':'color:#C62828'}">${isOnline?'📱':'🏪'}</div>
+        <div style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;${isOnline?'background:#E8F0FE;color:#1a73e8':'background:#FFEBEE;color:#e53935'}">${isOnline?'📱 온라인':'🏪 오프라인'}</div>
         ${!out&&!used?`<div style="font-size:9px;color:var(--t4);text-align:center;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">잔여 ${p.remaining}/${p.total}</div>`:''}
-        ${!out?`<div style="display:flex;align-items:center;justify-content:center;gap:2px;width:100%;overflow:hidden"><span id="pt-${p.id}" style="font-size:9px;font-weight:700;font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:${timerRed?'var(--red)':'var(--t4)'}">${fmtTimer(timerSecs)}</span></div>`:''}
+        ${!out?`<div style="display:flex;align-items:center;justify-content:center;gap:2px;width:100%;overflow:hidden"><span id="pt-${p.id}" style="font-size:9px;font-weight:700;font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:${timerRed?'var(--red)':'#1a73e8'}">${fmtTimer(timerSecs)}</span></div>`:''}
         ${issued?`<div class="bc-issued"></div>`:''}
       </div>`;
     }).join('');
@@ -2291,14 +2285,6 @@ async function openDetail(pid) {
   const p = PRODS.find(x=>x.id===pid); if(!p) return;
   curPid = pid; addRecent(pid);
   document.getElementById('detail-hd-title').textContent = p.name;
-  const _lurl = getFavicon(p.brand, 128);
-  const _icon = brandIcon[p.brand]||'🏷️';
-  const _logo = document.getElementById('detail-logo-wrap');
-  if (_logo) _logo.innerHTML = _lurl
-    ? `<img src="${_lurl}" width="42" height="42" style="object-fit:contain" onerror="this.style.display='none';this.nextSibling.style.display='block'"><span style="font-size:28px;display:none">${_icon}</span>`
-    : `<span style="font-size:28px">${_icon}</span>`;
-  const _hdType = document.getElementById('detail-hd-brand-type');
-  if (_hdType) _hdType.innerHTML = `<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;${isOnlineBrand(p.brand)?'background:#E8F0FE;color:#1a73e8':'background:#FFEBEE;color:#C62828'}">${isOnlineBrand(p.brand)?'📱 온라인':'🏪 오프라인'}</span> <span style="font-size:11px;color:var(--t3);font-weight:600">${p.brand}</span>`;
   document.getElementById('detail-brand').innerHTML =
     `<span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;margin-right:6px;${isOnlineBrand(p.brand)?'background:#E8F0FE;color:#1a73e8':'background:#FFEBEE;color:#C62828'}">${isOnlineBrand(p.brand)?'📱 온라인 전용':'🏪 오프라인 전용'}</span>${p.brand}`;
   document.getElementById('detail-name').textContent = p.name;
