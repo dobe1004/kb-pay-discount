@@ -39,7 +39,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:#fff;color:var(--t1);min-h
 .fab-item{display:flex;align-items:center;gap:10px;pointer-events:auto;opacity:0;transform:translateY(20px) scale(.85);transition:opacity .18s var(--d) ease,transform .18s var(--d) ease}
 .fab-item.open{opacity:1;transform:translateY(0) scale(1)}
 .fab-btn{width:46px;height:46px;border-radius:50%;background:#fff;border:none;box-shadow:0 2px 10px rgba(0,0,0,.18);cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.fab-lbl{background:#fff;color:#111;font-size:12px;font-weight:700;padding:4px 10px;border-radius:8px;white-space:nowrap;font-family:inherit;box-shadow:0 1px 6px rgba(0,0,0,.15)}
+.fab-lbl{background:rgba(255,255,255,0.88);color:#111;font-size:12px;font-weight:700;padding:4px 10px;border-radius:8px;white-space:nowrap;font-family:inherit;box-shadow:0 1px 6px rgba(0,0,0,.12);backdrop-filter:blur(4px)}
 img{display:block}
 
 /* ─── 헤더 ─── */
@@ -609,7 +609,10 @@ select.admin-form-input{cursor:pointer}
   <div class="benefit-box" id="benefit-box">
     <div style="display:flex;align-items:center;justify-content:space-between">
       <div>
-        <div class="benefit-label">최근 3개월 혜택금액 <span onclick="showBenefitInfo(event)" style="font-size:11px;cursor:pointer;color:#a07000;text-decoration:underline">바로할인이란?</span></div>
+        <div class="benefit-label" style="display:flex;align-items:center;justify-content:space-between">
+          <span>최근 3개월 혜택금액</span>
+          <span onclick="showBenefitInfo(event)" style="font-size:11px;cursor:pointer;color:#a07000;text-decoration:underline;font-weight:600">바로할인이란? ▸</span>
+        </div>
         <div class="benefit-amount" id="benefit-amount">0원</div>
       </div>
     </div>
@@ -701,7 +704,7 @@ select.admin-form-input{cursor:pointer}
     <div class="detail-meta" id="detail-meta"></div>
     <div class="detail-timer-box"><span class="detail-timer-label">⏰ 마감까지</span><span class="detail-timer-val" id="detail-timer-val">00:00:00</span></div>
     <div class="detail-pbar-wrap">
-      <div class="detail-pbar-top"><span style="font-size:12px;color:var(--t3)">할인 진행률</span><span id="detail-rem-txt" style="font-size:12px;font-weight:700;color:var(--grn)"></span></div>
+      <div class="detail-pbar-top"><span style="font-size:12px;color:var(--t3)">쿠폰 발급률</span><span id="detail-rem-txt" style="font-size:12px;font-weight:700;color:var(--grn)"></span></div>
       <div class="detail-pbar-track"><div class="detail-pbar-fill" id="detail-pbar" style="width:0%"></div></div>
     </div>
     <div class="detail-desc" id="detail-desc"></div>
@@ -2190,6 +2193,7 @@ const brandDomain = {
   'PIZZA HUT':       'pizzahut.com',
   'LOTTERIA':        'lotteria.co.kr',
   'MOMS TOUCH':      'momstouch.co.kr',
+  'SHAKE SHACK':     'shakeshack.com',
   'SUBWAY':          'subway.com',
   'HOMEPLUS':        'homeplus.co.kr',
   'HOLLYS':          'hollys.co.kr',
@@ -2212,7 +2216,7 @@ const brandIcon = {
   'PARIS BAGUETTE':'🥐','KFC':'🍗','CU':'🏪','DOMINOS':'🍕',
   'BASKIN ROBBINS':'🍦','BURGER KING':'🍔','PIZZA HUT':'🍕',
   'SUBWAY':'🥪','HOMEPLUS':'🛒','HOLLYS':'☕',
-  'LOTTERIA':'🍔','INNISFREE':'🌿','MOMS TOUCH':'🍔',
+  'LOTTERIA':'🍔','INNISFREE':'🌿','MOMS TOUCH':'🍔','SHAKE SHACK':'🍔',
 };
 const brandBg = {
   'STARBUCKS':'#00704A','A TWOSOME PLACE':'#C8A96E','LOTTE CINEMA':'#E50914',
@@ -2222,7 +2226,7 @@ const brandBg = {
   'KFC':'#F40027','CU':'#6346A3','DOMINOS':'#006491','BASKIN ROBBINS':'#FF6B9D',
   'BURGER KING':'#D62300','PIZZA HUT':'#EE3124',
   'SUBWAY':'#00843D','HOMEPLUS':'#004B97','HOLLYS':'#6B3A2A',
-  'LOTTERIA':'#E63312','INNISFREE':'#2E8B57','MOMS TOUCH':'#E63312',
+  'LOTTERIA':'#E63312','INNISFREE':'#2E8B57','MOMS TOUCH':'#E63312','SHAKE SHACK':'#6DB33F',
 };
 
 function render() {
@@ -2263,7 +2267,7 @@ function render() {
                  : `<span style="font-size:22px">${icon}</span>`}
         </div>
         <div class="bc-brand">${p.brand}</div>
-        <div class="bc-rate">${out?'마감':used?'사용완료':issued?'발급완료':`${p.rate}% 할인`}</div>
+        <div class="bc-rate" style="${out?'color:var(--t3)':used?'color:#555':issued?'color:#1a73e8':'color:var(--red)'}">${out?'마감':used?'사용완료':issued?'발급완료':`${p.rate}% 할인`}</div>
         <div style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;${isOnline?'background:#E8F0FE;color:#1a73e8':'background:#FFEBEE;color:#e53935'}">${isOnline?'📱 온라인 전용':'🏪 오프라인 전용'}</div>
         ${!out&&!used?`<div style="font-size:9px;color:var(--t4);text-align:center;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">잔여 ${p.remaining}/${p.total}</div>`:''}
         ${!out?`<div style="display:flex;align-items:center;justify-content:center;gap:2px;width:100%;overflow:hidden"><span id="pt-${p.id}" style="font-size:9px;font-weight:700;font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:${timerRed?'var(--red)':'#1a73e8'}">${fmtTimer(timerSecs)}</span></div>`:''}
@@ -2640,6 +2644,7 @@ async function finPay() {
     }
     if (document.getElementById('pg2').style.display === 'block') loadMyCoupons();
     updateNotifBadge();
+    updateBenefitBox(); // 결제 후 즉시 혜택금액 갱신
   } else { toast(res.message,'err'); }
   btn.innerHTML='결제하기'; btn.disabled=false;
 }
@@ -2665,7 +2670,7 @@ async function doCancel() {
       document.getElementById('cinfo').innerHTML=`<div class="di-row"><span class="l">취소 금액</span><span class="v">${res.data.paidAmount.toLocaleString()}원 환불</span></div><div class="di-row"><span class="l">쿠폰 상태</span><span class="v" style="color:var(--grn)">복원 완료 ✓</span></div>`;
       openS(5); cancelTarget=null;
     }, 220);
-    await loadHistory(); updateNotifBadge();
+    await loadHistory(); updateNotifBadge(); updateBenefitBox(); // 취소 후 즉시 혜택금액 갱신
   } else toast(res.message,'err');
   btn.innerHTML='결제 취소하기'; btn.disabled=false;
 }
@@ -3168,21 +3173,22 @@ const STORE_DATA = {
       ],
     },
   },
-  'MOMS TOUCH': {
+  'SHAKE SHACK': {
     '서울': {
       '강남구': [
-        {name:'맘스터치 강남역점', addr:'서울 강남구 강남대로 420', lat:37.4988, lng:127.0272},
+        {name:'쉐이크쉑 강남점', addr:'서울 강남구 강남대로 390', lat:37.4956, lng:127.0281},
+        {name:'쉐이크쉑 삼성점', addr:'서울 강남구 테헤란로 521', lat:37.5089, lng:127.0626},
       ],
       '마포구': [
-        {name:'맘스터치 홍대점', addr:'서울 마포구 양화로 167', lat:37.5561, lng:126.9232},
+        {name:'쉐이크쉑 홍대점', addr:'서울 마포구 양화로 188', lat:37.5570, lng:126.9231},
       ],
-      '송파구': [
-        {name:'맘스터치 잠실역점', addr:'서울 송파구 올림픽로 265', lat:37.5132, lng:127.1000},
+      '영등포구': [
+        {name:'쉐이크쉑 여의도점', addr:'서울 영등포구 국제금융로 10', lat:37.5254, lng:126.9264},
       ],
     },
     '경기': {
-      '수원시': [
-        {name:'맘스터치 수원역점', addr:'경기 수원시 팔달구 덕영대로 922', lat:37.2656, lng:127.0004},
+      '성남시': [
+        {name:'쉐이크쉑 판교점', addr:'경기 성남시 분당구 판교역로 146', lat:37.3952, lng:127.1108},
       ],
     },
   },
