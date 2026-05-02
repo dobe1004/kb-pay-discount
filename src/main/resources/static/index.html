@@ -1407,16 +1407,24 @@ function closeFab() {
 let _histOrigin = null; // 이용내역으로 이동 전 출발점
 
 function goHistFromPay() {
-  // 출발점 기억: 상세 페이지 열려있으면 'detail', 쿠폰함이면 2, 그 외 현재탭
+  // 출발점 기억
   if (document.getElementById('detail-page').classList.contains('on')) {
     _histOrigin = 'detail';
   } else {
     _histOrigin = currentTab;
   }
-  [1,2,3,11,12].forEach(n=>closeS(n));
-  setTimeout(() => goTab(3), 150);
-  // 이용내역에서 뒤로가기 시 복귀를 위한 history state
-  history.pushState({ histBack: true, origin: _histOrigin }, '');
+  // 모든 시트 + 상세 닫기
+  [1,2,3,4,5,6,7,8,9,10,11,12].forEach(n => { const s=document.getElementById(`s${n}`); if(s) s.classList.remove('on'); const b=document.getElementById(`bk${n}`); if(b) b.classList.remove('on'); });
+  openSheets = [];
+  // 상세 페이지 닫기 (애니메이션 없이 즉시)
+  const dp = document.getElementById('detail-page');
+  if (dp && dp.classList.contains('on')) {
+    dp.classList.remove('on');
+    document.documentElement.style.overflow = '';
+    document.body.style.overflow = '';
+  }
+  // 이용내역으로 이동
+  setTimeout(() => goTab(3), 50);
 }
 
 function goTab(n, preserveScroll) {
