@@ -151,8 +151,9 @@ public class KbPayService {
         int discountedPrice = coupon.getProduct().getDiscountedPrice();
         int pointUsed = 0;
 
-        if (req.isUsePoint() && user.getPointBalance() >= 100) {
-            pointUsed = Math.min(user.getPointBalance(), discountedPrice);
+        if (req.isUsePoint() && user.getPointBalance() >= 1) {
+            int requested = req.getPointAmount() > 0 ? req.getPointAmount() : user.getPointBalance();
+            pointUsed = Math.min(requested, Math.min(user.getPointBalance(), discountedPrice));
             user.setPointBalance(user.getPointBalance() - pointUsed);
         }
 
