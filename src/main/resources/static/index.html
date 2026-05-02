@@ -2774,18 +2774,33 @@ function selectCard(el, name, num) {
 
 function openPayS() {
   if (!cur) return; closeS(1);
+
+  // 포인트 상태 완전 초기화
   usePoint = false;
+  _ptApplied = false;
+
   const ptToggle = document.getElementById('pt-toggle');
   const ptArea = document.getElementById('pt-input-area');
-  const ptPreview = document.getElementById('pt-use-preview');
-  const ptCustomRow = document.getElementById('pt-custom-row');
   ptToggle.classList.remove('on');
   if (ptArea) ptArea.style.display = 'none';
-  if (ptPreview) ptPreview.textContent = '';
-  if (ptCustomRow) ptCustomRow.style.display = 'none';
+
+  // 포인트 입력 UI 전체 초기화
+  const allBtnRow = document.getElementById('pt-all-btn');
+  if (allBtnRow && allBtnRow.parentElement) allBtnRow.parentElement.style.display = 'flex';
+  const ptCustomRow = document.getElementById('pt-custom-row');
+  if (ptCustomRow) { ptCustomRow.style.display = 'none'; }
+  const ptInput = document.getElementById('pt-custom-input');
+  if (ptInput) ptInput.value = '';
+  const ptPreview = document.getElementById('pt-use-preview');
+  if (ptPreview) { ptPreview.textContent = ''; ptPreview.style.display = 'block'; }
+  const ptApplyBtn = document.getElementById('pt-apply-btn');
+  if (ptApplyBtn) ptApplyBtn.style.display = 'none';
+  const ptAppliedState = document.getElementById('pt-applied-state');
+  if (ptAppliedState) ptAppliedState.style.display = 'none';
+
   const bal = userInfo ? (userInfo.pointBalance||0) : 0;
   document.getElementById('avail-pt-txt').textContent = `보유 ${bal.toLocaleString()}P`;
-  // 포인트 없으면 토글 비활성화
+
   if (bal < 100) {
     ptToggle.style.opacity = '0.35';
     ptToggle.style.pointerEvents = 'none';
@@ -2795,6 +2810,7 @@ function openPayS() {
     ptToggle.style.pointerEvents = '';
     document.getElementById('avail-pt-txt').style.color = 'var(--grn)';
   }
+
   const name = cur.productName || cur.name || '';
   setTimeout(() => { document.getElementById('s2pname').textContent = name; updatePayBox(); openS(2); }, 260);
 }
@@ -2925,8 +2941,9 @@ function updatePayBox() {
   const ori = cur.originalPrice  || cur.ori || 0;
   const amt = cur.discountAmount  || cur.amt || 0;
   const bal = userInfo ? (userInfo.pointBalance||0) : 0;
-  // usePoint: false | number(직접지정) | true(전체) → 숫자로 정규화
-  const pa = usePoint ? (typeof usePoint === 'number' ? Math.min(usePoint, bal, dis) : Math.min(bal, dis)) : 0;
+  // 포인트: 적용 확정(_ptApplied)된 경우만 차감
+  const pa = (_ptApplied && usePoint && typeof usePoint === 'number')
+    ? Math.min(usePoint, bal, dis) : 0;
   const fa = Math.max(0, dis - pa);
   document.getElementById('paybox').innerHTML = `
     <div class="pr"><span class="l">정가</span><span class="v">${ori.toLocaleString()}원</span></div>
@@ -2941,10 +2958,10 @@ async function finPay() {
   vibrate(VT);
   const bal = userInfo ? (userInfo.pointBalance||0) : 0;
   const dis = cur.discountedPrice || cur.dis || 0;
-  // 프론트에서 확정된 포인트 사용액 (_ptApplied 시에만 적용)
-  const _pa = (_ptApplied && usePoint)
-    ? (typeof usePoint === 'number' ? Math.min(usePoint, bal, dis) : Math.min(bal, dis))
-    : 0;
+  // usePoint: applyPoint()에서 확정 숫자로 세팅됨. _ptApplied 아니면 0
+  const _pa = (_ptApplied && usePoint && typeof usePoint === 'number')
+    ? Math.min(usePoint, bal, dis) : 0;
+  // 서버 전송: usePoint(boolean) + pointAmount(실제금액)
   const res = await POST('/api/pay', { userId:uid, couponCode: cur.couponCode||cur.code, usePoint: _pa > 0, pointAmount: _pa });
   if (res.success) {
     vibrate(VP);
