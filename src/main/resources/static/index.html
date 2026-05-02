@@ -817,7 +817,7 @@ select.admin-form-input{cursor:pointer}
   <div class="done-circle"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M6 14l6 6 10-10" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
   <div class="done-amt" id="damt">0<span>원</span></div><div class="done-sub" id="dsub"></div>
   <div class="done-info" id="dinfo"></div>
-  <button class="btn-main" onclick="[1,2,3,11,12].forEach(n=>closeS(n));closeDetail();setTimeout(()=>goTab(3),150)">📋 이용내역 확인</button>
+  <button class="btn-main" onclick="goHistFromPay()">📋 이용내역 확인</button>
   <button class="btn-line" onclick="[1,2,3,11,12].forEach(n=>closeS(n));">닫기</button>
 </div>
 <!-- 시트4: 취소 확인 -->
@@ -1404,6 +1404,21 @@ function closeFab() {
 }
 
 /* ══ 탭 ══ */
+let _histOrigin = null; // 이용내역으로 이동 전 출발점
+
+function goHistFromPay() {
+  // 출발점 기억: 상세 페이지 열려있으면 'detail', 쿠폰함이면 2, 그 외 현재탭
+  if (document.getElementById('detail-page').classList.contains('on')) {
+    _histOrigin = 'detail';
+  } else {
+    _histOrigin = currentTab;
+  }
+  [1,2,3,11,12].forEach(n=>closeS(n));
+  setTimeout(() => goTab(3), 150);
+  // 이용내역에서 뒤로가기 시 복귀를 위한 history state
+  history.pushState({ histBack: true, origin: _histOrigin }, '');
+}
+
 function goTab(n, preserveScroll) {
   const needLogin = [1,2,3,4];
   const msgs = {
@@ -3983,8 +3998,19 @@ function openS(n){document.getElementById(`bk${n}`).classList.add('on');document
 function closeS(n){document.getElementById(`bk${n}`).classList.remove('on');document.getElementById(`s${n}`).classList.remove('on');openSheets=openSheets.filter(x=>x!==n);if(n===8){editingReviewId=null;}}
 
 /* ══ 뒤로가기 ══ */
-window.addEventListener('popstate',()=>{
-  if(fabOpen){closeFab();return;} // FAB 열려있으면 닫기만
+window.addEventListener('popstate', e => {
+  if(fabOpen){closeFab();return;}
+  // 이용내역→뒤로가기 시 출발점으로 복귀
+  if (currentTab === 3 && _histOrigin !== null) {
+    const orig = _histOrigin;
+    _histOrigin = null;
+    if (orig === 'detail') {
+      goTab(0, true); // 홈으로 (상세는 이미 닫혔음)
+    } else {
+      goTab(orig, true);
+    }
+    return;
+  }
   if(document.getElementById('logout-sheet').classList.contains('on')){closeLogoutSheet();return;}
   if(document.getElementById('loginModal').classList.contains('on')){closeLogin();return;}
   if(document.getElementById('s11').classList.contains('on')){closeBarcodeSheet();return;}
@@ -3996,7 +4022,7 @@ window.addEventListener('popstate',()=>{
   if(openSheets.length>0){closeS(openSheets[openSheets.length-1]);return;}
   if(document.getElementById('notif-page').classList.contains('on')){closeNotifPage();return;}
   if(document.getElementById('detail-page').classList.contains('on')){closeDetail();return;}
-  if(currentTab!==0) goTab(0, true); // 뒤로가기: 스크롤 위치 유지
+  if(currentTab!==0) goTab(0, true);
 });
 
 /* ══ 토스트/유틸 ══ */
