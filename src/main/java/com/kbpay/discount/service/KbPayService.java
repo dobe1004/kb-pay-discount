@@ -286,6 +286,7 @@ public class KbPayService {
         if (original.getStatus() != DiscountCoupon.CouponStatus.ISSUED) return ApiResponse.fail("사용 불가한 쿠폰입니다.");
 
         original.setStatus(DiscountCoupon.CouponStatus.GIFTED);
+        original.setUsedAt(LocalDateTime.now());
         couponRepo.save(original);
 
         String newCode = "KB-GIFT-" + UUID.randomUUID().toString().substring(0,8).toUpperCase();
