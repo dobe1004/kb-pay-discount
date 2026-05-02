@@ -2882,15 +2882,12 @@ function applyPt() {
 }
 
 function cancelPt() {
-  ptAmt = 0; ptApplied = 0;
-  document.getElementById('pt-input').value = '';
-  document.getElementById('pt-preview').textContent = '';
+  ptApplied = 0;
+  // 입력창으로 돌아가기 (토글은 유지, 입력값도 유지)
   _ptShowInputRow(true);
-  _ptShowApplyBtn(false);
   _ptShowAppliedRow(false);
-  // 토글도 끄기
-  document.getElementById('pt-toggle').classList.remove('on');
-  document.getElementById('pt-input-area').style.display = 'none';
+  // 입력값이 있으면 적용 버튼 다시 표시
+  _ptShowApplyBtn(ptAmt > 0);
   updatePayBox();
 }
 
