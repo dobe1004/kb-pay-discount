@@ -3016,18 +3016,33 @@ function switchMyTab(idx) { myTabIdx=idx; loadMyCoupons(); }
 function renderCpnList(mine, idx) {
   let list=mine;
   if(idx===1) list=mine.filter(c=>c.status==='ISSUED');
-  if(idx===2) list=mine.filter(c=>c.status==='USED');
-  if(!list.length) return `<div class="empty"><div class="emo">🎫</div><p>${idx===0?'표시할 내용이 없어요':idx===1?'사용 가능한 쿠폰이 없어요':'사용 완료된 쿠폰이 없어요'}</p>${idx!==2?`<button class="empty-btn" onclick="goTab(0)">🔥 핫딜 보러가기</button>`:''}</div>`;
+  if(idx===2) list=mine.filter(c=>c.status==='USED'||c.status==='GIFTED');
+  if(!list.length) return `<div class="empty"><div class="emo">🎫</div><p>${idx===0?'표시할 내용이 없어요':idx===1?'사용 가능한 쿠폰이 없어요':'사용·선물 완료된 쿠폰이 없어요'}</p>${idx!==2?`<button class="empty-btn" onclick="goTab(0)">🔥 핫딜 보러가기</button>`:''}</div>`;
   return list.map(c => {
-    const exp=c.expiredAt?c.expiredAt.slice(0,10):'';
-    const daysLeft = exp ? Math.ceil((new Date(exp)-new Date())/(1000*60*60*24)) : 999;
-    const eb = daysLeft <= 0
-      ? `<span class="cc-exp-badge urgent">⚠️ 오늘 만료</span>`
-      : daysLeft <= 3
-        ? `<span class="cc-exp-badge urgent">🔥 D-${daysLeft} 마감임박!</span>`
-        : daysLeft <= 7
-          ? `<span class="cc-exp-badge soon">⏰ D-${daysLeft}</span>`
-          : `<span class="cc-exp-badge ok">~${exp}</span>`;
+    const isUsed   = c.status === 'USED';
+    const isGifted = c.status === 'GIFTED';
+    const isIssued = c.status === 'ISSUED';
+
+    // 날짜 배지: 발급 상태면 유효기간, 사용/선물이면 사용일시/선물일시
+    let eb = '';
+    if (isIssued) {
+      const exp = c.expiredAt ? c.expiredAt.slice(0,10) : '';
+      const daysLeft = exp ? Math.ceil((new Date(exp)-new Date())/(1000*60*60*24)) : 999;
+      eb = daysLeft <= 0
+        ? `<span class="cc-exp-badge urgent">⚠️ 오늘 만료</span>`
+        : daysLeft <= 3
+          ? `<span class="cc-exp-badge urgent">🔥 D-${daysLeft} 마감임박!</span>`
+          : daysLeft <= 7
+            ? `<span class="cc-exp-badge soon">⏰ D-${daysLeft}</span>`
+            : `<span class="cc-exp-badge ok">~${exp}</span>`;
+    } else if (isUsed) {
+      const usedAt = c.usedAt ? c.usedAt.slice(0,16).replace('T',' ') : '';
+      eb = `<span class="cc-exp-badge" style="background:#f0f0f0;color:var(--t4)">사용 ${usedAt}</span>`;
+    } else if (isGifted) {
+      const usedAt = c.usedAt ? c.usedAt.slice(0,16).replace('T',' ') : '';
+      eb = `<span class="cc-exp-badge" style="background:#fef9e7;color:#a07000">🎁 선물 ${usedAt}</span>`;
+    }
+
     const logo = getFavicon(c.brandName, 64);
     const icon = brandIcon[c.brandName] || '🏷️';
     const cpnData={productName:c.productName,brandName:c.brandName,imageUrl:c.imageUrl,discountAmount:c.discountAmount,discountedPrice:c.discountedPrice,originalPrice:c.originalPrice,couponCode:c.couponCode,productId:c.productId};
@@ -3036,12 +3051,23 @@ function renderCpnList(mine, idx) {
     const logoDom = logo
       ? `<img src="${logo}" width="28" height="28" style="object-fit:contain" onerror="this.style.display='none';this.nextSibling.style.display='block'"><span style="font-size:18px;display:none">${icon}</span>`
       : `<span style="font-size:20px">${icon}</span>`;
+
+    // 하단 버튼/상태
+    let botAction = '';
+    if (isIssued) {
+      botAction = `<button class="cc-use-btn" onclick="useCouponFromList('${c.couponCode}',${JSON.stringify(cpnData).replace(/"/g,"'")})">사용</button><button class="cc-gift-btn" onclick="openGift('${c.couponCode}','${c.productName}')">선물</button>`;
+    } else if (isGifted) {
+      botAction = `<span class="cc-st done" style="background:#fef9e7;color:#a07000">🎁 선물한 쿠폰</span>`;
+    } else {
+      botAction = `<span class="cc-st done">사용완료</span>`;
+    }
+
     return `<div class="cc">
       <div class="cc-top">
         <div class="cc-img" onclick="if(${c.productId||0})openDetail(${c.productId||0})" style="cursor:pointer">${logoDom}</div>
         <div style="flex:1;min-width:0"><div class="cc-brand" style="display:flex;align-items:center;gap:4px">${typeBadge}<span>${c.brandName}</span></div><div class="cc-name">${c.productName}</div>${eb}</div></div>
       <div class="cc-bot"><div class="cc-code">${c.couponCode}</div><div class="cc-amt">${c.discountAmount.toLocaleString()}원</div>
-      ${c.status==='ISSUED'?`<button class="cc-use-btn" onclick="useCouponFromList('${c.couponCode}',${JSON.stringify(cpnData).replace(/"/g,"'")})">사용</button><button class="cc-gift-btn" onclick="openGift('${c.couponCode}','${c.productName}')">선물</button>`:`<span class="cc-st done">사용완료</span>`}
+      ${botAction}
       </div></div>`;
   }).join('');
 }
@@ -3128,17 +3154,20 @@ async function openNotifPage() {
     const icoMap={y:'🎫',r:'⚠️',g:'✅',b:'💳'};
     const bgMap={y:'var(--y-lt)',r:'var(--red-lt)',g:'var(--grn-lt)',b:'var(--blu-lt)'};
     // 알림 타입별 이동: y=쿠폰(쿠폰함), g=결제(내역), b=결제(내역), r=홈, gift=선물함
-    const tabMap={y:2, g:3, b:3, r:0, c:3}; // c=취소완료 → 내역
+    const tabMap={y:2, g:3, b:3, r:0, c:3};
     document.getElementById('notif-list').innerHTML = list.length===0
       ? `<div class="empty"><div class="emo">🔔</div><p>알림이 없습니다</p></div>`
       : list.map(n=>{
-        const isGift = n.title && n.title.includes('선물');
-        const isCancel = n.title && (n.title.includes('취소') || n.description && n.description.includes('취소'));
-        const onclick = isGift
-          ? `closeNotifPage();openGiftBox()`
-          : isCancel
-            ? `closeNotifPage();goTab(3)`
-            : `closeNotifPage();goTab(${tabMap[n.type]||0})`;
+        const isSentGift     = n.title && (n.title.includes('선물') && (n.title.includes('발송') || n.title.includes('보냈') || n.description && n.description.includes('선물을 보냈')));
+        const isReceivedGift = n.title && (n.title.includes('선물') && (n.title.includes('받') || n.description && n.description.includes('선물이 도착')));
+        const isCancel       = n.title && (n.title.includes('취소') || (n.description && n.description.includes('취소')));
+        const onclick = isSentGift
+          ? `closeNotifPage();goTab(2)`           // 선물 발송 완료 → 쿠폰함
+          : isReceivedGift
+            ? `closeNotifPage();openGiftBox()`   // 받은 선물 → 선물함
+            : isCancel
+              ? `closeNotifPage();goTab(3)`
+              : `closeNotifPage();goTab(${tabMap[n.type]||0})`;
         return `<div style="background:#fff;border-bottom:1px solid var(--bd2);padding:13px 16px;display:flex;gap:10px;cursor:pointer" onclick="${onclick}">
           <div style="width:36px;height:36px;border-radius:50%;background:${bgMap[n.type]||'var(--bg)'};display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${icoMap[n.type]||'📢'}</div>
           <div style="flex:1;min-width:0">
@@ -3276,6 +3305,7 @@ async function sendGiftNow() {
   if (giftRes.success) {
     closeGiftSend();
     toast(`🎁 ${toId}님께 선물을 보냈습니다!`, 'ok');
+    updateNotifBadge();
     setTimeout(() => loadList(), 300);
   } else {
     toast(giftRes.message || '선물 전송 실패', 'err');
@@ -3288,7 +3318,7 @@ async function sendGift() {
   if(to===uid){toast('본인에게는 선물할 수 없습니다.','err');return;}
   const btn=document.querySelector('#s6 .btn-main'); btn.innerHTML='<span class="sp"></span>&nbsp;전송 중...'; btn.disabled=true;
   const res=await POST('/api/gift',{fromUserId:uid,toUserId:to,couponCode:cur.couponCode,message:msg});
-  if(res.success){closeS(6);toast(`🎁 ${to}님께 선물을 보냈습니다!`,'ok');loadMyCoupons();}
+  if(res.success){closeS(6);toast(`🎁 ${to}님께 선물을 보냈습니다!`,'ok');loadMyCoupons();updateNotifBadge();}
   else toast(res.message,'err');
   btn.innerHTML='🎁 선물 보내기'; btn.disabled=false;
 }
