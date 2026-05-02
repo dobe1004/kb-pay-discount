@@ -2941,19 +2941,31 @@ async function finPay() {
   vibrate(VT);
   const bal = userInfo ? (userInfo.pointBalance||0) : 0;
   const dis = cur.discountedPrice || cur.dis || 0;
-  const _pa = usePoint ? (typeof usePoint === 'number' ? Math.min(usePoint, bal, dis) : Math.min(bal, dis)) : 0;
+  // 프론트에서 확정된 포인트 사용액 (_ptApplied 시에만 적용)
+  const _pa = (_ptApplied && usePoint)
+    ? (typeof usePoint === 'number' ? Math.min(usePoint, bal, dis) : Math.min(bal, dis))
+    : 0;
   const res = await POST('/api/pay', { userId:uid, couponCode: cur.couponCode||cur.code, usePoint: _pa > 0, pointAmount: _pa });
   if (res.success) {
     vibrate(VP);
-    if (userInfo) { userInfo.pointBalance = (userInfo.pointBalance||0) - (res.data.pointUsed||0) + (res.data.pointEarned||0); sessionStorage.setItem('kbp_user', JSON.stringify(userInfo)); }
+    const d = res.data;
+    // 실제 사용된 포인트: 서버 응답 우선, 없으면 프론트 계산값 사용
+    const ptUsed = (d.pointUsed != null && d.pointUsed !== true && d.pointUsed !== false)
+      ? d.pointUsed : _pa;
+    const ptEarned = d.pointEarned || 0;
+    if (userInfo) {
+      userInfo.pointBalance = (userInfo.pointBalance||0) - ptUsed + ptEarned;
+      sessionStorage.setItem('kbp_user', JSON.stringify(userInfo));
+    }
     closeS(2);
     setTimeout(() => {
-      document.getElementById('damt').innerHTML=`${res.data.paidAmount.toLocaleString()}<span>원</span>`;
-      document.getElementById('dsub').textContent=`${res.data.productName} · ${selectedCard}`;
+      document.getElementById('damt').innerHTML=`${d.paidAmount.toLocaleString()}<span>원</span>`;
+      document.getElementById('dsub').textContent=`${d.productName} · ${selectedCard}`;
       document.getElementById('dinfo').innerHTML=`
-        <div class="di-row"><span class="l">할인 적용</span><span class="v" style="color:var(--red)">-${res.data.savedAmount.toLocaleString()}원!</span></div>
-        ${res.data.pointUsed?`<div class="di-row"><span class="l">포인트 사용</span><span class="v" style="color:var(--grn)">-${res.data.pointUsed.toLocaleString()}P</span></div>`:''}
-        <div class="di-row"><span class="l">포인트 적립</span><span class="v" style="color:var(--grn)">+${res.data.pointEarned.toLocaleString()}P</span></div>
+        <div class="di-row"><span class="l">KB페이 할인</span><span class="v" style="color:var(--red)">-${d.savedAmount.toLocaleString()}원!</span></div>
+        ${ptUsed?`<div class="di-row"><span class="l">포인트 사용</span><span class="v" style="color:var(--grn)">-${ptUsed.toLocaleString()}P</span></div>`:''}
+        <div class="di-row"><span class="l">최종 결제</span><span class="v font-weight:800">${d.paidAmount.toLocaleString()}원</span></div>
+        <div class="di-row"><span class="l">포인트 적립</span><span class="v" style="color:var(--grn)">+${ptEarned.toLocaleString()}P</span></div>
         <div class="di-row"><span class="l">결제 시각</span><span class="v">${new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})}</span></div>`;
       openS(3); cur=null;
     }, 230);
@@ -3094,7 +3106,7 @@ function renderHistList(myH, idx) {
       <div class="hx-top"><div class="hx-name">${h.productName}</div><div class="hx-amt ${h.status==='CANCELLED'?'minus':'plus'}">${h.paidAmount.toLocaleString()}원</div></div>
       <div style="font-size:11px;color:var(--t3);margin-bottom:6px">${h.brandName} · ${h.paidAt?h.paidAt.slice(0,16).replace('T',' '):''}</div>
       <div class="hx-bot">
-        <div class="hx-tags">${h.status==='PAID'?`<span class="hx-tag pay">KB페이</span><span class="hx-tag save">-${h.savedAmount.toLocaleString()}원</span>${h.pointEarned?`<span class="hx-tag" style="background:var(--grn-lt);color:var(--grn)">+${h.pointEarned}P</span>`:''}`:`<span class="hx-tag cancel">취소완료</span>`}</div>
+        <div class="hx-tags">${h.status==='PAID'?`<span class="hx-tag pay">KB페이</span><span class="hx-tag save">-${h.savedAmount.toLocaleString()}원</span>${h.pointUsed?`<span class="hx-tag" style="background:#e8f0fe;color:#1a73e8">-${h.pointUsed.toLocaleString()}P</span>`:''} ${h.pointEarned?`<span class="hx-tag" style="background:var(--grn-lt);color:var(--grn)">+${h.pointEarned}P</span>`:''}`:`<span class="hx-tag cancel">취소완료</span>`}</div>
         <span style="font-size:12px;color:var(--t4)">상세 ›</span>
       </div>
     </div>`).join('');
