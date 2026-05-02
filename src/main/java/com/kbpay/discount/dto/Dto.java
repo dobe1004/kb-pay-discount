@@ -79,7 +79,7 @@ public class Dto {
         private Long id; private String couponCode; private String productName;
         private String brandName; private String imageUrl;
         private Integer discountAmount; private Integer originalPrice; private Integer discountedPrice;
-        private String status; private String issuedAt; private String expiredAt;
+        private String status; private String issuedAt; private String expiredAt; private String usedAt;
         private Long productId;
         private String giftFromUserId;
         private String giftMessage;
@@ -95,6 +95,7 @@ public class Dto {
                 .productId(c.getProduct().getId())
                 .issuedAt(c.getIssuedAt() != null ? c.getIssuedAt().toLocalDate().toString() : "")
                 .expiredAt(c.getExpiredAt() != null ? c.getExpiredAt().toLocalDate().toString() : "")
+                .usedAt(c.getUsedAt() != null ? c.getUsedAt().toString().substring(0,16).replace("T"," ") : "")
                 .giftFromUserId(c.getGiftFromUserId())
                 .giftMessage(c.getGiftMessage())
                 .build();
