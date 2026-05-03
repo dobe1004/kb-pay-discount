@@ -615,7 +615,7 @@ select.admin-form-input{cursor:pointer}
     <div class="benefit-card-row" id="benefit-card-row">
       <div class="benefit-card-info">
         <svg width="20" height="14" viewBox="0 0 20 14" fill="none"><rect width="20" height="14" rx="3" fill="#ccc"/></svg>
-        <span style="font-size:11px;color:#a07000">카드 연결하고 혜택받기</span>
+        <span style="font-size:11px;color:#a07000">KB카드 연결하고 혜택받기</span>
       </div>
       <button onclick="requireLogin('시작하기','바로할인 서비스를 이용하려면 로그인해 주세요')" style="font-size:11px;padding:5px 12px;border-radius:6px;background:#111;color:#fff;border:none;font-family:inherit;font-weight:700;cursor:pointer">시작하기</button>
     </div>
@@ -1584,6 +1584,10 @@ function closeQrPopup() {
   document.getElementById('qr-popup-bk').style.display = 'none';
 }
 
+function closeNoticeEdit() {
+  document.getElementById('notice-edit-bk').style.display = 'none';
+  editingNoticeId = null;
+}
 function openNoticeEdit() {
   openNoticePage(); // 공지사항 페이지 열기 (편집버튼 포함)
 }
@@ -1915,7 +1919,7 @@ function updateBenefitBox() {
     if (cardRow) cardRow.innerHTML = `
       <div class="benefit-card-info">
         <svg width="20" height="14" viewBox="0 0 20 14" fill="none"><rect width="20" height="14" rx="3" fill="#ccc"/></svg>
-        <span style="font-size:11px;color:#a07000">카드 연결하고 혜택받기</span>
+        <span style="font-size:11px;color:#a07000">KB카드 연결하고 혜택받기</span>
       </div>
       <button onclick="requireLogin('시작하기','바로할인 서비스를 이용하려면\\n로그인해 주세요')" style="font-size:11px;padding:5px 12px;border-radius:6px;background:#111;color:#fff;border:none;font-family:inherit;font-weight:700;cursor:pointer">시작하기</button>`;
     return;
@@ -4239,8 +4243,11 @@ window.addEventListener('popstate', e => {
   if(document.getElementById('s-gift-send')?.classList.contains('on')){closeGiftSend();return;}
   if(document.getElementById('gift-msg-bk').style.display==='flex'){closeGiftMsg();return;}
   if(document.getElementById('gift-box-page').classList.contains('on')){closeGiftBox();return;}
+  // 공지 편집 팝업 → 닫기만 (공지사항 페이지는 유지)
   if(document.getElementById('notice-edit-bk').style.display==='flex'){closeNoticeEdit();return;}
-  // 시트가 열려있으면 시트 닫기 (이용내역 상세 s10 포함)
+  // 공지사항 페이지 → 닫고 이전 페이지로
+  if(document.getElementById('notice-page').style.display==='block'){closeNoticePage();return;}
+  // 시트가 열려있으면 시트 닫기
   if(openSheets.length>0){closeS(openSheets[openSheets.length-1]);return;}
   if(document.getElementById('notif-page').classList.contains('on')){closeNotifPage();return;}
   if(document.getElementById('detail-page').classList.contains('on')){closeDetail();return;}
@@ -4248,11 +4255,7 @@ window.addEventListener('popstate', e => {
   if (currentTab === 3 && _histOrigin !== null) {
     const orig = _histOrigin;
     _histOrigin = null;
-    if (orig === 'detail') {
-      goTab(0, true);
-    } else {
-      goTab(orig, true);
-    }
+    goTab(orig === 'detail' ? 0 : orig, true);
     return;
   }
   if(currentTab!==0) goTab(0, true);
