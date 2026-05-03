@@ -399,8 +399,9 @@ img{display:block}
 .btn-red{width:100%;padding:12px;background:var(--red-lt);color:var(--red);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:700;border:1px solid rgba(232,40,45,.2);border-radius:var(--rs);cursor:pointer;margin-bottom:9px}
 .pay-card{background:var(--y-lt);border:1px solid var(--y-md);border-radius:var(--rs);padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:12px}
 .card-chip{width:38px;height:26px;border-radius:5px;background:linear-gradient(135deg,var(--y),var(--yd));display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:#111;flex-shrink:0}
-.card-sel{cursor:pointer;transition:all .15s;border:2px solid var(--bd)}
-.card-sel.on{border-color:var(--y);background:var(--y-lt)}
+.card-opt{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer;border-bottom:1px solid var(--bd2);transition:.1s}
+.card-opt:last-child{border-bottom:none}
+.card-opt:active{background:var(--bg)}
 .card-ck{width:20px;height:20px;border-radius:50%;border:2px solid var(--bd);background:#fff;flex-shrink:0;transition:all .15s}
 .card-sel.on .card-ck{background:var(--y);border-color:var(--y)}
 .card-info{flex:1}.card-name{font-size:13px;font-weight:700}.card-num{font-size:11px;color:var(--t3);margin-top:1px}
@@ -759,24 +760,33 @@ select.admin-form-input{cursor:pointer}
 <div class="bs" id="s2">
   <div class="bs-bar"></div><div class="bs-title" style="margin-bottom:4px">쿠폰 바로 할인 결제</div>
   <div class="bs-sub" id="s2pname" style="margin-bottom:12px">-</div>
-  <!-- 카드 선택 -->
+  <!-- 카드 선택 드롭다운 -->
   <div style="margin-bottom:12px">
-    <div style="font-size:12px;font-weight:700;color:var(--t3);margin-bottom:8px">결제 카드 선택</div>
-    <div style="display:flex;flex-direction:column;gap:8px" id="card-list">
-      <div class="pay-card card-sel on" onclick="selectCard(this,'KB국민카드 (신용)','•••• •••• •••• 1234')">
-        <div class="card-chip">KB</div>
-        <div class="card-info"><div class="card-name">KB국민카드 (신용)</div><div class="card-num">•••• •••• •••• 1234</div></div>
-        <div class="card-ck"></div>
+    <div style="font-size:12px;font-weight:700;color:var(--t3);margin-bottom:6px">결제 카드 선택</div>
+    <div id="card-dropdown" style="position:relative">
+      <!-- 선택된 카드 표시 (누르면 리스트 펼침) -->
+      <div id="card-selected" onclick="toggleCardList()" style="display:flex;align-items:center;gap:10px;padding:12px 14px;border:2px solid var(--y);border-radius:10px;background:var(--y-lt);cursor:pointer">
+        <div id="card-sel-chip" class="card-chip">KB</div>
+        <div style="flex:1">
+          <div id="card-sel-name" style="font-size:13px;font-weight:700">KB국민카드 (신용)</div>
+          <div id="card-sel-num" style="font-size:11px;color:var(--t3)">•••• •••• •••• 1234</div>
+        </div>
+        <div id="card-arrow" style="font-size:12px;color:var(--t3);transition:.2s">▼</div>
       </div>
-      <div class="pay-card card-sel" onclick="selectCard(this,'KB국민카드 (체크)','•••• •••• •••• 5678')">
-        <div class="card-chip" style="background:linear-gradient(135deg,#1a73e8,#0d47a1)">KB</div>
-        <div class="card-info"><div class="card-name">KB국민카드 (체크)</div><div class="card-num">•••• •••• •••• 5678</div></div>
-        <div class="card-ck"></div>
-      </div>
-      <div class="pay-card card-sel" onclick="selectCard(this,'KB국민 비즈카드','•••• •••• •••• 9012')">
-        <div class="card-chip" style="background:linear-gradient(135deg,#FF8F00,#F57F17)">KB</div>
-        <div class="card-info"><div class="card-name">KB국민 비즈카드</div><div class="card-num">•••• •••• •••• 9012</div></div>
-        <div class="card-ck"></div>
+      <!-- 카드 리스트 (펼치면 표시) -->
+      <div id="card-list" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:20;background:#fff;border:1.5px solid var(--bd);border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.12);overflow:hidden">
+        <div class="card-opt" onclick="selectCard('KB국민카드 (신용)','•••• •••• •••• 1234','linear-gradient(135deg,#FFD700,#FFA000)')">
+          <div class="card-chip">KB</div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:700">KB국민카드 (신용)</div><div style="font-size:11px;color:var(--t3)">•••• •••• •••• 1234</div></div>
+        </div>
+        <div class="card-opt" onclick="selectCard('KB국민카드 (체크)','•••• •••• •••• 5678','linear-gradient(135deg,#1a73e8,#0d47a1)')">
+          <div class="card-chip" style="background:linear-gradient(135deg,#1a73e8,#0d47a1)">KB</div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:700">KB국민카드 (체크)</div><div style="font-size:11px;color:var(--t3)">•••• •••• •••• 5678</div></div>
+        </div>
+        <div class="card-opt" onclick="selectCard('KB국민 비즈카드','•••• •••• •••• 9012','linear-gradient(135deg,#FF8F00,#F57F17)')">
+          <div class="card-chip" style="background:linear-gradient(135deg,#FF8F00,#F57F17)">KB</div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:700">KB국민 비즈카드</div><div style="font-size:11px;color:var(--t3)">•••• •••• •••• 9012</div></div>
+        </div>
       </div>
     </div>
   </div>
@@ -2804,12 +2814,22 @@ function showR(ok, r) {
 /* ══ 결제 ══ */
 let selectedCard = 'KB국민카드 (신용)';
 
-function selectCard(el, name, num) {
-  document.querySelectorAll('.card-sel').forEach(c => {
-    c.classList.remove('on');
-  });
-  el.classList.add('on');
+function toggleCardList() {
+  const list = document.getElementById('card-list');
+  const arrow = document.getElementById('card-arrow');
+  const isOpen = list.style.display === 'block';
+  list.style.display = isOpen ? 'none' : 'block';
+  if (arrow) arrow.textContent = isOpen ? '▼' : '▲';
+}
+
+function selectCard(name, num, chipBg) {
   selectedCard = name;
+  document.getElementById('card-sel-name').textContent = name;
+  document.getElementById('card-sel-num').textContent = num;
+  if (chipBg) document.getElementById('card-sel-chip').style.background = chipBg;
+  // 드롭다운 닫기
+  document.getElementById('card-list').style.display = 'none';
+  document.getElementById('card-arrow').textContent = '▼';
 }
 
 // 랜덤 결제금액 생성 (오프라인)
@@ -2978,13 +2998,16 @@ function updatePayBox() {
 
   let rows = online
     ? `<div class="pr"><span class="l">배달비/배송비</span><span class="v">${discAmt.toLocaleString()}원</span></div>
-       <div class="pr"><span class="l">KB페이 혜택</span><span class="v" style="color:var(--red)">무료!</span></div>`
+       <div class="pr"><span class="l">바로 할인</span><span class="v" style="color:#b8860b;font-weight:800">무료 (-${discAmt.toLocaleString()}원)</span></div>`
     : `<div class="pr"><span class="l">결제 금액</span><span class="v">${actualAmt.toLocaleString()}원</span></div>
-       <div class="pr"><span class="l">KB페이 할인</span><span class="v" style="color:var(--red)">-${discAmt.toLocaleString()}원</span></div>`;
+       <div class="pr"><span class="l">바로 할인</span><span class="v" style="color:#b8860b;font-weight:800">-${discAmt.toLocaleString()}원</span></div>`;
 
   document.getElementById('paybox').innerHTML = rows +
     (pa > 0 ? `<div class="pr"><span class="l">포인트 사용</span><span class="v" style="color:var(--grn)">-${pa.toLocaleString()}P</span></div>` : '') +
-    `<div class="pr tot"><span class="l">최종 결제금액</span><span class="v">${fa.toLocaleString()}원</span></div>
+    `<div class="pr tot" style="margin-top:8px;padding-top:10px;border-top:1.5px solid var(--bd)">
+       <span class="l" style="font-size:14px;font-weight:800">최종 결제금액</span>
+       <span class="v" style="color:var(--red);font-size:22px;font-weight:900">${fa.toLocaleString()}원</span>
+     </div>
      <div style="margin-top:8px;font-size:11px;color:var(--t4);text-align:center">예상 포인트 적립 +${Math.floor(fa*.01).toLocaleString()}P</div>`;
 }
 async function finPay() {
@@ -4076,17 +4099,6 @@ function closeS(n){document.getElementById(`bk${n}`).classList.remove('on');docu
 /* ══ 뒤로가기 ══ */
 window.addEventListener('popstate', e => {
   if(fabOpen){closeFab();return;}
-  // 이용내역→뒤로가기 시 출발점으로 복귀
-  if (currentTab === 3 && _histOrigin !== null) {
-    const orig = _histOrigin;
-    _histOrigin = null;
-    if (orig === 'detail') {
-      goTab(0, true); // 홈으로 (상세는 이미 닫혔음)
-    } else {
-      goTab(orig, true);
-    }
-    return;
-  }
   if(document.getElementById('logout-sheet').classList.contains('on')){closeLogoutSheet();return;}
   if(document.getElementById('loginModal').classList.contains('on')){closeLogin();return;}
   if(document.getElementById('s11').classList.contains('on')){closeBarcodeSheet();return;}
@@ -4095,9 +4107,21 @@ window.addEventListener('popstate', e => {
   if(document.getElementById('gift-msg-bk').style.display==='flex'){closeGiftMsg();return;}
   if(document.getElementById('gift-box-page').classList.contains('on')){closeGiftBox();return;}
   if(document.getElementById('notice-page').style.display==='block'){closeNoticePage();return;}
+  // 시트가 열려있으면 시트 닫기 (이용내역 상세 s10 포함)
   if(openSheets.length>0){closeS(openSheets[openSheets.length-1]);return;}
   if(document.getElementById('notif-page').classList.contains('on')){closeNotifPage();return;}
   if(document.getElementById('detail-page').classList.contains('on')){closeDetail();return;}
+  // 이용내역→뒤로가기 시 출발점으로 복귀
+  if (currentTab === 3 && _histOrigin !== null) {
+    const orig = _histOrigin;
+    _histOrigin = null;
+    if (orig === 'detail') {
+      goTab(0, true);
+    } else {
+      goTab(orig, true);
+    }
+    return;
+  }
   if(currentTab!==0) goTab(0, true);
 });
 
