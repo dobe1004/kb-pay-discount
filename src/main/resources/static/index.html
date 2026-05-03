@@ -2374,7 +2374,24 @@ function render() {
   else if (curFilterTab==='discount') list=list.sort((a,b)=>b.rate-a.rate);
   if (curSort==='rate')    list.sort((a,b)=>b.rate-a.rate);
   else if (curSort==='price')   list.sort((a,b)=>a.dis-b.dis);
-  else if (curSort==='popular'||curSort==='default') list.sort((a,b)=>b.buyers-a.buyers);
+  else if (curSort==='popular'||curSort==='default') {
+    // 오프라인만 인기순 정렬
+    const offline = list.filter(p=>!isOnlineBrand(p.brand)).sort((a,b)=>b.buyers-a.buyers);
+    const online  = list.filter(p=> isOnlineBrand(p.brand));
+    // 온라인 3개를 브랜드 순서대로 (COUPANG, BAEMIN, MUSINSA)
+    const onlineOrder = ['COUPANG','BAEMIN','MUSINSA'];
+    const onlineSorted = onlineOrder.map(b=>online.find(p=>p.brand===b)).filter(Boolean);
+    // 2번째(idx 1), 6번째(idx 5), 14번째(idx 13) 위치에 삽입
+    // 삽입 위치는 온라인을 제외한 오프라인 기준
+    const result = [...offline];
+    // 뒤에서부터 삽입해야 앞 위치가 밀리지 않음
+    const positions = [1, 5, 13]; // 0-based
+    onlineSorted.forEach((p, i) => {
+      const pos = Math.min(positions[i], result.length);
+      result.splice(pos, 0, p);
+    });
+    list = result;
+  }
   else if (curSort==='rem') list.sort((a,b)=>b.remaining-a.remaining);
 
   document.getElementById('rem-cnt').textContent = `전체 브랜드 ${list.length}`;
