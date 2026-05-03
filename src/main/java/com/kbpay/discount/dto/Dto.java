@@ -104,7 +104,7 @@ public class Dto {
 
     /* ── 결제 ── */
     @Getter @Setter @NoArgsConstructor
-    public static class PayRequest { private String userId; private String couponCode; private boolean usePoint; private int pointAmount; }
+    public static class PayRequest { private String userId; private String couponCode; private boolean usePoint; private int pointAmount; private int actualAmount; }
 
     @Getter @Builder
     public static class TxResponse {
