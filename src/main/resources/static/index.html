@@ -752,7 +752,7 @@ select.admin-form-input{cursor:pointer}
   <div class="bs-title" id="s1t">쿠폰 발급 완료!</div><div class="bs-sub" id="s1s"></div>
   <div class="cpn" id="cpnbox" style="display:none"><div class="cpn-lbl">COUPON CODE</div><div class="cpn-code" id="ccode">-</div><div class="cpn-exp" id="cexp"></div></div>
   <button class="btn-main" id="btntopay" style="display:none" onclick="openPayS()">💳 지금 바로 결제하기</button>
-  <button id="btnmypage" style="display:none;width:100%;padding:14px;font-family:inherit;font-size:15px;font-weight:700;border-radius:var(--rs);cursor:pointer;margin-bottom:9px;background:#e8f5e9;border:1.5px solid #a5d6a7;color:#2e7d32">🎫 쿠폰함에 보관하기</button>
+  <button id="btnmypage" style="display:none;width:100%;padding:12px;font-family:inherit;font-size:13px;font-weight:500;border-radius:var(--rs);cursor:pointer;margin-bottom:9px;background:transparent;border:1px solid var(--bd);color:var(--t3)">🎫 쿠폰함 가기</button>
   <button class="btn-line" onclick="closeS(1)">닫기</button>
 </div>
 <!-- 시트2: 결제 -->
@@ -2828,7 +2828,7 @@ function showR(ok, r) {
   const btnmy = document.getElementById('btnmypage');
   if (ok) {
     btnmy.style.display = 'block';
-    btnmy.textContent = '🎫 쿠폰함 바로가기';
+    btnmy.textContent = '🎫 쿠폰함 가기';
     btnmy.onclick = () => { closeS(1); closeDetail(); setTimeout(() => goTab(2), 150); };
   }
 
@@ -2861,7 +2861,7 @@ function showR(ok, r) {
         );
         if (hasCoupon) {
           btnmy.style.display = 'block';
-          btnmy.textContent = '🎫 내 쿠폰함 확인하기';
+          btnmy.textContent = '🎫 쿠폰함 가기';
           btnmy.onclick = () => {
             [1,2,3,11,12].forEach(n=>closeS(n));
             closeDetail();
