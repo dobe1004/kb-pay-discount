@@ -227,7 +227,7 @@ img{display:block}
 .detail-rate{font-size:22px;font-weight:900;color:var(--red);margin-bottom:2px}
 .detail-price-row{display:flex;align-items:baseline;gap:8px}
 .detail-now{font-size:26px;font-weight:900}
-.detail-ori{font-size:15px;color:var(--t4);text-decoration:line-through}
+.detail-ori{font-size:13px;color:var(--t3);display:none}
 .detail-save{font-size:13px;font-weight:700;color:var(--red);margin-top:4px}
 .detail-meta{display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap}
 .dm-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--t3)}
@@ -559,7 +559,7 @@ select.admin-form-input{cursor:pointer}
         <div class="bn-left">
           <div class="bn-tag" style="color:rgba(0,0,0,.5)"><div class="bn-dot" style="background:#1D6FD8"></div>☕ 카페 특가</div>
           <div class="bn-title" style="color:#1A1A1A;font-size:17px">스타벅스 7% 할인<br/>KB페이로 결제 시 바로</div>
-          <div class="bn-sub" style="color:rgba(0,0,0,.55)">15,000원 이상 · 최대 1,000원 할인</div>
+          <div class="bn-sub" style="color:rgba(0,0,0,.55)">15,000원 이상 결제 시 · 할인 한도 없음</div>
         </div>
         <div class="bn-right" style="font-size:40px">☕</div>
       </div>
@@ -2334,7 +2334,7 @@ function render() {
                  : `<span style="font-size:22px">${icon}</span>`}
         </div>
         <div class="bc-brand">${p.brand}</div>
-        <div class="bc-rate" style="${out?'color:var(--t3)':used?'color:#bbb':issued?'color:#1a73e8':isOnline?'color:#1a73e8':'color:var(--red)'}">${out?'마감':used?'사용완료':issued?'발급완료':isOnlineBrand(p.brand)?(p.brand==='BAEMIN'?'배달비 무료':'배송비 무료'):`${p.rate}% 할인`}</div>
+        <div class="bc-rate" style="${out?'color:var(--t3)':used?'color:#bbb':issued?'color:#1a73e8':'color:var(--red)'}">${out?'마감':used?'사용완료':issued?'발급완료':isOnlineBrand(p.brand)?(p.brand==='BAEMIN'?'배달비 무료':'배송비 무료'):`${p.rate}% 할인`}</div>
         <div style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;${isOnline?'background:#E8F0FE;color:#1a73e8':'background:#FFEBEE;color:#e53935'}">${isOnline?'📱 온라인 전용':'🏪 오프라인 전용'}</div>
         ${!out?`<div style="font-size:9px;color:var(--t4);text-align:center;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">잔여 ${p.remaining}/${p.total}</div>`:''}
         ${!out?`<div style="display:flex;align-items:center;justify-content:center;gap:2px;width:100%;overflow:hidden"><span id="pt-${p.id}" style="font-size:9px;font-weight:700;font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:${timerRed?'var(--red)':'#1a73e8'}">${fmtTimer(timerSecs)}</span></div>`:''}
@@ -2411,16 +2411,18 @@ async function openDetail(pid) {
   const isOnline = isOnlineBrand(p.brand);
   if (isOnline) {
     // 온라인: 배달비/배송비 무료
-    document.getElementById('detail-rate').textContent = '배달비/배송비 무료';
-    document.getElementById('detail-now').textContent = `${p.dis.toLocaleString()}원 할인`;
+    const feeType = p.brand === 'BAEMIN' ? '배달비' : '배송비';
+    document.getElementById('detail-rate').textContent = `${feeType} 무료`;
+    document.getElementById('detail-now').textContent = `${p.dis.toLocaleString()}원 ${feeType} 혜택`;
     document.getElementById('detail-ori').textContent = '';
     document.getElementById('detail-save').textContent = 'KB페이 결제 시 즉시 적용!';
   } else {
     // 오프라인: 결제금액 기반 할인율
     document.getElementById('detail-rate').textContent = `결제금액의 ${p.rate}% 할인`;
-    document.getElementById('detail-now').textContent = p.dis>=99999999 ? '할인 한도 없음' : `최대 ${p.dis.toLocaleString()}원 할인`;
-    document.getElementById('detail-ori').textContent = `${p.ori.toLocaleString()}원 이상 결제 시`;
-    document.getElementById('detail-save').textContent = 'KB페이로 결제 시 자동 적용!';
+    const maxTxt = p.dis>=99999999 ? '할인 한도 없음' : `최대 ${p.dis.toLocaleString()}원 할인`;
+    document.getElementById('detail-now').textContent = `${p.ori.toLocaleString()}원 이상 결제 시 ${maxTxt}`;
+    document.getElementById('detail-ori').textContent = '';
+    document.getElementById('detail-save').textContent = 'KB페이 결제 시 자동 적용!';
   }
   document.getElementById('detail-meta').innerHTML = `<div class="dm-item"><span>⭐</span><b>${p.rating}</b><span>(${p.reviews}개 후기)</span></div><div class="dm-item"><span>👥</span><b>${p.buyers.toLocaleString()}명</b><span>구매</span></div><div class="dm-item"><span>🎫</span><b>잔여 ${p.remaining}매</b></div>`;
   const pct = ((p.total-p.remaining)/p.total*100).toFixed(1);
@@ -2431,7 +2433,7 @@ async function openDetail(pid) {
   document.getElementById('detail-notice').innerHTML = '⚠️ 유의사항<br/>'+(p.notice||'').replace(/\n/g,'<br/>');
   const onlineTable = isOnlineBrand(p.brand);
   document.getElementById('detail-table').innerHTML = onlineTable
-    ? `<tr><td>브랜드</td><td>${p.brand}</td></tr><tr><td>카테고리</td><td>${p.cat}</td></tr><tr><td>혜택</td><td style="color:var(--red);font-weight:700">배달비/배송비 ${p.dis.toLocaleString()}원 무료</td></tr><tr><td>최소주문</td><td>${p.ori > 0 ? p.ori.toLocaleString()+'원 이상' : '금액 제한 없음'}</td></tr><tr><td>유효기간</td><td>발급 후 ${p.validDays||7}일</td></tr>`
+    ? `<tr><td>브랜드</td><td>${p.brand}</td></tr><tr><td>카테고리</td><td>${p.cat}</td></tr><tr><td>혜택</td><td style="color:var(--red);font-weight:700">${p.brand==='BAEMIN'?'배달비':'배송비'} ${p.dis.toLocaleString()}원 무료</td></tr><tr><td>최소주문</td><td>${p.ori > 0 ? p.ori.toLocaleString()+'원 이상' : '금액 제한 없음'}</td></tr><tr><td>유효기간</td><td>발급 후 ${p.validDays||7}일</td></tr>`
     : `<tr><td>브랜드</td><td>${p.brand}</td></tr><tr><td>카테고리</td><td>${p.cat}</td></tr><tr><td>할인율</td><td style="color:var(--red);font-weight:700">${p.rate}% 할인</td></tr><tr><td>최소결제</td><td>${p.ori.toLocaleString()}원 이상</td></tr><tr><td>최대할인</td><td style="color:var(--red);font-weight:700">${p.dis>=99999999?'제한없음':p.dis.toLocaleString()+'원'}</td></tr><tr><td>유효기간</td><td>발급 후 ${p.validDays||30}일</td></tr>`;
   updateDetailHeart();
   updateDetailBtn(p);
@@ -2968,7 +2970,7 @@ function updatePayBox() {
 
   let rows = online
     ? `<div class="pr"><span class="l">배달비/배송비</span><span class="v">${discAmt.toLocaleString()}원</span></div>
-       <div class="pr"><span class="l">KB페이 혜택</span><span class="v" style="color:var(--red)">무료 (-${discAmt.toLocaleString()}원)</span></div>`
+       <div class="pr"><span class="l">KB페이 혜택</span><span class="v" style="color:var(--red)">무료!</span></div>`
     : `<div class="pr"><span class="l">결제 금액</span><span class="v">${actualAmt.toLocaleString()}원</span></div>
        <div class="pr"><span class="l">KB페이 할인</span><span class="v" style="color:var(--red)">-${discAmt.toLocaleString()}원</span></div>`;
 
@@ -3006,7 +3008,7 @@ async function finPay() {
       const isOnlineResult = isOnlineBrand(cur ? (cur.brand || cur.brandName || '') : '');
       document.getElementById('dinfo').innerHTML=`
         ${isOnlineResult
-          ? `<div class="di-row"><span class="l">KB페이 혜택</span><span class="v" style="color:var(--red)">배달비/배송비 무료!</span></div>`
+          ? `<div class="di-row"><span class="l">KB페이 혜택</span><span class="v" style="color:var(--red)">${cur&&(cur.brand==='BAEMIN'||cur.brandName==='BAEMIN')?'배달비':'배송비'} 무료!</span></div>`
           : `<div class="di-row"><span class="l">KB페이 할인</span><span class="v" style="color:var(--red)">-${d.savedAmount.toLocaleString()}원 할인!</span></div>`}
         ${ptUsed?`<div class="di-row"><span class="l">포인트 사용</span><span class="v" style="color:var(--grn)">-${ptUsed.toLocaleString()}P</span></div>`:''}
         <div class="di-row"><span class="l">최종 결제</span><span class="v" style="font-weight:800">${d.paidAmount.toLocaleString()}원</span></div>
