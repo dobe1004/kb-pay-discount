@@ -775,17 +775,20 @@ select.admin-form-input{cursor:pointer}
       </div>
       <!-- 카드 리스트 (펼치면 표시) -->
       <div id="card-list" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:20;background:#fff;border:1.5px solid var(--bd);border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.12);overflow:hidden">
-        <div class="card-opt" onclick="selectCard('KB국민카드 (신용)','•••• •••• •••• 1234','linear-gradient(135deg,#FFD700,#FFA000)')">
+        <div class="card-opt" id="card-opt-0" onclick="selectCard('KB국민카드 (신용)','•••• •••• •••• 1234','linear-gradient(135deg,#FFD700,#FFA000)',0)">
           <div class="card-chip">KB</div>
           <div style="flex:1"><div style="font-size:13px;font-weight:700">KB국민카드 (신용)</div><div style="font-size:11px;color:var(--t3)">•••• •••• •••• 1234</div></div>
+          <span id="card-ck-0" style="font-size:16px;color:var(--y);display:block">✔</span>
         </div>
-        <div class="card-opt" onclick="selectCard('KB국민카드 (체크)','•••• •••• •••• 5678','linear-gradient(135deg,#1a73e8,#0d47a1)')">
+        <div class="card-opt" id="card-opt-1" onclick="selectCard('KB국민카드 (체크)','•••• •••• •••• 5678','linear-gradient(135deg,#1a73e8,#0d47a1)',1)">
           <div class="card-chip" style="background:linear-gradient(135deg,#1a73e8,#0d47a1)">KB</div>
           <div style="flex:1"><div style="font-size:13px;font-weight:700">KB국민카드 (체크)</div><div style="font-size:11px;color:var(--t3)">•••• •••• •••• 5678</div></div>
+          <span id="card-ck-1" style="font-size:16px;color:var(--y);display:none">✔</span>
         </div>
-        <div class="card-opt" onclick="selectCard('KB국민 비즈카드','•••• •••• •••• 9012','linear-gradient(135deg,#FF8F00,#F57F17)')">
+        <div class="card-opt" id="card-opt-2" onclick="selectCard('KB국민 비즈카드','•••• •••• •••• 9012','linear-gradient(135deg,#FF8F00,#F57F17)',2)">
           <div class="card-chip" style="background:linear-gradient(135deg,#FF8F00,#F57F17)">KB</div>
           <div style="flex:1"><div style="font-size:13px;font-weight:700">KB국민 비즈카드</div><div style="font-size:11px;color:var(--t3)">•••• •••• •••• 9012</div></div>
+          <span id="card-ck-2" style="font-size:16px;color:var(--y);display:none">✔</span>
         </div>
       </div>
     </div>
@@ -2818,15 +2821,33 @@ function toggleCardList() {
   const list = document.getElementById('card-list');
   const arrow = document.getElementById('card-arrow');
   const isOpen = list.style.display === 'block';
+  if (!isOpen) {
+    // 열기 전에 현재 선택 상태 반영
+    const names = ['KB국민카드 (신용)','KB국민카드 (체크)','KB국민 비즈카드'];
+    [0,1,2].forEach(i => {
+      const ck = document.getElementById(`card-ck-${i}`);
+      const opt = document.getElementById(`card-opt-${i}`);
+      const sel = names[i] === selectedCard;
+      if (ck) ck.style.display = sel ? 'block' : 'none';
+      if (opt) opt.style.background = sel ? 'var(--y-lt)' : '';
+    });
+  }
   list.style.display = isOpen ? 'none' : 'block';
   if (arrow) arrow.textContent = isOpen ? '▼' : '▲';
 }
 
-function selectCard(name, num, chipBg) {
+function selectCard(name, num, chipBg, idx) {
   selectedCard = name;
   document.getElementById('card-sel-name').textContent = name;
   document.getElementById('card-sel-num').textContent = num;
   if (chipBg) document.getElementById('card-sel-chip').style.background = chipBg;
+  // 체크마크: 선택된 카드만 표시
+  [0,1,2].forEach(i => {
+    const ck = document.getElementById(`card-ck-${i}`);
+    const opt = document.getElementById(`card-opt-${i}`);
+    if (ck) ck.style.display = i === idx ? 'block' : 'none';
+    if (opt) opt.style.background = i === idx ? 'var(--y-lt)' : '';
+  });
   // 드롭다운 닫기
   document.getElementById('card-list').style.display = 'none';
   document.getElementById('card-arrow').textContent = '▼';
