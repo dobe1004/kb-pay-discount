@@ -343,7 +343,7 @@ img{display:block}
 .hx-tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px}
 .hx-tag.pay{background:var(--blu-lt);color:var(--blu)}
 .hx-tag.cancel{background:var(--red-lt);color:var(--red)}
-.hx-tag.save{background:var(--grn-lt);color:var(--grn)}
+.hx-tag.save{background:#fff0f0;color:var(--red);border:1px solid #ffcccc}
 .hx-cancel-btn{font-size:11px;color:var(--red);background:var(--red-lt);border:1px solid rgba(232,40,45,.2);border-radius:6px;padding:3px 10px;cursor:pointer;font-family:inherit;font-weight:600;flex-shrink:0}
 
 /* ─── 알림 ─── */
@@ -740,7 +740,7 @@ select.admin-form-input{cursor:pointer}
     <div class="detail-heart" id="detail-share-btn" onclick="openS(7)" title="공유하기" style="display:flex;align-items:center;justify-content:center">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="18" cy="5" r="3" fill="#555"/><circle cx="6" cy="12" r="3" fill="#555"/><circle cx="18" cy="19" r="3" fill="#555"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" stroke="#555" stroke-width="2"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" stroke="#555" stroke-width="2"/></svg>
   </div>
-    <button class="btn-apply" style="flex:1;padding:13px;font-size:15px" id="detail-apply-btn" onclick="applyFromDetail()">바로 할인 받기</button>
+    <button class="btn-apply" style="flex:1;padding:13px;font-size:15px" id="detail-apply-btn" onclick="applyFromDetail()">바로할인 받기</button>
   </div>
 </div>
 
@@ -2544,7 +2544,7 @@ function updateDetailBtn(p) {
   if (p.remaining <= 0) { ab.textContent = '선착순 마감'; ab.disabled = true; ab.style.background=''; ab.style.color=''; }
   else if (p._used) { ab.textContent = '✓ 쿠폰 사용 완료'; ab.disabled = true; ab.style.background='var(--bg)'; ab.style.color='var(--t4)'; }
   else if (p._issued) { ab.textContent = '🎫 쿠폰 사용하기'; ab.disabled = false; ab.style.background=''; ab.style.color=''; ab.onclick = () => openPayFromIssued(p.id); }
-  else { ab.textContent = '바로 할인 받기'; ab.disabled = false; ab.style.background=''; ab.style.color=''; ab.onclick = applyFromDetail; }
+  else { ab.textContent = '바로할인 받기'; ab.disabled = false; ab.style.background=''; ab.style.color=''; ab.onclick = applyFromDetail; }
 }
 
 function closeDetail() {
@@ -2774,7 +2774,7 @@ async function apply(pid) {
       render();
       showR(true, { couponCode:res.data.couponCode, discountAmount:res.data.discountAmount, message:`${res.data.brandName} 할인 쿠폰 발급 완료!` });
     } else {
-      if (btn) { btn.classList.remove('ld'); btn.disabled=false; btn.textContent='바로 할인 받기'; }
+      if (btn) { btn.classList.remove('ld'); btn.disabled=false; btn.textContent='바로할인 받기'; }
       showR(false, { message: res.message || '오류가 발생했습니다.' });
     }
   });
@@ -3066,15 +3066,15 @@ function updatePayBox() {
 
   let rows = online
     ? `<div class="pr"><span class="l">배달비/배송비</span><span class="v">${discAmt.toLocaleString()}원</span></div>
-       <div class="pr"><span class="l">바로 할인</span><span class="v" style="color:#b8860b;font-weight:800">무료 (-${discAmt.toLocaleString()}원)</span></div>`
+       <div class="pr"><span class="l">바로 할인</span><span class="v" style="color:var(--red);font-weight:800">무료</span></div>`
     : `<div class="pr"><span class="l">결제 금액</span><span class="v">${actualAmt.toLocaleString()}원</span></div>
-       <div class="pr"><span class="l">바로 할인</span><span class="v" style="color:#b8860b;font-weight:800">-${discAmt.toLocaleString()}원</span></div>`;
+       <div class="pr"><span class="l">바로 할인</span><span class="v" style="color:var(--red);font-weight:800">-${discAmt.toLocaleString()}원</span></div>`;
 
   document.getElementById('paybox').innerHTML = rows +
     (pa > 0 ? `<div class="pr"><span class="l">포인트 사용</span><span class="v" style="color:var(--grn)">-${pa.toLocaleString()}P</span></div>` : '') +
     `<div class="pr tot" style="margin-top:8px;padding-top:10px;border-top:1.5px solid var(--bd)">
        <span class="l" style="font-size:14px;font-weight:800">최종 결제금액</span>
-       <span class="v" style="color:var(--red);font-size:22px;font-weight:900">${fa.toLocaleString()}원</span>
+       <span class="v" style="color:#111;font-size:22px;font-weight:900">${fa.toLocaleString()}원</span>
      </div>
      <div style="margin-top:8px;font-size:11px;color:var(--t4);text-align:center">예상 포인트 적립 +${Math.floor(fa*.01).toLocaleString()}P</div>`;
 }
@@ -3110,7 +3110,7 @@ async function finPay() {
           ? `<div class="di-row"><span class="l">KB페이 혜택</span><span class="v" style="color:var(--red)">${cur&&(cur.brand==='BAEMIN'||cur.brandName==='BAEMIN')?'배달비':'배송비'} 무료!</span></div>`
           : `<div class="di-row"><span class="l">KB페이 할인</span><span class="v" style="color:var(--red)">-${d.savedAmount.toLocaleString()}원 할인!</span></div>`}
         ${ptUsed?`<div class="di-row"><span class="l">포인트 사용</span><span class="v" style="color:var(--grn)">-${ptUsed.toLocaleString()}P</span></div>`:''}
-        <div class="di-row"><span class="l">최종 결제</span><span class="v" style="font-weight:800">${d.paidAmount.toLocaleString()}원</span></div>
+        <div class="di-row"><span class="l">최종 결제</span><span class="v" style="font-weight:800;color:#111">${d.paidAmount.toLocaleString()}원</span></div>
         <div class="di-row"><span class="l">포인트 적립</span><span class="v" style="color:var(--grn)">+${ptEarned.toLocaleString()}P</span></div>
         <div class="di-row"><span class="l">결제 시각</span><span class="v">${new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})}</span></div>`;
       openS(3); cur=null;
@@ -3285,7 +3285,7 @@ function renderHistList(myH, idx) {
       <div class="hx-top"><div class="hx-name">${h.productName}</div><div class="hx-amt ${h.status==='CANCELLED'?'minus':'plus'}">${h.paidAmount.toLocaleString()}원</div></div>
       <div style="font-size:11px;color:var(--t3);margin-bottom:6px">${h.brandName} · ${h.paidAt?h.paidAt.slice(0,16).replace('T',' '):''}</div>
       <div class="hx-bot">
-        <div class="hx-tags">${h.status==='PAID'?`<span class="hx-tag pay">KB페이</span><span class="hx-tag save" style="color:var(--red);background:var(--bg)">-${h.savedAmount.toLocaleString()}원</span>${h.pointUsed?`<span class="hx-tag" style="background:#e8f0fe;color:#1a73e8">-${h.pointUsed.toLocaleString()}P</span>`:''} ${h.pointEarned?`<span class="hx-tag" style="background:var(--grn-lt);color:var(--grn)">+${h.pointEarned}P</span>`:''}`:`<span class="hx-tag cancel">취소완료</span>`}</div>
+        <div class="hx-tags">${h.status==='PAID'?`<span class="hx-tag pay">KB페이</span><span class="hx-tag save">-${h.savedAmount.toLocaleString()}원</span>${h.pointUsed?`<span class="hx-tag" style="background:#e8f0fe;color:#1a73e8">-${h.pointUsed.toLocaleString()}P</span>`:''} ${h.pointEarned?`<span class="hx-tag" style="background:var(--grn-lt);color:var(--grn)">+${h.pointEarned}P</span>`:''}`:`<span class="hx-tag cancel">취소완료</span>`}</div>
         <span style="font-size:12px;color:var(--t4)">상세 ›</span>
       </div>
     </div>`).join('');
