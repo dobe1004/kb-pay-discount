@@ -148,7 +148,24 @@ public class KbPayService {
             return ApiResponse.fail("이미 사용되었거나 만료된 쿠폰입니다.");
 
         User user = userRepo.findById(req.getUserId()).orElseThrow();
-        int discountedPrice = coupon.getProduct().getDiscountedPrice();
+        Product product = coupon.getProduct();
+        boolean isOnline = product.getDiscountRate() == 100; // 온라인: rate=100 (배달비/배송비 전액)
+
+        int discountedPrice; // 실제 최종 결제금액 (포인트 차감 전)
+        int savedAmount;     // 할인 금액
+
+        if (isOnline) {
+            // 온라인: 배달비/배송비 무료 → dis 금액이 혜택금액
+            discountedPrice = 0; // 배달비 전액 할인 = 0원 결제
+            savedAmount = product.getDiscountedPrice(); // 배달비 금액
+        } else {
+            // 오프라인: 실제 결제금액 기반 할인
+            int actual = req.getActualAmount() > 0 ? req.getActualAmount() : product.getOriginalPrice();
+            int rate = product.getDiscountRate();
+            int maxDiscount = product.getDiscountedPrice(); // 최대 할인금액
+            savedAmount = Math.min((int)(actual * rate / 100.0 + 0.5), maxDiscount);
+            discountedPrice = actual - savedAmount;
+        }
         int pointUsed = 0;
 
         if (req.isUsePoint() && user.getPointBalance() >= 1) {
@@ -174,8 +191,8 @@ public class KbPayService {
 
         Transaction tx = Transaction.builder()
             .userId(req.getUserId()).product(coupon.getProduct()).couponCode(req.getCouponCode())
-            .paidAmount(finalAmount).savedAmount(coupon.getDiscountAmount())
-            .originalAmount(coupon.getProduct().getOriginalPrice())
+            .paidAmount(finalAmount).savedAmount(savedAmount)
+            .originalAmount(isOnline ? product.getDiscountedPrice() : (req.getActualAmount() > 0 ? req.getActualAmount() : product.getOriginalPrice()))
             .pointUsed(pointUsed).pointEarned(earnedPoint)
             .status(Transaction.TxStatus.PAID).build();
         txRepo.save(tx);
