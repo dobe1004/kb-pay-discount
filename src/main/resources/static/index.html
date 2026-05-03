@@ -3291,7 +3291,6 @@ function renderHistList(myH, idx) {
     </div>`).join('');
 }
 function openHistDetail(hid) {
-  // 현재 내역 목록에서 찾아 상세 표시
   GET(`/api/history/${uid}`).then(res => {
     const h = res.data && res.data.find(x=>x.id===hid); if(!h) return;
     document.getElementById('hx-detail-body').innerHTML=`
@@ -3302,7 +3301,7 @@ function openHistDetail(hid) {
         <div class="pr"><span class="l">정가</span><span class="v">${(h.originalAmount||0).toLocaleString()}원</span></div>
         <div class="pr"><span class="l">할인 적용</span><span class="v" style="color:var(--red)">-${(h.savedAmount||0).toLocaleString()}원</span></div>
         ${h.pointUsed?`<div class="pr"><span class="l">포인트 사용</span><span class="v" style="color:var(--grn)">-${h.pointUsed.toLocaleString()}P</span></div>`:''}
-        <div class="pr tot"><span class="l">결제 금액</span><span class="v">${h.paidAmount.toLocaleString()}원</span></div>
+        <div class="pr tot"><span class="l">결제 금액</span><span class="v" style="color:#111;font-weight:800">${h.paidAmount.toLocaleString()}원</span></div>
       </div>
       <div class="pay-box" style="margin-bottom:14px">
         <div class="pr"><span class="l">결제 수단</span><span class="v">KB국민카드</span></div>
@@ -3313,6 +3312,7 @@ function openHistDetail(hid) {
         <div class="pr"><span class="l">쿠폰 코드</span><span class="v" style="font-size:11px;font-family:monospace;color:var(--t3)">${h.couponCode||'-'}</span></div>
       </div>
       ${h.status==='PAID'?`<button class="btn-red" onclick="closeS(10);askCancel(${h.id})">결제 취소하기</button>`:'<div style="background:var(--bg);border-radius:var(--rs);padding:12px;text-align:center;font-size:13px;color:var(--t3);margin-bottom:14px">취소 처리가 완료된 내역입니다</div>'}
+      <button class="btn-line" onclick="closeS(10);goTab(2)" style="background:#e8f5e9;border-color:#a5d6a7;color:#2e7d32;margin-bottom:8px">🎫 쿠폰함 바로가기</button>
       <button class="btn-line" onclick="closeS(10)">닫기</button>`;
     openS(10);
   });
