@@ -546,7 +546,7 @@ select.admin-form-input{cursor:pointer}
           <div class="bn-title" style="color:#1A1A1A;font-size:17px">KB페이로 결제하면<br/>즉시 할인 혜택!</div>
           <div class="bn-sub" style="color:rgba(0,0,0,.55)">타 할인 중복 불가 · KB포인트 적립</div>
           <div class="bn-chips">
-            <div class="bn-chip" style="background:rgba(0,0,0,.1);color:#333;font-size:11px">최대10%</div>
+            <div class="bn-chip" style="background:rgba(0,0,0,.1);color:#333;font-size:11px">한도없음</div>
             <div class="bn-chip" style="background:rgba(0,0,0,.1);color:#333;font-size:11px">자동적용</div>
           </div>
         </div>
@@ -559,7 +559,7 @@ select.admin-form-input{cursor:pointer}
         <div class="bn-left">
           <div class="bn-tag" style="color:rgba(0,0,0,.5)"><div class="bn-dot" style="background:#1D6FD8"></div>☕ 카페 특가</div>
           <div class="bn-title" style="color:#1A1A1A;font-size:17px">스타벅스 7% 할인<br/>KB페이로 결제 시 바로</div>
-          <div class="bn-sub" style="color:rgba(0,0,0,.55)">15,000원 이상 · 최대 1,050원 할인</div>
+          <div class="bn-sub" style="color:rgba(0,0,0,.55)">15,000원 이상 · 최대 1,000원 할인</div>
         </div>
         <div class="bn-right" style="font-size:40px">☕</div>
       </div>
@@ -1143,7 +1143,7 @@ select.admin-form-input{cursor:pointer}
 <!-- ══ 바로할인이란 툴팁 ══ -->
 <div id="benefit-tooltip-popup" onclick="document.getElementById('benefit-tooltip-popup').style.display='none'" style="display:none;position:fixed;z-index:500;background:#fff;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.18);padding:14px 16px;max-width:260px;border:1px solid var(--bd)">
   <div style="font-size:13px;font-weight:800;margin-bottom:6px;color:#111">💡 KB페이 바로할인이란?</div>
-  <div style="font-size:12px;color:var(--t2);line-height:1.6">KB국민카드 회원이 제휴 브랜드에서 결제 시 쿠폰 없이 <b>즉시 할인</b>을 받는 서비스입니다.<br/>발급된 쿠폰의 바코드를 매장에서 스캔하면 할인 적용!</div>
+  <div style="font-size:12px;color:var(--t2);line-height:1.6">KB국민카드 회원이 제휴 브랜드에서 결제 시 결제금액의 <b>3~10% 자동 할인</b>을 받는 서비스입니다.<br/>일부 브랜드는 <b>할인 한도 없음</b>으로 결제금액 전체 할인 적용!</div>
   <div style="margin-top:8px;font-size:11px;color:var(--t4)">탭하면 닫힙니다</div>
 </div>
 
@@ -1456,7 +1456,7 @@ const NOTICES = [
     id:1, type:'urgent', icon:'🚨',
     title:'KB페이 바로할인 서비스 오픈 안내',
     date:'2025.12.01',
-    content:'KB페이 바로할인 서비스를 이용해 주셔서 감사합니다.\n\n전국 제휴 매장에서 KB페이로 결제 시 결제금액의 3~10%를 즉시 할인받으실 수 있습니다.\n\n타 할인/쿠폰과 중복 적용 불가하며, 인천공항·면세점 등 일부 특수 매장에서는 사용이 제한될 수 있습니다.'
+    content:'KB페이 바로할인 서비스를 이용해 주셔서 감사합니다.\n\n전국 제휴 매장에서 KB페이로 결제 시 결제금액의 3~10%를 할인받으실 수 있습니다.\n일부 브랜드는 할인 한도 없이 결제금액 전체에 할인 적용됩니다.\n\n• 타 할인/쿠폰과 중복 적용 불가\n• 인천공항·면세점 등 일부 특수 매장 제외'
   },
   {
     id:2, type:'notice', icon:'📢',
@@ -1474,7 +1474,7 @@ const NOTICES = [
     id:4, type:'notice', icon:'📋',
     title:'오프라인/온라인 쿠폰 사용 방법 안내',
     date:'2025.12.15',
-    content:'🏪 오프라인 바로할인 사용방법\n① 쿠폰 발급 → ② 매장 방문 → ③ KB페이 결제 시 자동 할인 적용\n결제금액의 3~10% 즉시 할인, 타 할인 중복 불가\n\n📱 온라인 배달비/배송비 무료\n① 쿠폰 발급 → ② 앱 실행 → ③ 쿠폰 코드 입력 후 결제'
+    content:'🏪 오프라인 바로할인 사용방법\n① 쿠폰 발급 → ② 매장 방문 → ③ KB페이 결제 시 자동 할인\n결제금액의 3~10% 할인 (일부 브랜드 한도 없음)\n타 할인/쿠폰 중복 적용 불가, 특수 매장 제외\n\n📱 온라인 배달비/배송비 무료\n① 쿠폰 발급 → ② 앱 실행 → ③ 쿠폰 코드 입력 후 결제'
   },
   {
     id:5, type:'event', icon:'🔥',
@@ -2111,7 +2111,7 @@ function openBarcodeSheet(coupon) {
   const bcRate = bcProd ? bcProd.rate : 0;
   const bcMin  = bcProd ? bcProd.ori : 0;
   const bcMax  = bcProd ? bcProd.dis : 0;
-  document.getElementById('bc-rate-info').textContent = `결제금액의 ${bcRate}% 즉시 할인 (최대 ${bcMax.toLocaleString()}원)`;
+  document.getElementById('bc-rate-info').textContent = `결제금액의 ${bcRate}% 할인${bcMax>=99999999?' (최대한도 없음)':' (최대 '+bcMax.toLocaleString()+'원)'}`;  
   document.getElementById('bc-min-info').textContent  = `${bcMin.toLocaleString()}원 이상 결제 시 자동 적용`;
 
   // 바코드 SVG 생성
@@ -2434,7 +2434,7 @@ async function openDetail(pid) {
   const onlineTable = isOnlineBrand(p.brand);
   document.getElementById('detail-table').innerHTML = onlineTable
     ? `<tr><td>브랜드</td><td>${p.brand}</td></tr><tr><td>카테고리</td><td>${p.cat}</td></tr><tr><td>혜택</td><td style="color:var(--red);font-weight:700">배달비/배송비 ${p.dis.toLocaleString()}원 무료</td></tr><tr><td>최소주문</td><td>${p.ori > 0 ? p.ori.toLocaleString()+'원 이상' : '금액 제한 없음'}</td></tr><tr><td>유효기간</td><td>발급 후 ${p.validDays||7}일</td></tr>`
-    : `<tr><td>브랜드</td><td>${p.brand}</td></tr><tr><td>카테고리</td><td>${p.cat}</td></tr><tr><td>할인율</td><td style="color:var(--red);font-weight:700">${p.rate}% 할인</td></tr><tr><td>최소결제</td><td>${p.ori.toLocaleString()}원 이상</td></tr><tr><td>최대할인</td><td style="color:var(--red);font-weight:700">${p.dis.toLocaleString()}원</td></tr><tr><td>유효기간</td><td>발급 후 ${p.validDays||30}일</td></tr>`;
+    : `<tr><td>브랜드</td><td>${p.brand}</td></tr><tr><td>카테고리</td><td>${p.cat}</td></tr><tr><td>할인율</td><td style="color:var(--red);font-weight:700">${p.rate}% 할인</td></tr><tr><td>최소결제</td><td>${p.ori.toLocaleString()}원 이상</td></tr><tr><td>최대할인</td><td style="color:var(--red);font-weight:700">${p.dis>=99999999?'제한없음':p.dis.toLocaleString()+'원'}</td></tr><tr><td>유효기간</td><td>발급 후 ${p.validDays||30}일</td></tr>`;
   updateDetailHeart();
   updateDetailBtn(p);
   document.getElementById('detail-page').classList.add('on');
@@ -2638,7 +2638,7 @@ async function submitReview() {
 function doShare(type) {
   const p = curPid ? PRODS.find(x=>x.id===curPid) : null;
   closeS(7);
-  const title = p ? `[KB Pay 바로할인] ${p.name}` : '[KB Pay 바로할인] 지금 최대 50% 할인!';
+  const title = p ? `[KB Pay 바로할인] ${p.name}` : '[KB Pay 바로할인] 결제금액의 최대 10% 자동 할인!';
   const text  = p ? `${p.rate}% 특가! ${p.dis.toLocaleString()}원 (정가 ${p.ori.toLocaleString()}원)` : 'KB Pay 바로할인 서비스 - 제휴 브랜드 즉시 할인!';
   const url   = p ? `${window.location.origin}${window.location.pathname}?pid=${curPid}` : window.location.href;
 
@@ -2807,11 +2807,13 @@ function selectCard(el, name, num) {
 // 랜덤 결제금액 생성 (오프라인)
 function calcRandPayment(minAmt, rate, maxDisc) {
   const min = minAmt;
-  const max = minAmt * 10;
+  const max = minAmt * 20;
   const rand = Math.round((min + Math.random() * (max - min)) / 1000) * 1000;
-  // 최대 할인금액은 500원 단위로 내림
-  const raw = Math.min(Math.round(rand * rate / 100), maxDisc);
-  const discAmt = Math.floor(raw / 500) * 500 || Math.floor(raw / 100) * 100;
+  const rawDisc = Math.round(rand * rate / 100);
+  // 제한없음(99999999) 이면 실제 계산값 그대로, 아니면 maxDisc 이하로
+  const capped = maxDisc >= 99999999 ? rawDisc : Math.min(rawDisc, maxDisc);
+  // 십원단위 절사
+  const discAmt = Math.floor(capped / 10) * 10;
   return { actual: rand, discAmt, final: rand - discAmt };
 }
 
