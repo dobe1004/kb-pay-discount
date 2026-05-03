@@ -749,7 +749,7 @@ select.admin-form-input{cursor:pointer}
 <div class="bs" id="s1">
   <div class="bs-bar"></div><div class="bs-ico" id="s1i">🎉</div>
   <div class="bs-title" id="s1t">쿠폰 발급 완료!</div><div class="bs-sub" id="s1s"></div>
-  <div class="cpn" id="cpnbox" style="display:none"><div class="cpn-lbl">COUPON CODE</div><div class="cpn-code" id="ccode">-</div><div class="cpn-amt" id="camt">0<small>원 할인</small></div><div class="cpn-exp" id="cexp"></div></div>
+  <div class="cpn" id="cpnbox" style="display:none"><div class="cpn-lbl">COUPON CODE</div><div class="cpn-code" id="ccode">-</div><div class="cpn-exp" id="cexp"></div></div>
   <button class="btn-main" id="btntopay" style="display:none" onclick="openPayS()">💳 지금 바로 결제하기</button>
   <button class="btn-dark" id="btnmypage" style="display:none">🎫 쿠폰함에 보관하기</button>
   <button class="btn-line" onclick="closeS(1)">닫기</button>
@@ -1890,15 +1890,24 @@ function showBenefitInfo(e) {
   let left = rect.left;
   if (left + pw > window.innerWidth - 8) left = window.innerWidth - pw - 8;
   if (left < 8) left = 8;
-  // 클릭 위치 바로 위
   popup.style.left = left + 'px';
   popup.style.top = 'auto';
   popup.style.bottom = (window.innerHeight - rect.top + 8) + 'px';
   popup.style.display = 'block';
-  setTimeout(() => document.addEventListener('click', function once() {
+
+  // 캡처 단계에서 모든 클릭 차단 → 팝업만 닫기
+  function _tooltipBlocker(ev) {
+    if (popup.contains(ev.target)) return; // 팝업 내부 클릭은 통과
+    ev.stopPropagation();
+    ev.preventDefault();
     popup.style.display = 'none';
-    document.removeEventListener('click', once);
-  }), 10);
+    document.removeEventListener('click', _tooltipBlocker, true);
+    document.removeEventListener('touchstart', _tooltipBlocker, true);
+  }
+  setTimeout(() => {
+    document.addEventListener('click', _tooltipBlocker, true);
+    document.addEventListener('touchstart', _tooltipBlocker, {capture:true, passive:false});
+  }, 10);
 }
 function doSearch(q) { searchQ=q; document.getElementById('search-clear').style.display=q?'inline':'none'; render(); }
 function clearSearch() { searchQ=''; document.getElementById('search-inp').value=''; document.getElementById('search-clear').style.display='none'; render(); }
@@ -2749,7 +2758,6 @@ function showR(ok, r) {
   const btnpay = document.getElementById('btntopay');
   if (ok) {
     document.getElementById('ccode').textContent = r.couponCode;
-    document.getElementById('camt').innerHTML = `${r.discountAmount.toLocaleString()}<small>원 할인</small>`;
     document.getElementById('cexp').textContent = cur&&cur.exp ? `유효기간 ~${cur.exp.slice(0,10)}` : '유효기간 30일';
 
     // 온라인 전용 여부 확인 (pid로 PRODS에서 찾기, 타입 일치 보장)
