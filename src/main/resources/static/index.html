@@ -931,21 +931,61 @@ select.admin-form-input{cursor:pointer}
 <div class="bs" id="s9">
   <div class="bs-bar"></div>
   <div class="bs-title" id="s9title">상품 추가</div>
-  <div class="bs-sub">상품 정보를 입력하세요</div>
-  <div class="admin-form-row"><div class="admin-form-label">상품명 *</div><input class="admin-form-input" id="af-name" placeholder="예: 스타벅스 아메리카노 10잔"/></div>
-  <div class="admin-form-row"><div class="admin-form-label">브랜드 *</div><input class="admin-form-input" id="af-brand" placeholder="예: STARBUCKS"/></div>
+  <div class="bs-sub">바로할인 상품 정보를 입력하세요</div>
+
+  <!-- 상품 타입 -->
+  <div class="admin-form-row">
+    <div class="admin-form-label">상품 유형 *</div>
+    <select class="admin-form-input" id="af-type" onchange="onAdminTypeChange()">
+      <option value="offline">🏪 오프라인 (즉시할인 %)</option>
+      <option value="online">📱 온라인 (배달비/배송비 무료)</option>
+    </select>
+  </div>
+
+  <div class="admin-form-row"><div class="admin-form-label">상품명 *</div><input class="admin-form-input" id="af-name" placeholder="예: 스타벅스 바로할인"/></div>
+  <div class="admin-form-row"><div class="admin-form-label">브랜드 * (영문 대문자)</div><input class="admin-form-input" id="af-brand" placeholder="예: STARBUCKS"/></div>
   <div class="admin-form-row"><div class="admin-form-label">카테고리</div>
-    <select class="admin-form-input" id="af-cat"><option value="카페">카페</option><option value="음식">음식</option><option value="쇼핑">쇼핑</option><option value="문화">문화</option><option value="생활">생활</option></select></div>
+    <select class="admin-form-input" id="af-cat"><option value="카페">카페</option><option value="음식">음식</option><option value="쇼핑">쇼핑</option><option value="문화">문화</option><option value="생활">생활</option></select>
+  </div>
+
+  <!-- 오프라인 전용 필드 -->
+  <div id="af-offline-fields">
+    <div class="admin-form-grid">
+      <div class="admin-form-row"><div class="admin-form-label">할인율 (%) *</div><input class="admin-form-input" id="af-rate" type="number" min="1" max="10" placeholder="예: 7 (3~10)"/></div>
+      <div class="admin-form-row"><div class="admin-form-label">최소결제금액 (원) *</div><input class="admin-form-input" id="af-ori" type="number" placeholder="예: 15000"/></div>
+    </div>
+    <div class="admin-form-row">
+      <div class="admin-form-label">최대할인금액 (원) * <span style="font-size:11px;color:var(--t4)">(한도없음: 99999999 입력)</span></div>
+      <input class="admin-form-input" id="af-dis" type="number" placeholder="예: 1000 (500원 단위) 또는 99999999"/>
+    </div>
+  </div>
+
+  <!-- 온라인 전용 필드 -->
+  <div id="af-online-fields" style="display:none">
+    <div class="admin-form-row">
+      <div class="admin-form-label">배달비/배송비 금액 (원) *</div>
+      <input class="admin-form-input" id="af-fee" type="number" placeholder="예: 3000 (배달비 또는 배송비)"/>
+    </div>
+    <div class="admin-form-row">
+      <div class="admin-form-label">최소주문금액 (원) <span style="font-size:11px;color:var(--t4)">(없으면 0)</span></div>
+      <input class="admin-form-input" id="af-min-order" type="number" placeholder="예: 15000"/>
+    </div>
+  </div>
+
   <div class="admin-form-grid">
-    <div class="admin-form-row"><div class="admin-form-label">정가 (원) *</div><input class="admin-form-input" id="af-ori" type="number" placeholder="30000"/></div>
-    <div class="admin-form-row"><div class="admin-form-label">할인가 (원) *</div><input class="admin-form-input" id="af-dis" type="number" placeholder="18000"/></div>
     <div class="admin-form-row"><div class="admin-form-label">총 수량 *</div><input class="admin-form-input" id="af-total" type="number" placeholder="100"/></div>
     <div class="admin-form-row"><div class="admin-form-label">유효기간 (일) *</div><input class="admin-form-input" id="af-valid" type="number" placeholder="30"/></div>
-    <div class="admin-form-row"><div class="admin-form-label">배지</div>
-      <select class="admin-form-input" id="af-badge"><option value="hot">🔥 HOT</option><option value="new">✨ NEW</option><option value="end">⏰ 마감임박</option><option value="best">👑 BEST</option></select></div>
   </div>
-  <div class="admin-form-row"><div class="admin-form-label">이미지 URL</div><input class="admin-form-input" id="af-img" placeholder="https://..."/></div>
-  <div class="admin-form-row"><div class="admin-form-label">상품 설명</div><textarea class="admin-form-input" id="af-desc" rows="3" style="resize:none" placeholder="상품 상세 설명..."></textarea></div>
+  <div class="admin-form-row"><div class="admin-form-label">배지</div>
+    <select class="admin-form-input" id="af-badge">
+      <option value="">없음</option>
+      <option value="hot">🔥 HOT</option>
+      <option value="new">✨ NEW</option>
+      <option value="end">⏰ 마감임박</option>
+    </select>
+  </div>
+  <div class="admin-form-row"><div class="admin-form-label">상품 설명</div><textarea class="admin-form-input" id="af-desc" rows="3" style="resize:none" placeholder="예: KB페이로 결제 시 7% 할인&#10;15,000원 이상 결제 시 사용 가능&#10;한도 없음"></textarea></div>
+  <div class="admin-form-row"><div class="admin-form-label">유의사항</div><textarea class="admin-form-input" id="af-notice" rows="2" style="resize:none" placeholder="예: 타 할인/쿠폰과 중복 적용 불가&#10;인천공항점 등 일부 특수 매장 제외"></textarea></div>
   <input type="hidden" id="af-edit-id"/>
   <button class="btn-main" onclick="saveAdminProduct()" style="background:var(--pur);box-shadow:none">저장하기</button>
   <button class="btn-line" onclick="closeS(9)">취소</button>
@@ -1557,6 +1597,7 @@ function addNotice() {
   document.getElementById('ne-type').value = 'notice';
   document.getElementById('ne-delete-btn').style.display = 'none';
   document.getElementById('notice-edit-bk').style.display = 'flex';
+  history.pushState({ noticeEdit: true }, '');
 }
 function editNotice(id) {
   const n = NOTICES.find(x => x.id === id);
@@ -1568,10 +1609,7 @@ function editNotice(id) {
   document.getElementById('ne-type').value = n.type;
   document.getElementById('ne-delete-btn').style.display = 'block';
   document.getElementById('notice-edit-bk').style.display = 'flex';
-}
-function closeNoticeEdit() {
-  document.getElementById('notice-edit-bk').style.display = 'none';
-  editingNoticeId = null;
+  history.pushState({ noticeEdit: true }, '');
 }
 function saveNoticeEdit() {
   const title = document.getElementById('ne-title').value.trim();
@@ -3464,43 +3502,112 @@ async function sendGift() {
 }
 
 /* ══ 관리자: 상품 추가/편집/삭제 (API) ══ */
+function onAdminTypeChange() {
+  const isOnline = document.getElementById('af-type').value === 'online';
+  document.getElementById('af-offline-fields').style.display = isOnline ? 'none' : 'block';
+  document.getElementById('af-online-fields').style.display  = isOnline ? 'block' : 'none';
+  if (isOnline) {
+    document.getElementById('af-cat').value = '쇼핑';
+    document.getElementById('af-valid').value = '7';
+  } else {
+    document.getElementById('af-valid').value = '30';
+  }
+}
+
 function openAdminAdd() {
-  document.getElementById('s9title').textContent='상품 추가';
-  ['af-name','af-brand','af-ori','af-dis','af-total','af-valid','af-img','af-desc'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('af-edit-id').value=''; openS(9);
+  document.getElementById('s9title').textContent = '상품 추가';
+  ['af-name','af-brand','af-ori','af-dis','af-rate','af-fee','af-min-order',
+   'af-total','af-desc','af-notice','af-edit-id'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('af-type').value = 'offline';
+  document.getElementById('af-badge').value = '';
+  document.getElementById('af-valid').value = '30';
+  document.getElementById('af-total').value = '100';
+  onAdminTypeChange();
+  openS(9);
 }
+
 function openAdminEdit(pid) {
-  const p=PRODS.find(x=>x.id===pid); if(!p) return;
-  document.getElementById('s9title').textContent='상품 편집';
-  document.getElementById('af-name').value=p.name;
-  document.getElementById('af-brand').value=p.brand;
-  document.getElementById('af-cat').value=p.cat;
-  document.getElementById('af-ori').value=p.ori;
-  document.getElementById('af-dis').value=p.dis;
-  document.getElementById('af-total').value=p.total;
-  document.getElementById('af-valid').value=p.validDays||30;
-  document.getElementById('af-badge').value=p.badge;
-  document.getElementById('af-img').value=p.img||'';
-  document.getElementById('af-desc').value=p.desc||'';
-  document.getElementById('af-edit-id').value=pid; openS(9);
+  const p = PRODS.find(x => x.id === pid); if (!p) return;
+  document.getElementById('s9title').textContent = '상품 편집';
+  const isOnline = isOnlineBrand(p.brand);
+  document.getElementById('af-type').value = isOnline ? 'online' : 'offline';
+  document.getElementById('af-name').value  = p.name;
+  document.getElementById('af-brand').value = p.brand;
+  document.getElementById('af-cat').value   = p.cat;
+  document.getElementById('af-badge').value = p.badge || '';
+  document.getElementById('af-total').value = p.total;
+  document.getElementById('af-valid').value = p.validDays || (isOnline ? 7 : 30);
+  document.getElementById('af-desc').value  = p.desc || '';
+  document.getElementById('af-notice').value = p.notice || '';
+  if (isOnline) {
+    document.getElementById('af-fee').value        = p.dis; // 배달/배송비 금액
+    document.getElementById('af-min-order').value  = p.ori; // 최소주문금액
+  } else {
+    document.getElementById('af-rate').value = p.rate;
+    document.getElementById('af-ori').value  = p.ori;  // 최소결제금액
+    document.getElementById('af-dis').value  = p.dis >= 99999999 ? 99999999 : p.dis; // 최대할인
+  }
+  document.getElementById('af-edit-id').value = pid;
+  onAdminTypeChange();
+  openS(9);
 }
+
 async function saveAdminProduct() {
-  const name=document.getElementById('af-name').value.trim(), brand=document.getElementById('af-brand').value.trim();
-  const ori=parseInt(document.getElementById('af-ori').value)||0, dis=parseInt(document.getElementById('af-dis').value)||0;
-  const total=parseInt(document.getElementById('af-total').value)||0;
-  const validDays=parseInt(document.getElementById('af-valid').value)||30;
-  if(!name||!brand||!ori||!dis||!total){toast('필수 항목을 모두 입력해주세요.','err');return;}
-  if(dis>=ori){toast('할인가는 정가보다 낮아야 합니다.','err');return;}
-  const body={productName:name,brandName:brand,category:document.getElementById('af-cat').value,originalPrice:ori,discountedPrice:dis,totalCount:total,badge:document.getElementById('af-badge').value,imageUrl:document.getElementById('af-img').value.trim(),description:document.getElementById('af-desc').value.trim(),notice:'• 자세한 이용 조건은 해당 매장에서 확인해주세요.',validDays:parseInt(document.getElementById('af-valid').value)||30};
-  const editId=document.getElementById('af-edit-id').value;
-  const res=editId ? await PUT(`/api/admin/products/${editId}`,body) : await POST('/api/admin/products',body);
-  if(res.success){closeS(9);await loadProducts();toast(res.message,'ok');}else toast(res.message,'err');
+  const name  = document.getElementById('af-name').value.trim();
+  const brand = document.getElementById('af-brand').value.trim().toUpperCase();
+  const cat   = document.getElementById('af-cat').value;
+  const badge = document.getElementById('af-badge').value;
+  const total = parseInt(document.getElementById('af-total').value) || 0;
+  const valid = parseInt(document.getElementById('af-valid').value) || 30;
+  const desc  = document.getElementById('af-desc').value.trim();
+  const notice= document.getElementById('af-notice').value.trim();
+  const isOnline = document.getElementById('af-type').value === 'online';
+
+  if (!name || !brand || !total) { toast('상품명, 브랜드, 총 수량은 필수입니다.', 'err'); return; }
+
+  let ori, dis, rate;
+  if (isOnline) {
+    const fee      = parseInt(document.getElementById('af-fee').value) || 0;
+    const minOrder = parseInt(document.getElementById('af-min-order').value) || 0;
+    if (!fee) { toast('배달비/배송비 금액을 입력해주세요.', 'err'); return; }
+    ori  = minOrder; // 최소주문금액
+    dis  = fee;      // 배달/배송비 금액
+    rate = 100;      // 온라인 판별용
+  } else {
+    rate = parseInt(document.getElementById('af-rate').value) || 0;
+    ori  = parseInt(document.getElementById('af-ori').value) || 0;
+    dis  = parseInt(document.getElementById('af-dis').value) || 0;
+    if (!rate || rate < 1 || rate > 10) { toast('할인율은 1~10% 사이로 입력해주세요.', 'err'); return; }
+    if (!ori) { toast('최소결제금액을 입력해주세요.', 'err'); return; }
+    if (!dis) { toast('최대할인금액을 입력해주세요. (한도없음: 99999999)', 'err'); return; }
+    if (dis !== 99999999 && dis % 500 !== 0) { toast('최대할인금액은 500원 단위로 입력해주세요.', 'err'); return; }
+  }
+
+  const body = {
+    productName: name, brandName: brand, category: cat,
+    originalPrice: ori,       // 최소결제금액 (오프라인) / 최소주문금액 (온라인)
+    discountedPrice: dis,     // 최대할인금액 (오프라인) / 배달배송비 (온라인)
+    discountRate: rate,
+    totalCount: total, badge, validDays: valid,
+    imageUrl: '',             // 브랜드 favicon 자동 사용
+    description: desc || `${isOnline ? (brand==='BAEMIN'?'배달비':'배송비')+' 무료' : `결제금액의 ${rate}% 할인`}\n\n• ${isOnline ? (ori>0?ori.toLocaleString()+'원 이상 주문 시':'금액 제한 없음') : ori.toLocaleString()+'원 이상 결제 시'}`,
+    notice: notice || '• 타 할인/쿠폰과 중복 적용 불가\n• 인천공항점 등 일부 특수 매장 제외'
+  };
+
+  const editId = document.getElementById('af-edit-id').value;
+  const res = editId ? await PUT(`/api/admin/products/${editId}`, body) : await POST('/api/admin/products', body);
+  if (res.success) { closeS(9); await loadProducts(); toast(editId ? '✅ 상품이 수정되었습니다.' : '✅ 상품이 추가되었습니다.', 'ok'); }
+  else toast(res.message, 'err');
 }
+
 async function delProduct(pid) {
-  const p=PRODS.find(x=>x.id===pid); if(!p) return;
-  if(!confirm(`"${p.name}" 상품을 삭제하시겠어요?`)) return;
-  const res=await DEL(`/api/admin/products/${pid}`);
-  if(res.success){await loadProducts();toast(`🗑️ "${p.name}" 상품이 삭제되었습니다.`,'ok');}else toast(res.message,'err');
+  const p = PRODS.find(x => x.id === pid); if (!p) return;
+  if (!confirm(`"${p.name}" 상품을 삭제하시겠어요?\n삭제 후 복구할 수 없습니다.`)) return;
+  const res = await DEL(`/api/admin/products/${pid}`);
+  if (res.success) { await loadProducts(); toast(`🗑️ "${p.name}" 상품이 삭제되었습니다.`, 'ok'); }
+  else toast(res.message, 'err');
 }
 
 /* ══ MY 페이지 ══ */
@@ -4132,7 +4239,7 @@ window.addEventListener('popstate', e => {
   if(document.getElementById('s-gift-send')?.classList.contains('on')){closeGiftSend();return;}
   if(document.getElementById('gift-msg-bk').style.display==='flex'){closeGiftMsg();return;}
   if(document.getElementById('gift-box-page').classList.contains('on')){closeGiftBox();return;}
-  if(document.getElementById('notice-page').style.display==='block'){closeNoticePage();return;}
+  if(document.getElementById('notice-edit-bk').style.display==='flex'){closeNoticeEdit();return;}
   // 시트가 열려있으면 시트 닫기 (이용내역 상세 s10 포함)
   if(openSheets.length>0){closeS(openSheets[openSheets.length-1]);return;}
   if(document.getElementById('notif-page').classList.contains('on')){closeNotifPage();return;}
