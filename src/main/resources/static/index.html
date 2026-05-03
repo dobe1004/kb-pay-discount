@@ -737,7 +737,7 @@ select.admin-form-input{cursor:pointer}
   </div>
 
   <div class="detail-cta">
-    <div class="detail-heart" id="detail-share-btn" onclick="openS(7)" title="공유하기" style="display:flex;align-items:center;justify-content:center">
+    <div class="detail-heart" id="detail-share-btn" onclick="openShareSheet()" title="공유하기" style="display:flex;align-items:center;justify-content:center">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="18" cy="5" r="3" fill="#555"/><circle cx="6" cy="12" r="3" fill="#555"/><circle cx="18" cy="19" r="3" fill="#555"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" stroke="#555" stroke-width="2"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" stroke="#555" stroke-width="2"/></svg>
   </div>
     <button class="btn-apply" style="flex:1;padding:13px;font-size:15px" id="detail-apply-btn" onclick="applyFromDetail()">바로할인 받기</button>
@@ -1207,7 +1207,7 @@ select.admin-form-input{cursor:pointer}
   <div class="fab-item" onclick="event.stopPropagation();closeFab();goTab(2)" style="--d:.12s"><span class="fab-lbl">쿠폰함</span><button class="fab-btn">🎫</button></div>
   <div class="fab-item" onclick="event.stopPropagation();closeFab();goTab(3)" style="--d:.08s"><span class="fab-lbl">이용내역</span><button class="fab-btn">📋</button></div>
   <div class="fab-item" onclick="event.stopPropagation();closeFab();goTab(4)" style="--d:.04s"><span class="fab-lbl">MY</span><button class="fab-btn">👤</button></div>
-  <div class="fab-item" onclick="event.stopPropagation();closeFab();openS(7)" style="--d:.00s"><span class="fab-lbl">공유하기</span><button class="fab-btn">📤</button></div>
+  <div class="fab-item" onclick="event.stopPropagation();closeFab();openShareSheet()" style="--d:.00s"><span class="fab-lbl">공유하기</span><button class="fab-btn">📤</button></div>
 </div>
 <button id="fab-main" onclick="toggleFab()" style="position:fixed;bottom:24px;right:16px;z-index:291;width:54px;height:54px;border-radius:50%;background:rgba(255,255,255,0.82);border:1.5px solid rgba(0,0,0,.12);box-shadow:0 4px 16px rgba(0,0,0,.18);cursor:pointer;font-size:26px;display:flex;align-items:center;justify-content:center;transition:transform .2s;backdrop-filter:blur(6px)">＋</button>
 
@@ -1571,14 +1571,7 @@ document.addEventListener('click', e => {
   }
 });
 
-function openShareFloat() {
-  // 현재 상품이 열려있으면 해당 상품 공유, 아니면 서비스 URL 공유
-  if (curPid) {
-    const p = PRODS.find(x=>Number(x.id)===Number(curPid));
-    if (p) { const sn=document.getElementById('share-prod-name'); if(sn) sn.textContent=p.name; }
-  }
-  openS(7);
-}
+function openShareFloat() { openShareSheet(); }
 
 function closeQrPopup() {
   document.getElementById('qr-popup-bk').style.display = 'none';
@@ -2721,16 +2714,30 @@ async function submitReview() {
 }
 
 /* ══ 공유 ══ */
+function openShareSheet() {
+  const isDetail = document.getElementById('detail-page').classList.contains('on');
+  const p = isDetail && curPid ? PRODS.find(x=>x.id===curPid) : null;
+  const sn = document.getElementById('share-prod-name');
+  if (p) {
+    sn.textContent = p.name;
+    sn.style.display = 'block';
+  } else {
+    sn.textContent = '';
+    sn.style.display = 'none';
+  }
+  openS(7);
+}
 function doShare(type) {
-  const p = curPid ? PRODS.find(x=>x.id===curPid) : null;
+  const isDetail = document.getElementById('detail-page').classList.contains('on');
+  const p = isDetail && curPid ? PRODS.find(x=>x.id===curPid) : null;
   closeS(7);
   const title = p ? `[KB Pay 바로할인] ${p.name}` : '[KB Pay 바로할인] 결제금액의 최대 10% 자동 할인!';
   const text  = p ? (isOnlineBrand(p.brand) ? (p.brand==='BAEMIN'?'배달비 무료':'배송비 무료')+' 혜택!' : `결제금액의 ${p.rate}% 즉시 할인!`) : 'KB Pay 바로할인 서비스 - 결제금액 최대 10% 자동 할인!';
-  const url   = p ? `${window.location.origin}${window.location.pathname}?pid=${curPid}` : window.location.href;
+  const url   = p ? `${window.location.origin}${window.location.pathname}?pid=${p.id}` : `${window.location.origin}${window.location.pathname}`;
 
   if (type === 'kakao') {
     if (navigator.share) {
-      navigator.share({ title: '공유하기', text, url })
+      navigator.share({ title, text, url })
         .then(() => toast('공유 완료! 💬', 'ok'))
         .catch(err => {
           if (err.name !== 'AbortError') { copyShare(url); toast('링크를 복사했습니다 📋', 'inf'); }
@@ -2744,9 +2751,12 @@ function doShare(type) {
     copyShare(url);
     toast('링크가 복사되었습니다! 🔗', 'ok');
 
+  } else if (type === 'copy') {
+    copyShare(text + ' ' + url);
+    toast('텍스트가 복사되었습니다! 📋', 'ok');
+
   } else if (type === 'qr') {
-    closeS(7);
-    const prodName = document.getElementById('share-prod-name')?.textContent || '';
+    const prodName = document.getElementById('share-prod-name')?.textContent || 'KB페이 바로할인 서비스';
     const qrData = encodeURIComponent(url);
     const qrImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&ecc=M&data=${qrData}`;
     document.getElementById('qr-popup-name').textContent = prodName;
