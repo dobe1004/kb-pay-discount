@@ -163,7 +163,9 @@ public class KbPayService {
             int actual = req.getActualAmount() > 0 ? req.getActualAmount() : product.getOriginalPrice();
             int rate = product.getDiscountRate();
             int maxDiscount = product.getDiscountedPrice(); // 최대 할인금액
-            savedAmount = Math.min((int)(actual * rate / 100.0 + 0.5), maxDiscount);
+            int rawDisc = (int)(actual * rate / 100.0);
+            int capped = maxDiscount >= 99999999 ? rawDisc : Math.min(rawDisc, maxDiscount);
+            savedAmount = (capped / 10) * 10; // 십원단위 절사
             discountedPrice = actual - savedAmount;
         }
         int pointUsed = 0;
