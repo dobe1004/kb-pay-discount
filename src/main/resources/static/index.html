@@ -559,7 +559,7 @@ select.admin-form-input{cursor:pointer}
         <div class="bn-left">
           <div class="bn-tag" style="color:rgba(0,0,0,.5)"><div class="bn-dot" style="background:#1D6FD8"></div>☕ 카페 특가</div>
           <div class="bn-title" style="color:#1A1A1A;font-size:17px">스타벅스 7% 할인<br/>KB페이로 결제 시 바로</div>
-          <div class="bn-sub" style="color:rgba(0,0,0,.55)">15,000원 이상 결제 시 · 할인 한도 없음</div>
+          <div class="bn-sub" style="color:rgba(0,0,0,.55)">15,000원 이상 결제 시 · 한도 없음</div>
         </div>
         <div class="bn-right" style="font-size:40px">☕</div>
       </div>
@@ -2110,7 +2110,7 @@ function openBarcodeSheet(coupon) {
   const bcRate = bcProd ? bcProd.rate : 0;
   const bcMin  = bcProd ? bcProd.ori : 0;
   const bcMax  = bcProd ? bcProd.dis : 0;
-  document.getElementById('bc-min-info').textContent = `${bcMin.toLocaleString()}원 이상 결제 시 ${bcRate}% 자동 할인${bcMax>=99999999?' (한도 없음)':' (최대 '+bcMax.toLocaleString()+'원)'}`;  
+  document.getElementById('bc-min-info').textContent = bcMin > 0 ? `${bcMin.toLocaleString()}원 이상 결제 시 자동 할인` : '결제 시 자동 할인';
 
   // 바코드 SVG 생성
   generateBarcode(coupon.couponCode || coupon.code);
@@ -2393,7 +2393,7 @@ async function renderWish() {
         <div style="flex:1;min-width:0">
           <div style="font-size:11px;font-weight:800;color:#111;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.brand}</div>
           <div style="font-size:11px;color:var(--t2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px">${p.name}</div>
-          <div style="font-size:12px;font-weight:900;color:var(--red);margin-top:3px">${p.rate}% · ${p.dis.toLocaleString()}원</div>
+          <div style="font-size:12px;font-weight:900;color:var(--red);margin-top:3px">${isOnlineBrand(p.brand)?(p.brand==="BAEMIN"?"배달비 무료":"배송비 무료"):`${p.rate}% 할인`}</div>
         </div>
         <button class="wish-del" onclick="event.stopPropagation();toggleHeart(${p.id})" style="position:static;margin-left:4px">✕</button>
       </div>`;
@@ -2420,7 +2420,7 @@ async function openDetail(pid) {
     // 오프라인: 결제금액 기반 할인율
     document.getElementById('detail-rate').textContent = `결제금액의 ${p.rate}% 할인`;
     const maxTxt = p.dis>=99999999 ? '할인 한도 없음' : `최대 ${p.dis.toLocaleString()}원 할인`;
-    document.getElementById('detail-now').textContent = `${p.ori.toLocaleString()}원 이상 결제 시 ${maxTxt}`;
+    document.getElementById('detail-now').textContent = maxTxt;
     document.getElementById('detail-ori').textContent = '';
     document.getElementById('detail-save').textContent = 'KB페이 결제 시 자동 적용!';
   }
@@ -2639,7 +2639,7 @@ function doShare(type) {
   const p = curPid ? PRODS.find(x=>x.id===curPid) : null;
   closeS(7);
   const title = p ? `[KB Pay 바로할인] ${p.name}` : '[KB Pay 바로할인] 결제금액의 최대 10% 자동 할인!';
-  const text  = p ? `${p.rate}% 특가! ${p.dis.toLocaleString()}원 (정가 ${p.ori.toLocaleString()}원)` : 'KB Pay 바로할인 서비스 - 제휴 브랜드 즉시 할인!';
+  const text  = p ? (isOnlineBrand(p.brand) ? (p.brand==='BAEMIN'?'배달비 무료':'배송비 무료')+' 혜택!' : `결제금액의 ${p.rate}% 즉시 할인!`) : 'KB Pay 바로할인 서비스 - 결제금액 최대 10% 자동 할인!';
   const url   = p ? `${window.location.origin}${window.location.pathname}?pid=${curPid}` : window.location.href;
 
   if (type === 'kakao') {
@@ -3149,7 +3149,7 @@ function renderCpnList(mine, idx) {
       <div class="cc-top">
         <div class="cc-img" onclick="if(${c.productId||0})openDetail(${c.productId||0})" style="cursor:pointer">${logoDom}</div>
         <div style="flex:1;min-width:0"><div class="cc-brand" style="display:flex;align-items:center;gap:4px">${typeBadge}<span>${c.brandName}</span></div><div class="cc-name">${c.productName}</div>${eb}</div></div>
-      <div class="cc-bot"><div class="cc-code">${c.couponCode}</div><div class="cc-amt">${c.discountAmount.toLocaleString()}원</div>
+      <div class="cc-bot"><div class="cc-code">${c.couponCode}</div><div class="cc-amt">${isOnlineBrand(c.brandName)?(c.brandName==="BAEMIN"?"배달비 무료":"배송비 무료"):(() => { const pp=PRODS.find(x=>Number(x.id)===Number(c.productId)); return pp?`${pp.rate}% 할인`:'바로할인'; })()}</div>
       ${botAction}
       </div></div>`;
   }).join('');
