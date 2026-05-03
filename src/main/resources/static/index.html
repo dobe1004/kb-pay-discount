@@ -1995,9 +1995,9 @@ async function openPayFromIssued(pid) {
 
 /* ══ 온라인 쿠폰 시트 ══ */
 const HOW_TO_USE = {
-  'BAEMIN':  '① 코드 복사 → ② 배달의민족 앱 실행 → ③ 결제 시 쿠폰/포인트 코드 입력\n(1.5만원 이상 주문 시 최대 7,500원 할인)',
-  'COUPANG': '① 코드 복사 → ② 쿠팡 앱 실행 → ③ 결제 화면 쿠폰 코드 입력\n(3만원 이상 로켓배송 구매 시 1만원 할인)',
-  'MUSINSA': '① 코드 복사 → ② 무신사 앱/웹 실행 → ③ 장바구니 쿠폰 적용 코드 입력\n(5만원 이상 구매 시 2만원 할인)',
+  'BAEMIN':  '① 코드 복사\n② 배달의민족 앱 실행\n③ MY배민 → 쿠폰·할인 → 쿠폰 등록하기\n④ 코드 입력 후 등록 → 배달비 자동 차감',
+  'COUPANG': '① 코드 복사\n② 쿠팡 앱 실행\n③ 마이쿠팡 → 쿠폰함 → 쿠폰 등록하기\n④ 코드 입력 후 등록 → 배송비 자동 차감',
+  'MUSINSA': '① 코드 복사\n② 무신사 앱/웹 실행\n③ MY → 쿠폰함 → 쿠폰 등록하기\n④ 코드 입력 후 등록 → 배송비 자동 차감',
 };
 
 // 앱 딥링크 + 스토어 + 웹 링크 (실제 검증된 scheme만 사용)
@@ -2034,11 +2034,14 @@ function openOnlineCouponSheet(coupon) {
   const brand = p?.brand || coupon.brand || coupon.brandName || '';
   const dl = DEEP_LINKS[brand];
 
-  document.getElementById('oc-title').textContent = coupon.productName || coupon.name;
+  const _titleMap = {'BAEMIN':'배민 바로할인', 'COUPANG':'쿠팡 바로할인', 'MUSINSA':'무신사 바로할인'};
+  document.getElementById('oc-title').textContent = _titleMap[brand] || coupon.productName || coupon.name;
   document.getElementById('oc-sub').textContent = coupon.brandName || coupon.brand;
   document.getElementById('oc-code').textContent = coupon.couponCode || coupon.code;
-  document.getElementById('oc-discount').textContent =
-    `${(coupon.discountAmount||coupon.amt||0).toLocaleString()}원 할인`;
+  const ocBrand = brand;
+  const ocFeeType = ocBrand === 'BAEMIN' ? '배달비' : '배송비';
+  const ocDisAmt = coupon.discountAmount || coupon.amt || p?.dis || 0;
+  document.getElementById('oc-discount').textContent = `${ocFeeType} 무료`;
   document.getElementById('oc-how').textContent =
     HOW_TO_USE[brand] || '해당 앱에서 쿠폰 코드를 입력하여 사용하세요';
 
@@ -2058,7 +2061,7 @@ function openOnlineCouponSheet(coupon) {
     const storeLabel = isIos ? `🍎 앱스토어에서\n설치` : `▶ 플레이스토어에서\n설치`;
 
     dlBtn.style.display = 'block';
-    dlBtn.textContent = `${dl.label} 앱 실행하기`;
+    dlBtn.textContent = dl.label;
 
     // 스토어/웹 버튼 세팅
     storeBtn.textContent = storeLabel;
