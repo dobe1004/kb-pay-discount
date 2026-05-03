@@ -1347,6 +1347,8 @@ function closeLogoutSheet() {
 }
 function doLogout() {
   uid = ''; userInfo = null; wishes = []; cur = null; curPid = null;
+  // 상품별 발급/사용 상태 초기화
+  if (typeof PRODS !== 'undefined') PRODS.forEach(p => { p._issued = false; p._used = false; });
   sessionStorage.removeItem('kbp_uid');
   sessionStorage.removeItem('kbp_user');
   localStorage.removeItem('kbp_auto_user');
@@ -2995,7 +2997,7 @@ function setAllPt() {
 
 function applyPt() {
   if (ptAmt <= 0) return;
-  ptApplied = Math.min(ptAmt, _ptBal(), cur ? (cur.discountedPrice || cur.dis || 0) : 0);
+  ptApplied = Math.min(ptAmt, _ptBal(), _ptMax());
   _ptShowInputRow(false);
   _ptShowApplyBtn(false);
   _ptShowAppliedRow(true, `✅ -${ptApplied.toLocaleString()}P 적용됨`);
